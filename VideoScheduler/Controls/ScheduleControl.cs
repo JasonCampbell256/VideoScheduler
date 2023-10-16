@@ -16,7 +16,7 @@ namespace VideoScheduler
     public partial class ScheduleControl : Form
     {
         private PersistenceManagers PersistenceManagers;
-        private DayOfWeek dayOfWeek = DayOfWeek.Monday;
+        private DayOfWeek dayOfWeek = DateTime.Today.DayOfWeek;
 
         public ScheduleControl(PersistenceManagers persistenceManagers)
         {
