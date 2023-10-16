@@ -37,6 +37,8 @@
             this._checkBoxFriday = new System.Windows.Forms.CheckBox();
             this._buttonOK = new System.Windows.Forms.Button();
             this._buttonCancel = new System.Windows.Forms.Button();
+            this._buttonSelectAll = new System.Windows.Forms.Button();
+            this._buttonDeselectAll = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // _checkBoxMonday
@@ -111,29 +113,50 @@
             // 
             // _buttonOK
             // 
-            this._buttonOK.Location = new System.Drawing.Point(12, 183);
+            this._buttonOK.Location = new System.Drawing.Point(12, 231);
             this._buttonOK.Name = "_buttonOK";
             this._buttonOK.Size = new System.Drawing.Size(75, 23);
-            this._buttonOK.TabIndex = 7;
+            this._buttonOK.TabIndex = 9;
             this._buttonOK.Text = "OK";
             this._buttonOK.UseVisualStyleBackColor = true;
             this._buttonOK.Click += new System.EventHandler(this.OnButtonClick);
             // 
             // _buttonCancel
             // 
-            this._buttonCancel.Location = new System.Drawing.Point(13, 213);
+            this._buttonCancel.Location = new System.Drawing.Point(93, 231);
             this._buttonCancel.Name = "_buttonCancel";
             this._buttonCancel.Size = new System.Drawing.Size(75, 23);
-            this._buttonCancel.TabIndex = 8;
+            this._buttonCancel.TabIndex = 10;
             this._buttonCancel.Text = "Cancel";
             this._buttonCancel.UseVisualStyleBackColor = true;
             this._buttonCancel.Click += new System.EventHandler(this.OnButtonClick);
+            // 
+            // _buttonSelectAll
+            // 
+            this._buttonSelectAll.Location = new System.Drawing.Point(60, 173);
+            this._buttonSelectAll.Name = "_buttonSelectAll";
+            this._buttonSelectAll.Size = new System.Drawing.Size(75, 23);
+            this._buttonSelectAll.TabIndex = 7;
+            this._buttonSelectAll.Text = "Select All";
+            this._buttonSelectAll.UseVisualStyleBackColor = true;
+            this._buttonSelectAll.Click += new System.EventHandler(this.OnButtonClick);
+            // 
+            // _buttonDeselectAll
+            // 
+            this._buttonDeselectAll.Location = new System.Drawing.Point(60, 202);
+            this._buttonDeselectAll.Name = "_buttonDeselectAll";
+            this._buttonDeselectAll.Size = new System.Drawing.Size(75, 23);
+            this._buttonDeselectAll.TabIndex = 8;
+            this._buttonDeselectAll.Text = "Deselect All";
+            this._buttonDeselectAll.UseVisualStyleBackColor = true;
             // 
             // DayOfWeekPicker
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(120, 253);
+            this.ClientSize = new System.Drawing.Size(244, 275);
+            this.Controls.Add(this._buttonDeselectAll);
+            this.Controls.Add(this._buttonSelectAll);
             this.Controls.Add(this._buttonCancel);
             this.Controls.Add(this._buttonOK);
             this.Controls.Add(this._checkBoxSunday);
@@ -161,5 +184,7 @@
         private System.Windows.Forms.CheckBox _checkBoxFriday;
         private System.Windows.Forms.Button _buttonOK;
         private System.Windows.Forms.Button _buttonCancel;
+        private System.Windows.Forms.Button _buttonSelectAll;
+        private System.Windows.Forms.Button _buttonDeselectAll;
     }
 }
