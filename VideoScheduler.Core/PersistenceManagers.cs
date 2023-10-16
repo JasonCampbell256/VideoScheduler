@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using VideoScheduler.Domain;
 
 namespace VideoScheduler.Core
@@ -25,9 +23,25 @@ namespace VideoScheduler.Core
             runManager = new ShowRunManager(_library);
         }
 
+        public static void SetFilePath(string path)
+        {
+            JObject settings = new JObject();
+            settings["FilePath"] = path;
+            File.WriteAllText(@"settings.json", settings.ToString());
+        }
+
         public static string GetFilePath()
         {
-            return JObject.Parse(File.ReadAllText(@"settings.json"))["FilePath"].ToString();
+            string path = null;
+            try
+            {
+                path = JObject.Parse(File.ReadAllText(@"settings.json"))["FilePath"].ToString();
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return path;
         }
     }
 }

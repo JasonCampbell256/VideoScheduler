@@ -11,7 +11,7 @@ namespace VideoScheduler
     {
         private readonly Player _mediaPlayerForm;
         private readonly Queue<string> _playlist = new Queue<string>();
-        private readonly PersistenceManagers _persistenceManagers = new PersistenceManagers();
+        private readonly PersistenceManagers _persistenceManagers;
         private List<TimeBlock> _timeBlocks = new List<TimeBlock>();
         Timer timer;
 
@@ -24,6 +24,20 @@ namespace VideoScheduler
         public Form1()
         {
             InitializeComponent();
+            if (PersistenceManagers.GetFilePath() == null)
+            {
+                MessageBox.Show("Please select your library folder.");
+                var folderBrowserDialog = new FolderBrowserDialog();
+                var result = folderBrowserDialog.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    PersistenceManagers.SetFilePath(folderBrowserDialog.SelectedPath);
+                } else
+                {
+                    MessageBox.Show("No folder selected. The application will now close");
+                }
+            }
+            _persistenceManagers = new PersistenceManagers();
             _mediaPlayerForm = new Player();
             loadschedule();
             timer = new Timer();

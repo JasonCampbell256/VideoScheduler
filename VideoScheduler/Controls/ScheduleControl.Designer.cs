@@ -44,6 +44,8 @@
             this._labelDayOrDate = new System.Windows.Forms.Label();
             this._buttonCustomDate = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this._buttonCopyTimeBlockToAnotherDay = new System.Windows.Forms.Button();
+            this._buttonCopyTimeBlock = new System.Windows.Forms.Button();
             this._buttonRemoveTimeBlock = new System.Windows.Forms.Button();
             this._buttonAddCommercialFiller = new System.Windows.Forms.Button();
             this._buttonAddVideoWithCriteria = new System.Windows.Forms.Button();
@@ -58,8 +60,6 @@
             this.Type = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ContentDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label1 = new System.Windows.Forms.Label();
-            this._buttonCopyTimeBlock = new System.Windows.Forms.Button();
-            this._buttonCopyTimeBlockToAnotherDay = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -263,6 +263,30 @@
             this.splitContainer1.SplitterDistance = 493;
             this.splitContainer1.TabIndex = 12;
             // 
+            // _buttonCopyTimeBlockToAnotherDay
+            // 
+            this._buttonCopyTimeBlockToAnotherDay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this._buttonCopyTimeBlockToAnotherDay.Location = new System.Drawing.Point(206, 498);
+            this._buttonCopyTimeBlockToAnotherDay.Name = "_buttonCopyTimeBlockToAnotherDay";
+            this._buttonCopyTimeBlockToAnotherDay.Size = new System.Drawing.Size(282, 23);
+            this._buttonCopyTimeBlockToAnotherDay.TabIndex = 14;
+            this._buttonCopyTimeBlockToAnotherDay.Text = "Copy Time Block to Another Day";
+            this._buttonCopyTimeBlockToAnotherDay.UseVisualStyleBackColor = true;
+            this._buttonCopyTimeBlockToAnotherDay.Click += new System.EventHandler(this.OnButtonClick);
+            // 
+            // _buttonCopyTimeBlock
+            // 
+            this._buttonCopyTimeBlock.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this._buttonCopyTimeBlock.Location = new System.Drawing.Point(206, 469);
+            this._buttonCopyTimeBlock.Name = "_buttonCopyTimeBlock";
+            this._buttonCopyTimeBlock.Size = new System.Drawing.Size(282, 23);
+            this._buttonCopyTimeBlock.TabIndex = 13;
+            this._buttonCopyTimeBlock.Text = "Copy Time Block";
+            this._buttonCopyTimeBlock.UseVisualStyleBackColor = true;
+            this._buttonCopyTimeBlock.Click += new System.EventHandler(this.OnButtonClick);
+            // 
             // _buttonRemoveTimeBlock
             // 
             this._buttonRemoveTimeBlock.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -302,6 +326,7 @@
             // 
             this._buttonAddProgrammingBlock.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this._buttonAddProgrammingBlock.Enabled = false;
             this._buttonAddProgrammingBlock.Location = new System.Drawing.Point(3, 514);
             this._buttonAddProgrammingBlock.Name = "_buttonAddProgrammingBlock";
             this._buttonAddProgrammingBlock.Size = new System.Drawing.Size(317, 23);
@@ -326,6 +351,7 @@
             // 
             this._buttonBlockManager.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this._buttonBlockManager.Enabled = false;
             this._buttonBlockManager.Location = new System.Drawing.Point(3, 543);
             this._buttonBlockManager.Name = "_buttonBlockManager";
             this._buttonBlockManager.Size = new System.Drawing.Size(317, 23);
@@ -338,6 +364,7 @@
             // 
             this._buttonRemoveContent.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this._buttonRemoveContent.Enabled = false;
             this._buttonRemoveContent.Location = new System.Drawing.Point(3, 572);
             this._buttonRemoveContent.Name = "_buttonRemoveContent";
             this._buttonRemoveContent.Size = new System.Drawing.Size(317, 23);
@@ -420,30 +447,6 @@
             this.label1.Size = new System.Drawing.Size(44, 13);
             this.label1.TabIndex = 0;
             this.label1.Text = "Content";
-            // 
-            // _buttonCopyTimeBlock
-            // 
-            this._buttonCopyTimeBlock.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._buttonCopyTimeBlock.Location = new System.Drawing.Point(206, 469);
-            this._buttonCopyTimeBlock.Name = "_buttonCopyTimeBlock";
-            this._buttonCopyTimeBlock.Size = new System.Drawing.Size(282, 23);
-            this._buttonCopyTimeBlock.TabIndex = 13;
-            this._buttonCopyTimeBlock.Text = "Copy Time Block";
-            this._buttonCopyTimeBlock.UseVisualStyleBackColor = true;
-            this._buttonCopyTimeBlock.Click += new System.EventHandler(this.OnButtonClick);
-            // 
-            // _buttonCopyTimeBlockToAnotherDay
-            // 
-            this._buttonCopyTimeBlockToAnotherDay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._buttonCopyTimeBlockToAnotherDay.Location = new System.Drawing.Point(206, 498);
-            this._buttonCopyTimeBlockToAnotherDay.Name = "_buttonCopyTimeBlockToAnotherDay";
-            this._buttonCopyTimeBlockToAnotherDay.Size = new System.Drawing.Size(282, 23);
-            this._buttonCopyTimeBlockToAnotherDay.TabIndex = 14;
-            this._buttonCopyTimeBlockToAnotherDay.Text = "Copy Time Block to Another Day";
-            this._buttonCopyTimeBlockToAnotherDay.UseVisualStyleBackColor = true;
-            this._buttonCopyTimeBlockToAnotherDay.Click += new System.EventHandler(this.OnButtonClick);
             // 
             // ScheduleControl
             // 
