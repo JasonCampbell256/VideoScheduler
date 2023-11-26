@@ -11,7 +11,7 @@ namespace VideoScheduler.Core
     {
         private Dictionary<Guid, TimeBlock> _timeBlocks = new Dictionary<Guid, TimeBlock>();
 
-        public bool AddOrUpdateTimeBlock(TimeBlock timeBlock)
+        public void AddOrUpdateTimeBlock(TimeBlock timeBlock)
         {
             // Load existing time blocks, if not already done
             LoadTimeBlocks();
@@ -24,8 +24,6 @@ namespace VideoScheduler.Core
 
             // Save updated time blocks
             SaveTimeBlocks();
-
-            return true;
         }
 
         public void RemoveTimeBlock(TimeBlock timeBlock)

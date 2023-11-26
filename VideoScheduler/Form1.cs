@@ -62,20 +62,24 @@ namespace VideoScheduler
                         AddToQueue(video.FilePath);
                     }
                     Play();
+                    break;
                 }
             }
         }
 
         private void Play()
         {
-            if (_mediaPlayerForm == null)
+            if (_playlist.Count != 0)
             {
-                OpenPlayer();
-            }
-            _mediaPlayerForm.GetCurrentPlayer().URL = _playlist.Dequeue();
-            _listBoxQueue.Items.Remove(_mediaPlayerForm.GetCurrentPlayer().URL);
+                if (_mediaPlayerForm == null && _playlist.Count > 0)
+                {
+                    OpenPlayer();
+                }
+                _mediaPlayerForm.GetCurrentPlayer().URL = _playlist.Dequeue();
+                _listBoxQueue.Items.Remove(_mediaPlayerForm.GetCurrentPlayer().URL);
 
-            SetPreload();
+                SetPreload();
+            }
         }
 
         private void AddToQueue(string url)
@@ -100,7 +104,7 @@ namespace VideoScheduler
         {
             var preloadedPlayer = _mediaPlayerForm.GetHiddenPlayer();
             QueueNextVideo(preloadedPlayer);
-            System.GC.Collect();
+            //System.GC.Collect();
         }
 
         private void Player_PlayStateChange(object sender, _WMPOCXEvents_PlayStateChangeEvent e)
