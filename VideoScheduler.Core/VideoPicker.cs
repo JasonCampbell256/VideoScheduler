@@ -16,7 +16,7 @@ namespace VideoScheduler.Core
             VideoLibrary = videoLibrary;
         }
 
-        public TimeSpan GetDuration(string path)
+        public static TimeSpan GetDuration(string path)
         {
             TimeSpan duration = new TimeSpan(0, 0, 0);
             var file = TagLib.File.Create(path);
@@ -26,7 +26,7 @@ namespace VideoScheduler.Core
 
         public List<IVideo> GetVideosForTimeBlock(TimeBlock timeBlock)
         {
-            var videos = new List<IVideo>();
+            var nonCommercialVideos = new List<IVideo>();
             var contentRepository = new ContentRepository(VideoLibrary);
             var commercialFillers = new List<CommercialFiller>();
             var blockDuration = timeBlock.EndTime - timeBlock.StartTime;
@@ -41,16 +41,16 @@ namespace VideoScheduler.Core
                 {
                     var possibleVideos = GetVideos(content);
                     var randomVideo = possibleVideos[random.Next(0, possibleVideos.Count)];
-                    videos.Add(randomVideo);
+                    nonCommercialVideos.Add(randomVideo);
                 }
                 else if (content is BlockTemplateItem)
                 {
-                    videos.AddRange(GetVideos(content));
+                    nonCommercialVideos.AddRange(GetVideos(content));
                 }
                 if (content is ShowRun)
                 {
                     var showRun = (ShowRun)content;
-                    videos.Add(showRun.NextEpisode);
+                    nonCommercialVideos.Add(showRun.NextEpisode);
                     showRun.NextEpisode = showRun.NextEpisode.GetNextEpisode();
                     showRun.NextEpisodeFilePath = showRun.NextEpisode.FilePath;
                     contentRepository.ShowRunManager.AddOrUpdateShowRun(showRun);
@@ -58,35 +58,61 @@ namespace VideoScheduler.Core
                 else if (content is CommercialFiller)
                 {
                     commercialFillers.Add((CommercialFiller)content);
+                    nonCommercialVideos.Add(null);
                 }
                 
             }
 
-            foreach (var video in videos)
+            foreach (var video in nonCommercialVideos)
             {
-                videoDurations += GetDuration(video.FilePath);
+                if (video != null)
+                {
+                    videoDurations += GetDuration(video.FilePath);
+                }
             }
 
-            foreach (var commercialFiller in commercialFillers)
+            var timeSpanPerCommercialBreak = new TimeSpan(0, 0, 0);
+            if (commercialFillers.Count > 0)
             {
-                var leftoverTimeSpan = new TimeSpan((blockDuration - videoDurations).Ticks);
-                var possibleVideos = new List<IVideo>();
-                foreach (var guid in commercialFiller.Attributes)
+                timeSpanPerCommercialBreak = new TimeSpan((blockDuration.Ticks - videoDurations.Ticks) / commercialFillers.Count);
+            }
+            List<IVideo> videos = new List<IVideo>();
+            int commercialBreakCount = 0;
+            foreach (var video in nonCommercialVideos)
+            {
+                if (video != null)
                 {
-                    var attributeTree = contentRepository.GetContent(guid);
-                    possibleVideos.AddRange(GetVideos(attributeTree));
-                }
-                if (possibleVideos.Count > 0)
+                    videos.Add(video);
+                } else
                 {
-                    var ticksPerSecond = 10000000;
-                    while (leftoverTimeSpan.Ticks > 20 * ticksPerSecond)
+                    if (commercialFillers.Count >= commercialBreakCount + 1)
                     {
-                        var randomVideo = possibleVideos[random.Next(0, possibleVideos.Count)];
-                        videos.Add(randomVideo);
-                        leftoverTimeSpan = leftoverTimeSpan - GetDuration(randomVideo.FilePath);
+                        var commercialFiller = commercialFillers[commercialBreakCount];
+                        var leftoverTimeSpan = timeSpanPerCommercialBreak;
+                        var possibleVideos = new List<IVideo>();
+                        var videosInBreak = new List<IVideo>();
+                        foreach (var guid in commercialFiller.Attributes)
+                        {
+                            var attributeTree = contentRepository.GetContent(guid);
+                            possibleVideos.AddRange(GetVideos(attributeTree));
+                        }
+                        if (possibleVideos.Count > 0)
+                        {
+                            var ticksPerSecond = 10000000;
+                            while (leftoverTimeSpan.Ticks > 20 * ticksPerSecond)
+                            {
+                                var randomVideo = possibleVideos[random.Next(0, possibleVideos.Count)];
+                                possibleVideos.Remove(randomVideo);
+                                videosInBreak.Add(randomVideo);
+                                videoDurations += GetDuration(randomVideo.FilePath);
+                                leftoverTimeSpan = leftoverTimeSpan - GetDuration(randomVideo.FilePath);
+                            }
+                        }
+                        videos.AddRange(videosInBreak);
                     }
                 }
             }
+
 
             return videos;
         }

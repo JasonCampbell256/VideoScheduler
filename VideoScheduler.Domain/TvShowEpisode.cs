@@ -25,7 +25,7 @@ namespace VideoScheduler.Domain
         {
             var seasonNumber = Season.SeasonNumber;
             var show = Season.Show;
-            
+
             //Check if there is a next episode in this season
             if (EpisodeNumber < Season.Episodes.Last().EpisodeNumber)
             {
@@ -36,23 +36,20 @@ namespace VideoScheduler.Domain
                         return Season.Episodes[i];
                     }
                 }
-            } else
+            }
+            else if (seasonNumber < show.Seasons.Last().SeasonNumber)
             {
-                  //Check if there is a next season
-                if (seasonNumber < show.Seasons.Last().SeasonNumber)
+                for (int i = 0; i < show.Seasons.Count; i++)
                 {
-                    for (int i = 0; i < show.Seasons.Count; i++)
+                    if (show.Seasons[i].SeasonNumber > seasonNumber)
                     {
-                        if (show.Seasons[i].SeasonNumber > seasonNumber)
-                        {
-                            return show.Seasons[i].Episodes[0];
-                        }
+                        return show.Seasons[i].Episodes[0];
                     }
                 }
             }
 
-
-            return null;
+            //Return the first episode of the first season
+            return show.Seasons[0].Episodes[0];
         }
 
         public override string ToString()

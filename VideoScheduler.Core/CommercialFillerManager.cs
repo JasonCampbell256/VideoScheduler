@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using VideoScheduler.Domain;
 
@@ -10,11 +11,24 @@ namespace VideoScheduler.Core
         private Dictionary<Guid, CommercialFiller> _commercials = new Dictionary<Guid, CommercialFiller>();
         string path = "commercialFillers.json";
 
-        public void AddNewCommercial(CommercialFiller commercial)
+        public void AddOrUpdateCommercial(CommercialFiller commercial)
         {
             LoadCommercials();
-            _commercials.Add(commercial.Guid, commercial);
+            _commercials[commercial.Guid] = commercial;
             SaveCommercials();
+        }
+
+        //public void AddNewCommercial(CommercialFiller commercial)
+        //{
+        //    LoadCommercials();
+        //    _commercials.Add(commercial.Guid, commercial);
+        //    SaveCommercials();
+        //}
+
+        public List<CommercialFiller> GetCommercialFillers()
+        {
+            LoadCommercials();
+            return _commercials.Values.ToList();
         }
 
         public CommercialFiller GetCommercial(Guid guid)

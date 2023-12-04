@@ -77,6 +77,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\CommercialForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\CommercialForm.Designer.cs">
+      <DependentUpon>CommercialForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\DayOfWeekPicker.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -115,6 +121,9 @@
     <Compile Include="Controls\TimeBlockDialog.Designer.cs">
       <DependentUpon>TimeBlockDialog.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Controls\CommercialForm.resx">
+      <DependentUpon>CommercialForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\DayOfWeekPicker.resx">
       <DependentUpon>DayOfWeekPicker.cs</DependentUpon>
     </EmbeddedResource>

@@ -18,14 +18,17 @@ namespace VideoScheduler.Domain
         public DateTime? Date { get; set; }
         [JsonProperty]
         public List<Guid> ContentGuids { get; set; } = new List<Guid>();
+        [JsonProperty]
+        public string Description { get; set; }
 
 
-        public TimeBlock (DayOfWeek day, TimeSpan startTime, TimeSpan endTime, DateTime? date = null)
+        public TimeBlock (DayOfWeek day, TimeSpan startTime, TimeSpan endTime, DateTime? date = null, string description = null)
         {
             Day = day;
             StartTime = startTime;
             EndTime = endTime;
             Date = date;
+            Description = description;
         }
 
         public bool IsTimeInRange(TimeSpan time)

@@ -53,7 +53,6 @@
             this._buttonAddRun = new System.Windows.Forms.Button();
             this._buttonBlockManager = new System.Windows.Forms.Button();
             this._buttonRemoveContent = new System.Windows.Forms.Button();
-            this._buttonAddStandalone = new System.Windows.Forms.Button();
             this.dataGridView2 = new System.Windows.Forms.DataGridView();
             this.MoveUp = new System.Windows.Forms.DataGridViewButtonColumn();
             this.MoveDown = new System.Windows.Forms.DataGridViewButtonColumn();
@@ -157,7 +156,7 @@
             this.dataGridView1.RowHeadersVisible = false;
             this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridView1.Size = new System.Drawing.Size(281, 401);
-            this.dataGridView1.TabIndex = 7;
+            this.dataGridView1.TabIndex = 9;
             this.dataGridView1.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.OnRowEnter);
             // 
             // StartTime
@@ -188,7 +187,7 @@
             this._buttonAddTimeBlock.Location = new System.Drawing.Point(208, 440);
             this._buttonAddTimeBlock.Name = "_buttonAddTimeBlock";
             this._buttonAddTimeBlock.Size = new System.Drawing.Size(282, 23);
-            this._buttonAddTimeBlock.TabIndex = 8;
+            this._buttonAddTimeBlock.TabIndex = 10;
             this._buttonAddTimeBlock.Text = "Add Time Block";
             this._buttonAddTimeBlock.UseVisualStyleBackColor = true;
             this._buttonAddTimeBlock.Click += new System.EventHandler(this.OnButtonClick);
@@ -200,7 +199,7 @@
             this._buttonEditTimeBlock.Location = new System.Drawing.Point(208, 527);
             this._buttonEditTimeBlock.Name = "_buttonEditTimeBlock";
             this._buttonEditTimeBlock.Size = new System.Drawing.Size(281, 23);
-            this._buttonEditTimeBlock.TabIndex = 9;
+            this._buttonEditTimeBlock.TabIndex = 13;
             this._buttonEditTimeBlock.Text = "Edit Time Block";
             this._buttonEditTimeBlock.UseVisualStyleBackColor = true;
             this._buttonEditTimeBlock.Click += new System.EventHandler(this.OnButtonClick);
@@ -211,7 +210,7 @@
             this._labelDayOrDate.Location = new System.Drawing.Point(206, 8);
             this._labelDayOrDate.Name = "_labelDayOrDate";
             this._labelDayOrDate.Size = new System.Drawing.Size(35, 13);
-            this._labelDayOrDate.TabIndex = 10;
+            this._labelDayOrDate.TabIndex = 8;
             this._labelDayOrDate.Text = "label1";
             // 
             // _buttonCustomDate
@@ -219,7 +218,7 @@
             this._buttonCustomDate.Location = new System.Drawing.Point(96, 91);
             this._buttonCustomDate.Name = "_buttonCustomDate";
             this._buttonCustomDate.Size = new System.Drawing.Size(86, 23);
-            this._buttonCustomDate.TabIndex = 11;
+            this._buttonCustomDate.TabIndex = 7;
             this._buttonCustomDate.Text = "Custom Date";
             this._buttonCustomDate.UseVisualStyleBackColor = true;
             this._buttonCustomDate.Click += new System.EventHandler(this.OnButtonClick);
@@ -256,7 +255,6 @@
             this.splitContainer1.Panel2.Controls.Add(this._buttonAddRun);
             this.splitContainer1.Panel2.Controls.Add(this._buttonBlockManager);
             this.splitContainer1.Panel2.Controls.Add(this._buttonRemoveContent);
-            this.splitContainer1.Panel2.Controls.Add(this._buttonAddStandalone);
             this.splitContainer1.Panel2.Controls.Add(this.dataGridView2);
             this.splitContainer1.Panel2.Controls.Add(this.label1);
             this.splitContainer1.Size = new System.Drawing.Size(829, 622);
@@ -270,7 +268,7 @@
             this._buttonCopyTimeBlockToAnotherDay.Location = new System.Drawing.Point(206, 498);
             this._buttonCopyTimeBlockToAnotherDay.Name = "_buttonCopyTimeBlockToAnotherDay";
             this._buttonCopyTimeBlockToAnotherDay.Size = new System.Drawing.Size(282, 23);
-            this._buttonCopyTimeBlockToAnotherDay.TabIndex = 14;
+            this._buttonCopyTimeBlockToAnotherDay.TabIndex = 12;
             this._buttonCopyTimeBlockToAnotherDay.Text = "Copy Time Block to Another Day";
             this._buttonCopyTimeBlockToAnotherDay.UseVisualStyleBackColor = true;
             this._buttonCopyTimeBlockToAnotherDay.Click += new System.EventHandler(this.OnButtonClick);
@@ -282,7 +280,7 @@
             this._buttonCopyTimeBlock.Location = new System.Drawing.Point(206, 469);
             this._buttonCopyTimeBlock.Name = "_buttonCopyTimeBlock";
             this._buttonCopyTimeBlock.Size = new System.Drawing.Size(282, 23);
-            this._buttonCopyTimeBlock.TabIndex = 13;
+            this._buttonCopyTimeBlock.TabIndex = 11;
             this._buttonCopyTimeBlock.Text = "Copy Time Block";
             this._buttonCopyTimeBlock.UseVisualStyleBackColor = true;
             this._buttonCopyTimeBlock.Click += new System.EventHandler(this.OnButtonClick);
@@ -294,7 +292,7 @@
             this._buttonRemoveTimeBlock.Location = new System.Drawing.Point(207, 556);
             this._buttonRemoveTimeBlock.Name = "_buttonRemoveTimeBlock";
             this._buttonRemoveTimeBlock.Size = new System.Drawing.Size(281, 23);
-            this._buttonRemoveTimeBlock.TabIndex = 12;
+            this._buttonRemoveTimeBlock.TabIndex = 14;
             this._buttonRemoveTimeBlock.Text = "Remove Time Block";
             this._buttonRemoveTimeBlock.UseVisualStyleBackColor = true;
             this._buttonRemoveTimeBlock.Click += new System.EventHandler(this.OnButtonClick);
@@ -304,20 +302,20 @@
             this._buttonAddCommercialFiller.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this._buttonAddCommercialFiller.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this._buttonAddCommercialFiller.Location = new System.Drawing.Point(6, 440);
+            this._buttonAddCommercialFiller.Location = new System.Drawing.Point(6, 410);
             this._buttonAddCommercialFiller.Name = "_buttonAddCommercialFiller";
-            this._buttonAddCommercialFiller.Size = new System.Drawing.Size(317, 23);
-            this._buttonAddCommercialFiller.TabIndex = 9;
+            this._buttonAddCommercialFiller.Size = new System.Drawing.Size(314, 23);
+            this._buttonAddCommercialFiller.TabIndex = 4;
             this._buttonAddCommercialFiller.Text = "Add Commercial Filler";
             this._buttonAddCommercialFiller.UseVisualStyleBackColor = true;
             this._buttonAddCommercialFiller.Click += new System.EventHandler(this.OnButtonClick);
             // 
             // _buttonAddVideoWithCriteria
             // 
-            this._buttonAddVideoWithCriteria.Location = new System.Drawing.Point(6, 382);
+            this._buttonAddVideoWithCriteria.Location = new System.Drawing.Point(6, 352);
             this._buttonAddVideoWithCriteria.Name = "_buttonAddVideoWithCriteria";
             this._buttonAddVideoWithCriteria.Size = new System.Drawing.Size(314, 23);
-            this._buttonAddVideoWithCriteria.TabIndex = 8;
+            this._buttonAddVideoWithCriteria.TabIndex = 2;
             this._buttonAddVideoWithCriteria.Text = "Add Video With Criteria";
             this._buttonAddVideoWithCriteria.UseVisualStyleBackColor = true;
             this._buttonAddVideoWithCriteria.Click += new System.EventHandler(this.OnButtonClick);
@@ -327,10 +325,10 @@
             this._buttonAddProgrammingBlock.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this._buttonAddProgrammingBlock.Enabled = false;
-            this._buttonAddProgrammingBlock.Location = new System.Drawing.Point(3, 514);
+            this._buttonAddProgrammingBlock.Location = new System.Drawing.Point(6, 514);
             this._buttonAddProgrammingBlock.Name = "_buttonAddProgrammingBlock";
-            this._buttonAddProgrammingBlock.Size = new System.Drawing.Size(317, 23);
-            this._buttonAddProgrammingBlock.TabIndex = 7;
+            this._buttonAddProgrammingBlock.Size = new System.Drawing.Size(314, 23);
+            this._buttonAddProgrammingBlock.TabIndex = 6;
             this._buttonAddProgrammingBlock.Text = "Add Programming Block";
             this._buttonAddProgrammingBlock.UseVisualStyleBackColor = true;
             // 
@@ -339,10 +337,10 @@
             this._buttonAddRun.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this._buttonAddRun.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this._buttonAddRun.Location = new System.Drawing.Point(6, 411);
+            this._buttonAddRun.Location = new System.Drawing.Point(6, 381);
             this._buttonAddRun.Name = "_buttonAddRun";
-            this._buttonAddRun.Size = new System.Drawing.Size(317, 23);
-            this._buttonAddRun.TabIndex = 5;
+            this._buttonAddRun.Size = new System.Drawing.Size(314, 23);
+            this._buttonAddRun.TabIndex = 3;
             this._buttonAddRun.Text = "Add Show Run";
             this._buttonAddRun.UseVisualStyleBackColor = true;
             this._buttonAddRun.Click += new System.EventHandler(this.OnButtonClick);
@@ -352,10 +350,10 @@
             this._buttonBlockManager.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this._buttonBlockManager.Enabled = false;
-            this._buttonBlockManager.Location = new System.Drawing.Point(3, 543);
+            this._buttonBlockManager.Location = new System.Drawing.Point(6, 543);
             this._buttonBlockManager.Name = "_buttonBlockManager";
-            this._buttonBlockManager.Size = new System.Drawing.Size(317, 23);
-            this._buttonBlockManager.TabIndex = 4;
+            this._buttonBlockManager.Size = new System.Drawing.Size(314, 23);
+            this._buttonBlockManager.TabIndex = 7;
             this._buttonBlockManager.Text = "Open Block Manager";
             this._buttonBlockManager.UseVisualStyleBackColor = true;
             this._buttonBlockManager.Click += new System.EventHandler(this.OnButtonClick);
@@ -365,25 +363,13 @@
             this._buttonRemoveContent.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this._buttonRemoveContent.Enabled = false;
-            this._buttonRemoveContent.Location = new System.Drawing.Point(3, 572);
+            this._buttonRemoveContent.Location = new System.Drawing.Point(6, 439);
             this._buttonRemoveContent.Name = "_buttonRemoveContent";
-            this._buttonRemoveContent.Size = new System.Drawing.Size(317, 23);
-            this._buttonRemoveContent.TabIndex = 3;
+            this._buttonRemoveContent.Size = new System.Drawing.Size(314, 23);
+            this._buttonRemoveContent.TabIndex = 5;
             this._buttonRemoveContent.Text = "Remove Content from Time Block";
             this._buttonRemoveContent.UseVisualStyleBackColor = true;
             this._buttonRemoveContent.Click += new System.EventHandler(this.OnButtonClick);
-            // 
-            // _buttonAddStandalone
-            // 
-            this._buttonAddStandalone.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._buttonAddStandalone.Location = new System.Drawing.Point(6, 352);
-            this._buttonAddStandalone.Name = "_buttonAddStandalone";
-            this._buttonAddStandalone.Size = new System.Drawing.Size(317, 23);
-            this._buttonAddStandalone.TabIndex = 2;
-            this._buttonAddStandalone.Text = "Add Standalone Video";
-            this._buttonAddStandalone.UseVisualStyleBackColor = true;
-            this._buttonAddStandalone.Click += new System.EventHandler(this.OnButtonClick);
             // 
             // dataGridView2
             // 
@@ -405,6 +391,7 @@
             this.dataGridView2.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridView2.Size = new System.Drawing.Size(314, 314);
             this.dataGridView2.TabIndex = 1;
+            this.dataGridView2.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.OnRowEnter);
             // 
             // MoveUp
             // 
@@ -455,7 +442,7 @@
             this.ClientSize = new System.Drawing.Size(829, 622);
             this.Controls.Add(this.splitContainer1);
             this.Name = "ScheduleControl";
-            this.Text = "ScheduleControl";
+            this.Text = "Schedule Control";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
@@ -489,7 +476,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn EndTime;
         private System.Windows.Forms.DataGridViewTextBoxColumn Description;
         private System.Windows.Forms.Button _buttonRemoveContent;
-        private System.Windows.Forms.Button _buttonAddStandalone;
         private System.Windows.Forms.DataGridViewButtonColumn MoveUp;
         private System.Windows.Forms.DataGridViewButtonColumn MoveDown;
         private System.Windows.Forms.DataGridViewTextBoxColumn Type;

@@ -36,6 +36,8 @@
             this._textBoxEndTime = new System.Windows.Forms.TextBox();
             this._buttonSave = new System.Windows.Forms.Button();
             this._buttonCancel = new System.Windows.Forms.Button();
+            this._textBoxDescription = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -90,7 +92,7 @@
             // 
             // _buttonSave
             // 
-            this._buttonSave.Location = new System.Drawing.Point(65, 125);
+            this._buttonSave.Location = new System.Drawing.Point(60, 176);
             this._buttonSave.Name = "_buttonSave";
             this._buttonSave.Size = new System.Drawing.Size(75, 23);
             this._buttonSave.TabIndex = 6;
@@ -100,7 +102,7 @@
             // 
             // _buttonCancel
             // 
-            this._buttonCancel.Location = new System.Drawing.Point(158, 124);
+            this._buttonCancel.Location = new System.Drawing.Point(153, 175);
             this._buttonCancel.Name = "_buttonCancel";
             this._buttonCancel.Size = new System.Drawing.Size(75, 23);
             this._buttonCancel.TabIndex = 7;
@@ -108,11 +110,30 @@
             this._buttonCancel.UseVisualStyleBackColor = true;
             this._buttonCancel.Click += new System.EventHandler(this.OnButtonClick);
             // 
+            // _textBoxDescription
+            // 
+            this._textBoxDescription.Location = new System.Drawing.Point(122, 110);
+            this._textBoxDescription.Multiline = true;
+            this._textBoxDescription.Name = "_textBoxDescription";
+            this._textBoxDescription.Size = new System.Drawing.Size(159, 59);
+            this._textBoxDescription.TabIndex = 9;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(55, 110);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(60, 13);
+            this.label4.TabIndex = 8;
+            this.label4.Text = "Description";
+            // 
             // TimeBlockDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(293, 178);
+            this.ClientSize = new System.Drawing.Size(293, 236);
+            this.Controls.Add(this._textBoxDescription);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this._buttonCancel);
             this.Controls.Add(this._buttonSave);
             this.Controls.Add(this._textBoxEndTime);
@@ -141,5 +162,7 @@
         private System.Windows.Forms.TextBox _textBoxEndTime;
         private System.Windows.Forms.Button _buttonSave;
         private System.Windows.Forms.Button _buttonCancel;
+        private System.Windows.Forms.TextBox _textBoxDescription;
+        private System.Windows.Forms.Label label4;
     }
 }

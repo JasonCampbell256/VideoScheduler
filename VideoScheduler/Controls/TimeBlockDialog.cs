@@ -33,6 +33,20 @@ namespace VideoScheduler
             _comboBoxDayOfWeek.SelectedItem = TimeBlock.Day;
             _textBoxStartTime.Text = DateTime.Today.Add(TimeBlock.StartTime).ToString("hh:mm tt");
             _textBoxEndTime.Text = DateTime.Today.Add(TimeBlock.EndTime).ToString("hh:mm tt");
+            _textBoxDescription.Text = TimeBlock.Description;
+            existing = true;
+        }
+
+        public TimeBlockDialog(TimeBlock timeBlock, bool isCopy)
+        {
+            InitializeComponent();
+            PopulateComboBoxes();
+            TimeBlock = timeBlock;
+            _comboBoxDayOfWeek.SelectedItem = TimeBlock.Day;
+            var oldStartTime = TimeBlock.StartTime;
+            var oldEndTime = TimeBlock.EndTime;
+            _textBoxStartTime.Text = DateTime.Today.Add(oldEndTime).ToString("hh:mm tt");
+            _textBoxEndTime.Text = DateTime.Today.Add(oldEndTime - oldStartTime + oldEndTime).ToString("hh:mm tt");
             existing = true;
         }
 
@@ -68,16 +82,17 @@ namespace VideoScheduler
                 var selectedDay = (DayOfWeek)_comboBoxDayOfWeek.SelectedItem;
                 var startTime = DateTime.ParseExact(_textBoxStartTime.Text, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None).TimeOfDay;
                 var endTime = DateTime.ParseExact(_textBoxEndTime.Text, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None).TimeOfDay;
-
+                var description = _textBoxDescription.Text;
 
                 if (!existing)
                 {
-                    TimeBlock = new TimeBlock(selectedDay, startTime, endTime);
+                    TimeBlock = new TimeBlock(selectedDay, startTime, endTime, null, description);
                 } else
                 {
                     TimeBlock.Day = selectedDay;
                     TimeBlock.StartTime = startTime;
                     TimeBlock.EndTime = endTime;
+                    TimeBlock.Description = description;
                 }
                 DialogResult = DialogResult.OK;
                 Close();

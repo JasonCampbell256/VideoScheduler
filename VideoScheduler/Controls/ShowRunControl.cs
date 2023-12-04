@@ -147,7 +147,7 @@ namespace VideoScheduler
                 newRun.Guid = GetSelectedRun().Guid;
             }
             dataGridView1.CurrentRow.Tag = newRun;
-            dataGridView1.CurrentRow.SetValues(newRun.GetShowTitle(), newRun.NextEpisode.Season.ToString(), newRun.NextEpisode, newRun.Description);
+            dataGridView1.CurrentRow.SetValues(newRun.GetShowTitle(), newRun.NextEpisode.Season.ToString(), newRun.NextEpisode.EpisodeNumber, newRun.Description);
             PersistenceManagers.runManager.AddOrUpdateShowRun(newRun);
             return true;
         }

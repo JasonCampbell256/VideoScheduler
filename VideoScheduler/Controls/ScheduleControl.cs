@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using VideoScheduler.Controls;
 using VideoScheduler.Core;
 using VideoScheduler.Domain;
 
@@ -82,7 +83,7 @@ namespace VideoScheduler
         {
             var startTime = DateTime.Today.Add(timeBlock.StartTime).ToString("hh:mm tt");
             var endTime = DateTime.Today.Add(timeBlock.EndTime).ToString("hh:mm tt");
-            int rowIndex = dataGridView1.Rows.Add(startTime, endTime, "Test");
+            int rowIndex = dataGridView1.Rows.Add(startTime, endTime, timeBlock.Description);
             dataGridView1.Rows[rowIndex].Tag = timeBlock;
         }
 
@@ -159,8 +160,12 @@ namespace VideoScheduler
                 {
                     var newBlock = timeBlock;
                     newBlock.Guid = Guid.NewGuid();
-                    PersistenceManagers.timeBlockManager.AddOrUpdateTimeBlock(newBlock);
-                    LoadTimeBlocksForDay(dayOfWeek);
+                    var dialog = new TimeBlockDialog(newBlock, true);
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        PersistenceManagers.timeBlockManager.AddOrUpdateTimeBlock(newBlock);
+                        LoadTimeBlocksForDay(dayOfWeek);
+                    }
                 }
             }
             else if (sender.Equals(_buttonCopyTimeBlockToAnotherDay))
@@ -184,10 +189,6 @@ namespace VideoScheduler
                         }
                     }
                 }
-            }
-            else if (sender.Equals(_buttonAddStandalone))
-            {
-
             }
             else if (sender.Equals(_buttonAddVideoWithCriteria))
             {
@@ -260,49 +261,84 @@ namespace VideoScheduler
                 var timeBlock = (TimeBlock)dataGridView1.CurrentRow.Tag;
                 if (timeBlock != null)
                 {
-                    using (var folderDialog = new FolderBrowserDialog())
+                    var dialog = new CommercialForm(PersistenceManagers);
+                    if (dialog.ShowDialog() == DialogResult.OK)
                     {
-                        folderDialog.Description = "Select a folder:";
-                        folderDialog.RootFolder = Environment.SpecialFolder.MyComputer;
-
-                        if (folderDialog.ShowDialog() == DialogResult.OK)
+                        if (dialog.CommercialFiller != null)
                         {
-                            var path = folderDialog.SelectedPath;
-
-                            try
-                            {
-                                var files = Directory.GetFiles(path, "*.mp4", SearchOption.AllDirectories).ToList();
-                                files.AddRange(Directory.GetFiles(path, "*.mkv", SearchOption.AllDirectories));
-
-                                if (files.Count > 0)
-                                {
-                                    var attributeTree = PersistenceManagers._picker.GetVideoByPath(files[0]).AttributeTree;
-
-                                    if (attributeTree != null)
-                                    {
-                                        var commercialFiller = new CommercialFiller();
-                                        if (PersistenceManagers.attributeTreeManager.GetAttributeTree(attributeTree.Guid) == null)
-                                        {
-                                            PersistenceManagers.attributeTreeManager.AddNewTree(attributeTree);
-                                        }
-                                        
-                                        commercialFiller.Attributes.Add(attributeTree.Guid);
-                                        PersistenceManagers.commercialFillerManager.AddNewCommercial(commercialFiller);
-                                        timeBlock.ContentGuids.Add(commercialFiller.Guid);
-                                        PersistenceManagers.timeBlockManager.AddOrUpdateTimeBlock(timeBlock);
-                                        dataGridView1.CurrentRow.Tag = timeBlock;
-                                        LoadContent(timeBlock);
-                                    }
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                MessageBox.Show("Error reading files from folder");
-                            }
+                            timeBlock.ContentGuids.Add(dialog.CommercialFiller.Guid);
+                            PersistenceManagers.timeBlockManager.AddOrUpdateTimeBlock(timeBlock);
+                            dataGridView1.CurrentRow.Tag = timeBlock;
+                            LoadContent(timeBlock);
                         }
                     }
+                    //using (var folderDialog = new FolderBrowserDialog())
+                    //{
+                    //    folderDialog.Description = "Select a folder:";
+                    //    folderDialog.RootFolder = Environment.SpecialFolder.MyComputer;
+
+                    //    if (folderDialog.ShowDialog() == DialogResult.OK)
+                    //    {
+                    //        var path = folderDialog.SelectedPath;
+
+                    //        try
+                    //        {
+                    //            var files = Directory.GetFiles(path, "*.mp4", SearchOption.AllDirectories).ToList();
+                    //            files.AddRange(Directory.GetFiles(path, "*.mkv", SearchOption.AllDirectories));
+
+                    //            if (files.Count > 0)
+                    //            {
+                    //                var attributeTree = PersistenceManagers._picker.GetVideoByPath(files[0]).AttributeTree;
+
+                    //                if (attributeTree != null)
+                    //                {
+                    //                    var commercialFiller = new CommercialFiller();
+                    //                    if (PersistenceManagers.attributeTreeManager.GetAttributeTree(attributeTree.Guid) == null)
+                    //                    {
+                    //                        PersistenceManagers.attributeTreeManager.AddNewTree(attributeTree);
+                    //                    }
+
+                    //                    commercialFiller.Attributes.Add(attributeTree.Guid);
+                    //                    PersistenceManagers.commercialFillerManager.AddOrUpdateCommercial(commercialFiller);
+                    //                    timeBlock.ContentGuids.Add(commercialFiller.Guid);
+                    //                    PersistenceManagers.timeBlockManager.AddOrUpdateTimeBlock(timeBlock);
+                    //                    dataGridView1.CurrentRow.Tag = timeBlock;
+                    //                    LoadContent(timeBlock);
+                    //                }
+                    //            }
+                    //        }
+                    //        catch (Exception)
+                    //        {
+                    //            MessageBox.Show("Error reading files from folder");
+                    //        }
+                    //    }
+                    //}
 
                 }
+            }
+            else if (sender.Equals(_buttonRemoveContent))
+            {
+                var timeBlock = (TimeBlock)dataGridView1.CurrentRow.Tag;
+                var dialog = new ShowRunControl(PersistenceManagers);
+                if (timeBlock != null)
+                {
+                    if (dataGridView2.CurrentRow.Tag is ISchedulableContent)
+                    {
+                        var messageBox = MessageBox.Show("Are you sure you want to remove this content?", "Remove Content", MessageBoxButtons.YesNo);
+                        if (messageBox == DialogResult.No)
+                        {
+                            return;
+                        }
+                        var guid = (dataGridView2.CurrentRow.Tag as ISchedulableContent).Guid;
+                        timeBlock.ContentGuids.Remove(guid);
+                        PersistenceManagers.timeBlockManager.AddOrUpdateTimeBlock(timeBlock);
+                        dataGridView1.CurrentRow.Tag = timeBlock;
+                    }
+                    //timeBlock.ContentGuids.Add(dialog.ShowRun.Guid);
+                    //PersistenceManagers.timeBlockManager.AddOrUpdateTimeBlock(timeBlock);
+                    //dataGridView1.CurrentRow.Tag = timeBlock;
+                }
+                LoadContent(timeBlock);
             }
         }
 
@@ -348,6 +384,13 @@ namespace VideoScheduler
                 if (timeBlock != null)
                 {
                     LoadContent(timeBlock);
+                }
+            } else if (sender.Equals(dataGridView2))
+            {
+                var content = (ISchedulableContent)dataGridView2.Rows[e.RowIndex].Tag;
+                if (content != null)
+                {
+                    _buttonRemoveContent.Enabled = true;
                 }
             }
         }

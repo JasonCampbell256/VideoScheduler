@@ -1,6 +1,8 @@
 ﻿using AxWMPLib;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using VideoScheduler.Core;
 using VideoScheduler.Domain;
@@ -13,6 +15,7 @@ namespace VideoScheduler
         private readonly Queue<string> _playlist = new Queue<string>();
         private readonly PersistenceManagers _persistenceManagers;
         private List<TimeBlock> _timeBlocks = new List<TimeBlock>();
+        private TimeBlock currentTimeBlock = null;
         Timer timer;
 
         public void loadschedule()
@@ -43,11 +46,16 @@ namespace VideoScheduler
             timer = new Timer();
             timer.Interval = 1000;
             timer.Tick += CheckTimeBlocks;
+            //OpenPlayer();
             timer.Start();
         }
 
         private void CheckTimeBlocks(object sender, EventArgs e)
         {
+            if (!_mediaPlayerForm.Visible)
+            {
+                return;
+            }
             loadschedule();
             TimeSpan currentTime = DateTime.Now.TimeOfDay;
             var truncatedCurrentTime = new TimeSpan(currentTime.Hours, currentTime.Minutes, currentTime.Seconds);
@@ -56,6 +64,7 @@ namespace VideoScheduler
             {
                 if (truncatedCurrentTime == timeBlock.StartTime)
                 {
+                    currentTimeBlock = timeBlock;
                     var videos = _persistenceManagers._picker.GetVideosForTimeBlock(timeBlock);
                     foreach (var video in videos)
                     {
@@ -63,8 +72,101 @@ namespace VideoScheduler
                     }
                     Play();
                     break;
+                } else if (truncatedCurrentTime > timeBlock.StartTime && truncatedCurrentTime < timeBlock.EndTime)
+                {
+                    if (currentTimeBlock != null && currentTimeBlock.Guid == timeBlock.Guid)
+                    {
+                        return;
+                    }
+                    currentTimeBlock = timeBlock;
+                    var videos = _persistenceManagers._picker.GetVideosForTimeBlock(timeBlock);
+                    var timeElapsed = truncatedCurrentTime - timeBlock.StartTime;
+                    //find the video that should be playing
+                    var timespanCounter = new TimeSpan(0, 0, 0);
+                    var timeSpanToStart = new TimeSpan(0, 0, 0);
+                    foreach (var video in videos)
+                    {
+                        var duration = VideoPicker.GetDuration(video.FilePath);
+                        timespanCounter += duration;
+                        var firstVideoFound = false;
+                        if (timespanCounter >= timeElapsed)
+                        {
+                            AddToQueue(video.FilePath);
+                            if (!firstVideoFound)
+                            {
+                                firstVideoFound = true;
+                                timeSpanToStart = timeElapsed - (timespanCounter - duration);
+                            }
+                        }
+                    }
+                    
+                    Play(timeSpanToStart.Duration());
+                    break;
+                }
+
+
+            }
+        }
+
+        private void Play(TimeSpan startTime)
+        {
+            if (_playlist.Count != 0)
+            {
+                if (_mediaPlayerForm == null && _playlist.Count > 0)
+                {
+                    OpenPlayer();
+                }
+                _mediaPlayerForm.GetCurrentPlayer().URL = _playlist.Dequeue();
+                _mediaPlayerForm.GetCurrentPlayer().Ctlcontrols.currentPosition = startTime.TotalSeconds;
+                _listBoxQueue.Items.Remove(_mediaPlayerForm.GetCurrentPlayer().URL);
+
+                SetPreload();
+            }
+            //StartStreaming();
+        }
+
+        private void StartStreaming()
+        {
+            if (_playlist.Count > 0)
+            {
+                string nextVideo = _playlist.Dequeue();
+                //isStreaming = true;
+                StreamVideo(nextVideo);
+            }
+            //else
+            //{
+            //    isStreaming = false;
+            //}
+        }
+
+        private void StreamVideo(string videoPath)
+        {
+            videoPath = "\"" + videoPath + "\"";
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                FileName = "ffmpeg",
+                Arguments = $"-re -i {videoPath} -c:v libx264 -b:v 800k -c:a aac -b:a 128k -f mpegts udp://127.0.0.1:8080",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (Process process = new Process { StartInfo = startInfo })
+            {
+                process.Start();
+
+                string output = process.StandardOutput.ReadToEnd();
+                string error = process.StandardError.ReadToEnd();
+
+                process.WaitForExit();
+
+                if (!string.IsNullOrEmpty(error))
+                {
+                    Console.WriteLine("Error: " + error);
                 }
             }
+            StartStreaming();
         }
 
         private void Play()
@@ -100,11 +202,19 @@ namespace VideoScheduler
 
         }
 
+        private void UpdateListBox()
+        {
+            _listBoxQueue.Items.Clear();
+            foreach (var item in _playlist)
+            {
+                _listBoxQueue.Items.Add(item);
+            }
+        }
+
         private void SetPreload()
         {
             var preloadedPlayer = _mediaPlayerForm.GetHiddenPlayer();
             QueueNextVideo(preloadedPlayer);
-            //System.GC.Collect();
         }
 
         private void Player_PlayStateChange(object sender, _WMPOCXEvents_PlayStateChangeEvent e)
@@ -123,6 +233,7 @@ namespace VideoScheduler
         {
             SwitchPlayers();
             SetPreload();
+            UpdateListBox();
         }
 
         private void SwitchPlayers()
