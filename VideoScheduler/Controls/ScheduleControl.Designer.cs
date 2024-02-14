@@ -54,12 +54,10 @@
             this._buttonBlockManager = new System.Windows.Forms.Button();
             this._buttonRemoveContent = new System.Windows.Forms.Button();
             this.dataGridView2 = new System.Windows.Forms.DataGridView();
-            this.MoveUp = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.MoveDown = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.Type = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ContentDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label1 = new System.Windows.Forms.Label();
             this._buttonAddMovie = new System.Windows.Forms.Button();
+            this.Type = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ContentDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -383,8 +381,6 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridView2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView2.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.MoveUp,
-            this.MoveDown,
             this.Type,
             this.ContentDescription});
             this.dataGridView2.Location = new System.Drawing.Point(6, 32);
@@ -395,39 +391,6 @@
             this.dataGridView2.Size = new System.Drawing.Size(314, 314);
             this.dataGridView2.TabIndex = 1;
             this.dataGridView2.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.OnRowEnter);
-            // 
-            // MoveUp
-            // 
-            this.MoveUp.HeaderText = "MoveUp";
-            this.MoveUp.Name = "MoveUp";
-            this.MoveUp.ReadOnly = true;
-            this.MoveUp.Text = "Up";
-            this.MoveUp.ToolTipText = "Move the item up";
-            this.MoveUp.UseColumnTextForButtonValue = true;
-            this.MoveUp.Width = 50;
-            // 
-            // MoveDown
-            // 
-            this.MoveDown.HeaderText = "MoveDown";
-            this.MoveDown.Name = "MoveDown";
-            this.MoveDown.ReadOnly = true;
-            this.MoveDown.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.MoveDown.Text = "Down";
-            this.MoveDown.ToolTipText = "Move the item down";
-            this.MoveDown.UseColumnTextForButtonValue = true;
-            this.MoveDown.Width = 50;
-            // 
-            // Type
-            // 
-            this.Type.HeaderText = "Type";
-            this.Type.Name = "Type";
-            this.Type.ReadOnly = true;
-            // 
-            // ContentDescription
-            // 
-            this.ContentDescription.HeaderText = "ContentDescription";
-            this.ContentDescription.Name = "ContentDescription";
-            this.ContentDescription.ReadOnly = true;
             // 
             // label1
             // 
@@ -450,6 +413,18 @@
             this._buttonAddMovie.Text = "Add Movie";
             this._buttonAddMovie.UseVisualStyleBackColor = true;
             this._buttonAddMovie.Click += new System.EventHandler(this.OnButtonClick);
+            // 
+            // Type
+            // 
+            this.Type.HeaderText = "Type";
+            this.Type.Name = "Type";
+            this.Type.ReadOnly = true;
+            // 
+            // ContentDescription
+            // 
+            this.ContentDescription.HeaderText = "ContentDescription";
+            this.ContentDescription.Name = "ContentDescription";
+            this.ContentDescription.ReadOnly = true;
             // 
             // ScheduleControl
             // 
@@ -492,10 +467,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn EndTime;
         private System.Windows.Forms.DataGridViewTextBoxColumn Description;
         private System.Windows.Forms.Button _buttonRemoveContent;
-        private System.Windows.Forms.DataGridViewButtonColumn MoveUp;
-        private System.Windows.Forms.DataGridViewButtonColumn MoveDown;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Type;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ContentDescription;
         private System.Windows.Forms.Button _buttonBlockManager;
         private System.Windows.Forms.Button _buttonRemoveTimeBlock;
         private System.Windows.Forms.Button _buttonAddRun;
@@ -505,5 +476,7 @@
         private System.Windows.Forms.Button _buttonCopyTimeBlock;
         private System.Windows.Forms.Button _buttonCopyTimeBlockToAnotherDay;
         private System.Windows.Forms.Button _buttonAddMovie;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Type;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ContentDescription;
     }
 }

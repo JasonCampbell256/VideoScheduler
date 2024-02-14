@@ -16,11 +16,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoScheduler.Core", "Vide
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoScheduler.Domain", "VideoScheduler.Domain\VideoScheduler.Domain.csproj", "{4B68B343-0396-445A-B306-536381C40D3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{32B7100E-2001-4D9E-AC80-CBB8DD1563CF}"
-	ProjectSection(ProjectDependencies) = postProject
-		{421785E8-9ADA-4155-AFC3-8C8A9023CC80} = {421785E8-9ADA-4155-AFC3-8C8A9023CC80}
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,14 +48,6 @@ Global
 		{4B68B343-0396-445A-B306-536381C40D3A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4B68B343-0396-445A-B306-536381C40D3A}.Release|x64.ActiveCfg = Release|Any CPU
 		{4B68B343-0396-445A-B306-536381C40D3A}.Release|x64.Build.0 = Release|Any CPU
-		{32B7100E-2001-4D9E-AC80-CBB8DD1563CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{32B7100E-2001-4D9E-AC80-CBB8DD1563CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{32B7100E-2001-4D9E-AC80-CBB8DD1563CF}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{32B7100E-2001-4D9E-AC80-CBB8DD1563CF}.Debug|x64.Build.0 = Debug|Any CPU
-		{32B7100E-2001-4D9E-AC80-CBB8DD1563CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{32B7100E-2001-4D9E-AC80-CBB8DD1563CF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{32B7100E-2001-4D9E-AC80-CBB8DD1563CF}.Release|x64.ActiveCfg = Release|Any CPU
-		{32B7100E-2001-4D9E-AC80-CBB8DD1563CF}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -92,7 +92,25 @@ namespace VideoScheduler
                 var contentObject = contentRepository.GetContent(content);
                 if (contentObject != null)
                 {
-                    var rowIndex = dataGridView2.Rows.Add("", "", contentObject.GetType().Name, contentObject.Description);
+                    var contentType = contentObject.GetType().Name;
+                    if (contentObject.GetType() == typeof(AttributeNode))
+                    {
+                        contentType = "From Folder";
+                    }
+                    else if (contentObject.GetType() == typeof(ShowRun))
+                    {
+                        contentType = "Show";
+                    }
+                    else if (contentObject.GetType() == typeof(SchedulableMovie))
+                    {
+                        contentType = "Movie";
+                    }
+                    else if (contentObject.GetType() == typeof(CommercialFiller))
+                    {
+                        contentType = "Commercials";
+                    }
+
+                    var rowIndex = dataGridView2.Rows.Add(contentType, contentObject.Description);
                     dataGridView2.Rows[rowIndex].Tag = contentObject;
                 }
             }

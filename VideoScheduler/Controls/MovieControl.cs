@@ -50,6 +50,7 @@ namespace VideoScheduler.Controls
                 if (movie != null)
                 {
                     Movie = new SchedulableMovie(movie);
+                    Movie.Description = movie.FileName;
                     _buttonSelect.Enabled = true;
                 } else {
                     _buttonSelect.Enabled = false;
