@@ -21,6 +21,7 @@ namespace VideoScheduler.Controls
 
         public CommercialForm(PersistenceManagers persistenceManagers)
         {
+            this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             this.persistenceManagers = persistenceManagers;
             InitializeComponent();
             EnableFields(false);

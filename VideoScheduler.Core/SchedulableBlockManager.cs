@@ -6,6 +6,7 @@ using VideoScheduler.Domain;
 
 namespace VideoScheduler.Core
 {
+    //TODO this class isn't being used yet, but the idea is to define a block that can be referenced for re-use
     public class SchedulableBlockManager
     {
         private Dictionary<Guid, SchedulableBlock> _schedulableBlocks = new Dictionary<Guid, SchedulableBlock>();

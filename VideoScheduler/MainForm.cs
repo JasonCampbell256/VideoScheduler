@@ -1,15 +1,14 @@
 ﻿using AxWMPLib;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading.Tasks;
+using System.Drawing;
 using System.Windows.Forms;
 using VideoScheduler.Core;
 using VideoScheduler.Domain;
 
 namespace VideoScheduler
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         private readonly Player _mediaPlayerForm;
         private readonly Queue<string> _playlist = new Queue<string>();
@@ -24,8 +23,9 @@ namespace VideoScheduler
         }
 
 
-        public Form1()
+        public MainForm()
         {
+            this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             InitializeComponent();
             if (PersistenceManagers.GetFilePath() == null)
             {
@@ -46,8 +46,23 @@ namespace VideoScheduler
             timer = new Timer();
             timer.Interval = 1000;
             timer.Tick += CheckTimeBlocks;
-            //OpenPlayer();
             timer.Start();
+        }
+
+        private void ChangeLibraryPath()
+        {
+            var confirmationDialog = MessageBox.Show("Updating the library may cause data to be lost! Are you sure you want to update the library path?", "You Sure?", MessageBoxButtons.YesNo);
+            if (confirmationDialog == DialogResult.No)
+            {
+                return;
+            }
+            var folderBrowserDialog = new FolderBrowserDialog();
+            var result = folderBrowserDialog.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                PersistenceManagers.SetFilePath(folderBrowserDialog.SelectedPath);
+                Application.Restart();
+            }
         }
 
         private void CheckTimeBlocks(object sender, EventArgs e)
@@ -70,7 +85,7 @@ namespace VideoScheduler
                     {
                         AddToQueue(video.FilePath);
                     }
-                    Play();
+                    //Play();
                     break;
                 } else if (truncatedCurrentTime > timeBlock.StartTime && truncatedCurrentTime < timeBlock.EndTime)
                 {
@@ -122,51 +137,6 @@ namespace VideoScheduler
 
                 SetPreload();
             }
-            //StartStreaming();
-        }
-
-        private void StartStreaming()
-        {
-            if (_playlist.Count > 0)
-            {
-                string nextVideo = _playlist.Dequeue();
-                //isStreaming = true;
-                StreamVideo(nextVideo);
-            }
-            //else
-            //{
-            //    isStreaming = false;
-            //}
-        }
-
-        private void StreamVideo(string videoPath)
-        {
-            videoPath = "\"" + videoPath + "\"";
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                FileName = "ffmpeg",
-                Arguments = $"-re -i {videoPath} -c:v libx264 -b:v 800k -c:a aac -b:a 128k -f mpegts udp://127.0.0.1:8080",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            using (Process process = new Process { StartInfo = startInfo })
-            {
-                process.Start();
-
-                string output = process.StandardOutput.ReadToEnd();
-                string error = process.StandardError.ReadToEnd();
-
-                process.WaitForExit();
-
-                if (!string.IsNullOrEmpty(error))
-                {
-                    Console.WriteLine("Error: " + error);
-                }
-            }
-            StartStreaming();
         }
 
         private void Play()
@@ -252,6 +222,10 @@ namespace VideoScheduler
         {
             if (sender.Equals(_buttonOpenPlayer))
             {
+                if (_mediaPlayerForm.Visible)
+                {
+                    return;
+                }
                 OpenPlayer();
                 _mediaPlayerForm.GetHiddenPlayer().PlayStateChange += Player_PlayStateChange;
             }
@@ -259,6 +233,9 @@ namespace VideoScheduler
             {
                 ScheduleControl scheduleControl = new ScheduleControl(_persistenceManagers);
                 scheduleControl.Show();
+            } else if (sender.Equals(_buttonChangeLibraryPath))
+            {
+                ChangeLibraryPath();
             }
         }
     }

@@ -21,11 +21,11 @@ namespace VideoScheduler
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            CreateTempFiles();
-            Application.Run(new Form1());
+            InitializeSettings();
+            Application.Run(new MainForm());
         }
 
-        private static void CreateTempFiles()
+        private static void InitializeSettings()
         {
             List<string> files = new List<string>()
             {
@@ -33,6 +33,7 @@ namespace VideoScheduler
 "blockTemplateItems.json",
 "schedulableBlocks.json",
 "showRuns.json",
+"movieRuns.json",
 "timeBlocks.json",
 "settings.json"
             };

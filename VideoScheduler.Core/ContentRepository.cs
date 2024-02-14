@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using VideoScheduler.Domain;
 
 namespace VideoScheduler.Core
@@ -8,6 +6,7 @@ namespace VideoScheduler.Core
     public class ContentRepository
     {
         public readonly ShowRunManager ShowRunManager;
+        public readonly MovieRunManager MovieRunManager = new MovieRunManager();
         public readonly AttributeTreeManager AttributeTreeManager = new AttributeTreeManager();
         public readonly SchedulableBlockManager SchedulableBlockManager = new SchedulableBlockManager();
         public readonly BlockTemplateItemManager BlockTemplateItemManager = new BlockTemplateItemManager();
@@ -39,6 +38,10 @@ namespace VideoScheduler.Core
             if (CommercialFillerManager.GetCommercial(GUID) != null)
             {
                 return CommercialFillerManager.GetCommercial(GUID);
+            }
+            if (MovieRunManager.GetMovieRun(GUID) != null)
+            {
+                return MovieRunManager.GetMovieRun(GUID);
             }
             return null;
         }

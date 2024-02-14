@@ -60,6 +60,10 @@ namespace VideoScheduler.Core
                     commercialFillers.Add((CommercialFiller)content);
                     nonCommercialVideos.Add(null);
                 }
+                else if (content is SchedulableMovie)
+                {
+                    nonCommercialVideos.Add(GetVideos(content).First());
+                }
                 
             }
 
@@ -172,9 +176,10 @@ namespace VideoScheduler.Core
                     }
                 }
             }
-            else if (schedulableContent is ShowRun)
+            else if (schedulableContent is SchedulableMovie)
             {
-
+                var schedulableMovie = (SchedulableMovie)schedulableContent;
+                videos.Add(VideoLibrary.GetMovie(schedulableMovie));
             }
             return videos;
             

@@ -53,6 +53,7 @@ namespace VideoScheduler
 
         public Player()
         {
+            this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             InitializeComponent();
             SetMediaPlayerSettings(axWindowsMediaPlayer1);
             SetMediaPlayerSettings(axWindowsMediaPlayer2);

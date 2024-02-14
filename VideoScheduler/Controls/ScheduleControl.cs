@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using VideoScheduler.Controls;
 using VideoScheduler.Core;
@@ -21,6 +16,7 @@ namespace VideoScheduler
 
         public ScheduleControl(PersistenceManagers persistenceManagers)
         {
+            this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             this.PersistenceManagers = persistenceManagers;
             InitializeComponent();
             ChangeDay(dayOfWeek);
@@ -253,6 +249,22 @@ namespace VideoScheduler
                 }
                 LoadContent(timeBlock);
             }
+            else if (sender.Equals(_buttonAddMovie))
+            {
+                var timeBlock = (TimeBlock)dataGridView1.CurrentRow.Tag;
+                var dialog = new MovieControl(PersistenceManagers);
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    if (timeBlock != null)
+                    {
+                        timeBlock.ContentGuids.Add(dialog.Movie.Guid);
+                        PersistenceManagers.movieManager.AddOrUpdateMovieRun(dialog.Movie);
+                        PersistenceManagers.timeBlockManager.AddOrUpdateTimeBlock(timeBlock);
+                        dataGridView1.CurrentRow.Tag = timeBlock;
+                    }
+                }
+                LoadContent(timeBlock);
+            }
             else if (sender.Equals(_buttonAddCommercialFiller))
             {
                 //TODO this is a terrible way to do this, but I'm too lazy to do it another way at the moment. Revist this later.
@@ -373,6 +385,10 @@ namespace VideoScheduler
             else if (sender.Equals(_buttonSunday))
             {
                 ChangeDay(DayOfWeek.Sunday);
+            }
+            else if (sender.Equals(_buttonCustomDate))
+            {
+                //TODO
             }
         }
 

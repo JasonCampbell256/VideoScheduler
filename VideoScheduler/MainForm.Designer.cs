@@ -1,6 +1,6 @@
 ﻿namespace VideoScheduler
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,10 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this._buttonOpenPlayer = new System.Windows.Forms.Button();
             this._listBoxQueue = new System.Windows.Forms.ListBox();
             this._buttonOpenSchedule = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
+            this._buttonChangeLibraryPath = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // _buttonOpenPlayer
@@ -71,17 +73,30 @@
             this.label1.TabIndex = 2;
             this.label1.Text = "Video Queue";
             // 
-            // Form1
+            // _buttonChangeLibraryPath
+            // 
+            this._buttonChangeLibraryPath.Location = new System.Drawing.Point(12, 346);
+            this._buttonChangeLibraryPath.Name = "_buttonChangeLibraryPath";
+            this._buttonChangeLibraryPath.Size = new System.Drawing.Size(75, 47);
+            this._buttonChangeLibraryPath.TabIndex = 4;
+            this._buttonChangeLibraryPath.Text = "Change Library Path";
+            this._buttonChangeLibraryPath.UseVisualStyleBackColor = true;
+            this._buttonChangeLibraryPath.Click += new System.EventHandler(this.OnButtonClick);
+            // 
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(613, 419);
+            this.Controls.Add(this._buttonChangeLibraryPath);
             this.Controls.Add(this.label1);
             this.Controls.Add(this._buttonOpenSchedule);
             this.Controls.Add(this._listBoxQueue);
             this.Controls.Add(this._buttonOpenPlayer);
-            this.Name = "Form1";
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Name = "MainForm";
             this.Text = "Video Scheduler";
+            this.Load += new System.EventHandler(this.OnButtonClick);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -93,6 +108,7 @@
         private System.Windows.Forms.ListBox _listBoxQueue;
         private System.Windows.Forms.Button _buttonOpenSchedule;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button _buttonChangeLibraryPath;
     }
 }
 

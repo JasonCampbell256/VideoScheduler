@@ -16,11 +16,13 @@ namespace VideoScheduler.Core
         public TimeBlockManager timeBlockManager = new TimeBlockManager();
         public CommercialFillerManager commercialFillerManager = new CommercialFillerManager();
         public ShowRunManager runManager;
+        public MovieRunManager movieManager;
 
         public PersistenceManagers()
         {
             _picker = new VideoPicker(_library);
             runManager = new ShowRunManager(_library);
+            movieManager = new MovieRunManager();
         }
 
         public static void SetFilePath(string path)

@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using VideoScheduler.Core;
@@ -16,6 +17,7 @@ namespace VideoScheduler
 
         public ShowRunControl(PersistenceManagers persistenceManagers)
         {
+            this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             this.PersistenceManagers = persistenceManagers;
             InitializeComponent();
             EnableFields(false);

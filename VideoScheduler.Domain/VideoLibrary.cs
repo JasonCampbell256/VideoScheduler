@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,6 +26,11 @@ namespace VideoScheduler.Domain
         public TvShow GetShow(string showName)
         {
             return Shows.Where(show => show.Title == showName).First();
+        }
+
+        public Movie GetMovie(SchedulableMovie schedulableMovie)
+        {
+            return Movies.Where(movie => movie.FilePath == schedulableMovie.MovieFilePath).FirstOrDefault();
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 
 namespace VideoScheduler.Domain
 {
+    //TODO this class isn't being used yet, but the idea is to define a block that can be referenced for re-use
     public class SchedulableBlock : ISchedulableContent
     {
         [JsonProperty]
