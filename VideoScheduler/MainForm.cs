@@ -96,21 +96,23 @@ namespace VideoScheduler
                     currentTimeBlock = timeBlock;
                     var videos = _persistenceManagers._picker.GetVideosForTimeBlock(timeBlock);
                     var timeElapsed = truncatedCurrentTime - timeBlock.StartTime;
+
                     //find the video that should be playing
                     var timespanCounter = new TimeSpan(0, 0, 0);
                     var timeSpanToStart = new TimeSpan(0, 0, 0);
+                    var firstVideoFound = false;
+
                     foreach (var video in videos)
                     {
-                        var duration = VideoPicker.GetDuration(video.FilePath);
-                        timespanCounter += duration;
-                        var firstVideoFound = false;
+                        var videoDuration = VideoPicker.GetDuration(video.FilePath);
+                        timespanCounter += videoDuration;
                         if (timespanCounter >= timeElapsed)
                         {
                             AddToQueue(video.FilePath);
                             if (!firstVideoFound)
                             {
                                 firstVideoFound = true;
-                                timeSpanToStart = timeElapsed - (timespanCounter - duration);
+                                timeSpanToStart = timeElapsed - (timespanCounter - videoDuration);
                             }
                         }
                     }
