@@ -44,7 +44,12 @@ namespace VideoScheduler
             _hiddenPlayer.Visible = false;
             _hiddenPlayer.close();
 
+            _currentPlayer.Dock = DockStyle.Fill;
             _currentPlayer.Visible = true;
+
+            _currentPlayer.Width = this.ClientSize.Width;
+            _currentPlayer.Height = this.ClientSize.Height;
+
             _currentPlayer.Ctlcontrols.play();
         }
         
