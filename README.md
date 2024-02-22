@@ -17,6 +17,9 @@ All movies should be in a Movies folder in the root folder.
 ### Other Videos
 All other videos such as commercials and bumpers can be organized any way you want. Note: in randomized situations, the folder structure determines the criteria in which videos can be selected, so be sure to organize your videos in a way that videos in a given folder are interchangable.
 
+## Demo
+A demo video is available on [YouTube](https://www.youtube.com/watch?v=Tcsil4xzt_k).
+
 ## Copyright Warning
 This application is intended only for personal use to view videos that are legally obtained and authorized for use by respective copyright holders. 
 Use of this application does not grant license for use of any copyrighted material.
