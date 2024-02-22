@@ -94,19 +94,25 @@ namespace VideoScheduler.Core
                         var commercialFiller = commercialFillers[commercialBreakCount];
                         var leftoverTimeSpan = timeSpanPerCommercialBreak;
                         var possibleVideos = new List<IVideo>();
+                        var unusedPossibleVideos = new List<IVideo>();
                         var videosInBreak = new List<IVideo>();
                         foreach (var guid in commercialFiller.Attributes)
                         {
                             var attributeTree = contentRepository.GetContent(guid);
                             possibleVideos.AddRange(GetVideos(attributeTree));
+                            unusedPossibleVideos.AddRange(possibleVideos);
                         }
                         if (possibleVideos.Count > 0)
                         {
                             var ticksPerSecond = 10000000;
                             while (leftoverTimeSpan.Ticks > 20 * ticksPerSecond)
                             {
-                                var randomVideo = possibleVideos[random.Next(0, possibleVideos.Count)];
-                                possibleVideos.Remove(randomVideo);
+                                if (unusedPossibleVideos.Count == 0)
+                                {
+                                    unusedPossibleVideos.AddRange(possibleVideos);
+                                }
+                                var randomVideo = unusedPossibleVideos[random.Next(0, unusedPossibleVideos.Count)];
+                                unusedPossibleVideos.Remove(randomVideo);
                                 videosInBreak.Add(randomVideo);
                                 videoDurations += GetDuration(randomVideo.FilePath);
                                 leftoverTimeSpan = leftoverTimeSpan - GetDuration(randomVideo.FilePath);

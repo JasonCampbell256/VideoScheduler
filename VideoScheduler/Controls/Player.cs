@@ -1,23 +1,16 @@
 ﻿using AxWMPLib;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace VideoScheduler
 {
     public partial class Player : Form
     {
-        private const int PLAYER_WIDTH = 1280;
-        private const int PLAYER_HEIGHT = 720;
-
         private AxWindowsMediaPlayer _currentPlayer;
         private AxWindowsMediaPlayer _hiddenPlayer;
+
+        private bool isFullScreen = false;
 
         public AxWindowsMediaPlayer GetCurrentPlayer()
         {
@@ -27,28 +20,6 @@ namespace VideoScheduler
         public AxWindowsMediaPlayer GetHiddenPlayer()
         {
             return _hiddenPlayer;
-        }
-
-        public void SwitchPlayers(bool isCommercialBreak = false)
-        {
-            var oldCurrent = _currentPlayer;
-            var newCurrent = _hiddenPlayer;
-            _currentPlayer = newCurrent;
-            _hiddenPlayer = oldCurrent;
-
-            if (isCommercialBreak)
-            {
-                _hiddenPlayer.Ctlcontrols.pause();
-            }
-            else
-            {
-                _hiddenPlayer.Ctlcontrols.stop();
-            }
-            _hiddenPlayer.Visible = false;
-            _hiddenPlayer.close();
-            _currentPlayer.Visible = true;
-            _currentPlayer.Ctlcontrols.play();
-
         }
 
         public Player()
@@ -61,16 +32,31 @@ namespace VideoScheduler
             _hiddenPlayer = axWindowsMediaPlayer2;
         }
 
+        public void SwitchPlayers()
+        {
+            var oldCurrent = _currentPlayer;
+            var newCurrent = _hiddenPlayer;
+
+            _currentPlayer = newCurrent;
+
+            _hiddenPlayer = oldCurrent;
+            _hiddenPlayer.Ctlcontrols.stop();
+            _hiddenPlayer.Visible = false;
+            _hiddenPlayer.close();
+
+            _currentPlayer.Visible = true;
+            _currentPlayer.Ctlcontrols.play();
+        }
+        
         private void SetMediaPlayerSettings(AxWindowsMediaPlayer player)
         {
             player.uiMode = "none";
-            player.Width = PLAYER_WIDTH;
-            player.Height = PLAYER_HEIGHT;
             player.Margin = new Padding(0);
             player.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             player.Location = new Point(0, 0);
             player.stretchToFit = true;
             player.settings.volume = 65;
+            player.enableContextMenu = false;
         }
 
         public void ShowControls()
@@ -83,7 +69,40 @@ namespace VideoScheduler
             {
                 _currentPlayer.uiMode = "full";
             }
+        }
 
+        public void ToggleFullScreen()
+        {
+            if (isFullScreen)
+            {
+                this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
+                this.WindowState = FormWindowState.Normal;
+            } 
+            else
+            {
+                this.WindowState = FormWindowState.Normal;
+                this.FormBorderStyle = FormBorderStyle.None;
+                this.WindowState |= FormWindowState.Maximized;
+            }
+            isFullScreen = !isFullScreen;
+        }
+
+        private void OnToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            if(sender.Equals(_toolStripMenuItemFullScreen))
+            {
+                ToggleFullScreen();
+            }
+        }
+
+        private void OnMouseUp(object sender, _WMPOCXEvents_MouseUpEvent e)
+        {
+            // We can't override the default context menu for the axMediaPlayer controls
+            // So we implement it here instead
+            if (e.nButton == 2)
+            {
+                contextMenuStrip1.Show(Cursor.Position);
+            }
         }
     }
 }
