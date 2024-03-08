@@ -77,17 +77,7 @@ namespace VideoScheduler
 
             foreach (var timeBlock in _timeBlocks)
             {
-                if (truncatedCurrentTime == timeBlock.StartTime)
-                {
-                    currentTimeBlock = timeBlock;
-                    var videos = _persistenceManagers._picker.GetVideosForTimeBlock(timeBlock);
-                    foreach (var video in videos)
-                    {
-                        AddToQueue(video.FilePath);
-                    }
-                    //Play();
-                    break;
-                } else if (truncatedCurrentTime > timeBlock.StartTime && truncatedCurrentTime < timeBlock.EndTime)
+                if (truncatedCurrentTime >= timeBlock.StartTime && truncatedCurrentTime < timeBlock.EndTime)
                 {
                     if (currentTimeBlock != null && currentTimeBlock.Guid == timeBlock.Guid)
                     {

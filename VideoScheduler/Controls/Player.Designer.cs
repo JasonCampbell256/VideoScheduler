@@ -83,8 +83,8 @@
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(1264, 681);
             this.ContextMenuStrip = this.contextMenuStrip1;
-            this.Controls.Add(this.axWindowsMediaPlayer2);
             this.Controls.Add(this.axWindowsMediaPlayer1);
+            this.Controls.Add(this.axWindowsMediaPlayer2);
             this.Name = "Player";
             this.Text = "Player";
             this.contextMenuStrip1.ResumeLayout(false);
