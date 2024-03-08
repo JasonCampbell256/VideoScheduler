@@ -54,7 +54,7 @@ namespace VideoScheduler.Domain
 
         public override string ToString()
         {
-            return Season.Show.Title + " S" + Season.SeasonNumber + " E" + EpisodeNumber;
+            return EpisodeNumber.ToString();
         }
     }
 }

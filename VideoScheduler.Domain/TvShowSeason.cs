@@ -18,5 +18,10 @@ namespace VideoScheduler.Domain
             SeasonNumber = seasonNumber;
             Episodes = new List<TvShowEpisode>();
         }
+
+        public override string ToString()
+        {
+            return SeasonNumber.ToString();
+        }
     }
 }
