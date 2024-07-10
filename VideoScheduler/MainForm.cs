@@ -115,6 +115,13 @@ namespace VideoScheduler
             }
         }
 
+        private void ClearQueue()
+        {
+            currentTimeBlock = null;
+            _listBoxQueue.Items.Clear();
+            _playlist.Clear();
+        }
+
         private void Play(TimeSpan startTime)
         {
             if (_playlist.Count != 0)
@@ -228,6 +235,10 @@ namespace VideoScheduler
             } else if (sender.Equals(_buttonChangeLibraryPath))
             {
                 ChangeLibraryPath();
+            } else if (sender.Equals(_buttonReloadBlock))
+            {
+                ClearQueue();
+                loadschedule();
             }
         }
     }
