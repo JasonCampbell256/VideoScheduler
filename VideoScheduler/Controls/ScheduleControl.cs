@@ -349,7 +349,6 @@ namespace VideoScheduler
             else if (sender.Equals(_buttonRemoveContent))
             {
                 var timeBlock = (TimeBlock)dataGridView1.CurrentRow.Tag;
-                var dialog = new ShowRunControl(PersistenceManagers);
                 if (timeBlock != null)
                 {
                     if (dataGridView2.CurrentRow.Tag is ISchedulableContent)
@@ -364,11 +363,52 @@ namespace VideoScheduler
                         PersistenceManagers.timeBlockManager.AddOrUpdateTimeBlock(timeBlock);
                         dataGridView1.CurrentRow.Tag = timeBlock;
                     }
-                    //timeBlock.ContentGuids.Add(dialog.ShowRun.Guid);
-                    //PersistenceManagers.timeBlockManager.AddOrUpdateTimeBlock(timeBlock);
-                    //dataGridView1.CurrentRow.Tag = timeBlock;
                 }
                 LoadContent(timeBlock);
+            } else if (sender.Equals(_buttonContentUp))
+            {
+                var timeBlock = (TimeBlock)dataGridView1.CurrentRow.Tag;
+                if (timeBlock != null)
+                {
+                    if (dataGridView2.CurrentRow.Tag is ISchedulableContent)
+                    {
+                        var guid = (dataGridView2.CurrentRow.Tag as ISchedulableContent).Guid;
+                        var contentIndex = timeBlock.ContentGuids.IndexOf(guid);
+                        
+                        if (contentIndex != 0)
+                        {
+                            timeBlock.ContentGuids.RemoveAt(contentIndex);
+                            timeBlock.ContentGuids.Insert(contentIndex -1, guid);
+                        }
+                        PersistenceManagers.timeBlockManager.AddOrUpdateTimeBlock(timeBlock);
+                        dataGridView1.CurrentRow.Tag = timeBlock;
+                        LoadContent(timeBlock);
+                        var newGridViewIndex = dataGridView2.Rows.Cast<DataGridViewRow>().Where(x => (x.Tag as ISchedulableContent).Guid == guid).First().Index;
+                        dataGridView2.CurrentCell = dataGridView2.Rows[newGridViewIndex].Cells[0];
+                    }
+                }
+            } else if (sender.Equals(_buttonContentDown))
+            {
+                var timeBlock = (TimeBlock)dataGridView1.CurrentRow.Tag;
+                if (timeBlock != null)
+                {
+                    if (dataGridView2.CurrentRow.Tag is ISchedulableContent)
+                    {
+                        var guid = (dataGridView2.CurrentRow.Tag as ISchedulableContent).Guid;
+                        var contentIndex = timeBlock.ContentGuids.IndexOf(guid);
+
+                        if (contentIndex < timeBlock.ContentGuids.Count -1)
+                        {
+                            timeBlock.ContentGuids.RemoveAt(contentIndex);
+                            timeBlock.ContentGuids.Insert(contentIndex + 1, guid);
+                        }
+                        PersistenceManagers.timeBlockManager.AddOrUpdateTimeBlock(timeBlock);
+                        dataGridView1.CurrentRow.Tag = timeBlock;
+                        LoadContent(timeBlock);
+                        var newGridViewIndex = dataGridView2.Rows.Cast<DataGridViewRow>().Where(x => (x.Tag as ISchedulableContent).Guid == guid).First().Index;
+                        dataGridView2.CurrentCell = dataGridView2.Rows[newGridViewIndex].Cells[0];
+                    }
+                }
             }
         }
 
