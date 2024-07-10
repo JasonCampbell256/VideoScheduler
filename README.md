@@ -20,6 +20,9 @@ All other videos such as commercials and bumpers can be organized any way you wa
 ## Demo
 A demo video is available on [YouTube](https://www.youtube.com/watch?v=Tcsil4xzt_k).
 
+## Discord
+Join the [Discord](https://discord.com/channels/677685944521850900/1076154356270899270/1260385784868110376) server for support!
+
 ## Copyright Warning
 This application is intended only for personal use to view videos that are legally obtained and authorized for use by respective copyright holders. 
 Use of this application does not grant license for use of any copyrighted material.
