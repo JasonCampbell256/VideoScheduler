@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using VideoScheduler.Core;
 using VideoScheduler.Domain;
@@ -27,7 +28,9 @@ namespace VideoScheduler
         {
             this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             InitializeComponent();
-            if (PersistenceManagers.GetFilePath() == null)
+            var libraryPath = PersistenceManagers.GetFilePath();
+
+            if (string.IsNullOrEmpty(libraryPath) )
             {
                 MessageBox.Show("Please select your library folder.");
                 var folderBrowserDialog = new FolderBrowserDialog();
@@ -37,7 +40,21 @@ namespace VideoScheduler
                     PersistenceManagers.SetFilePath(folderBrowserDialog.SelectedPath);
                 } else
                 {
-                    MessageBox.Show("No folder selected. The application will now close");
+                    NotifyAndExitForPathNotFound();
+                }
+            }
+
+            if (!Directory.Exists(libraryPath))
+            {
+                var pathNotFoundMessageBox = MessageBox.Show("The path to the library could not be found. Would you like to change the path?", "Library Path Not Found", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
+                if (pathNotFoundMessageBox == DialogResult.Yes)
+                {
+                    ChangeLibraryPath();
+                }
+                libraryPath = PersistenceManagers.GetFilePath();
+                if (!Directory.Exists(libraryPath))
+                {
+                    NotifyAndExitForPathNotFound();
                 }
             }
             _persistenceManagers = new PersistenceManagers();
@@ -49,9 +66,15 @@ namespace VideoScheduler
             timer.Start();
         }
 
+        private void NotifyAndExitForPathNotFound()
+        {
+            MessageBox.Show("Path to library could not be found. The application will now close.", "Path not found", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Environment.Exit(0);
+        }
+
         private void ChangeLibraryPath()
         {
-            var confirmationDialog = MessageBox.Show("Updating the library may cause data to be lost! Are you sure you want to update the library path?", "You Sure?", MessageBoxButtons.YesNo);
+            var confirmationDialog = MessageBox.Show("Updating the library may cause data to be lost! Are you sure you want to update the library path?", "You Sure?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (confirmationDialog == DialogResult.No)
             {
                 return;
