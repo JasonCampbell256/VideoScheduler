@@ -13,6 +13,7 @@ namespace VideoScheduler
     {
         private PersistenceManagers PersistenceManagers;
         private DayOfWeek dayOfWeek = DateTime.Today.DayOfWeek;
+        private ContentRepository contentRepository = null;
 
         public ScheduleControl(PersistenceManagers persistenceManagers)
         {
@@ -72,6 +73,11 @@ namespace VideoScheduler
 
         private void ClearTimeBlocksRows()
         {
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                row.Tag = null;
+            }
+
             dataGridView1.Rows.Clear();
         }
 
@@ -86,7 +92,7 @@ namespace VideoScheduler
         private void LoadContent(TimeBlock timeBlock)
         {
             ClearContent();
-            var contentRepository = new ContentRepository(PersistenceManagers._library);
+            contentRepository = new ContentRepository(PersistenceManagers._library);
             foreach (var content in timeBlock.ContentGuids)
             {
                 var contentObject = contentRepository.GetContent(content);
