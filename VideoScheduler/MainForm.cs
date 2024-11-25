@@ -11,7 +11,7 @@ namespace VideoScheduler
 {
     public partial class MainForm : Form
     {
-        private readonly Player _mediaPlayerForm;
+        private Player _mediaPlayerForm;
         private readonly Queue<string> _playlist = new Queue<string>();
         private readonly PersistenceManagers _persistenceManagers;
         private List<TimeBlock> _timeBlocks = new List<TimeBlock>();
@@ -235,6 +235,11 @@ namespace VideoScheduler
 
         private void OpenPlayer()
         {
+            if (_mediaPlayerForm == null || _mediaPlayerForm.IsDisposed || !_mediaPlayerForm.Visible)
+            {
+                _mediaPlayerForm = new Player();
+            }
+            ClearQueue();
             _mediaPlayerForm.Show();
             _mediaPlayerForm.GetCurrentPlayer().PlayStateChange += Player_PlayStateChange;
             QueueNextVideo(_mediaPlayerForm.GetCurrentPlayer());
