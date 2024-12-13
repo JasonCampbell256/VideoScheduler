@@ -56,7 +56,7 @@ namespace VideoScheduler.Controls
             _isFullscreen = !_isFullscreen;
         }
 
-        public /*async*/ void PlayVideo(string filePath, long? position)
+        public void PlayVideo(string filePath, long? position)
         {
             if (position != null && position != 0)
             {
@@ -116,8 +116,7 @@ namespace VideoScheduler.Controls
                     }));
 
                     // Create a new MediaPlayer
-                    var mediaPlayerOptions = new string[] { "--no-video-deco", "--no-video-title-show" };
-                    var mediaPlayer = new MediaPlayer(libVlc/*, mediaPlayerOptions*/);
+                    var mediaPlayer = new MediaPlayer(libVlc);
  
                     this.Invoke(new Action(() =>
                     {
