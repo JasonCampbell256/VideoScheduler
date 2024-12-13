@@ -41,7 +41,7 @@ namespace VideoScheduler
             {
                 if (!System.IO.File.Exists(file))
                 {
-                    using (System.IO.File.Create(file));
+                    System.IO.File.Create(file);
                 }
             }
         }
@@ -49,23 +49,20 @@ namespace VideoScheduler
         // Handle exceptions from all threads in the AppDomain
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            LogException((Exception)e.ExceptionObject);
-            // Here, you could add more code to handle the exception, e.g., display a dialog box
+            if (e.ExceptionObject is Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            else
+            {
+                Logger.LogMessage("An unknown unhandled exception occurred.");
+            }
         }
 
         // Handle exceptions from Windows Forms threads
         private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
         {
-            LogException(e.Exception);
-            // Here, you could add more code to handle the exception, e.g., display a dialog box
-        }
-
-        private static void LogException(Exception e)
-        {
-            string logFilePath = @"Logs\log.txt";
-            Directory.CreateDirectory("Logs");  // Ensure the directory exists
-            string logText = $"[{DateTime.Now}] Unhandled Exception: {e.ToString()}\n";
-            File.AppendAllText(logFilePath, logText);
+            Logger.LogException(e.Exception);
         }
 
     }

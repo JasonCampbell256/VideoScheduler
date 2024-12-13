@@ -1,9 +1,9 @@
-﻿using AxWMPLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using VideoScheduler.Controls;
 using VideoScheduler.Core;
 using VideoScheduler.Domain;
 
@@ -11,7 +11,7 @@ namespace VideoScheduler
 {
     public partial class MainForm : Form
     {
-        private Player _mediaPlayerForm;
+        private VlcPlayer _VlcPlayerForm;
         private readonly Queue<string> _playlist = new Queue<string>();
         private readonly PersistenceManagers _persistenceManagers;
         private List<TimeBlock> _timeBlocks = new List<TimeBlock>();
@@ -23,6 +23,14 @@ namespace VideoScheduler
             _timeBlocks = _persistenceManagers.timeBlockManager.GetTimeBlocks(DateTime.Now.DayOfWeek);
         }
 
+        public string GetNextVideo()
+        {
+            if (_playlist.Count > 0)
+            {
+                return _playlist.Dequeue();
+            }
+            return String.Empty;
+        }
 
         public MainForm()
         {
@@ -58,7 +66,7 @@ namespace VideoScheduler
                 }
             }
             _persistenceManagers = new PersistenceManagers();
-            _mediaPlayerForm = new Player();
+            _VlcPlayerForm = new VlcPlayer(this);
             loadschedule();
             timer = new Timer();
             timer.Interval = 1000;
@@ -90,7 +98,7 @@ namespace VideoScheduler
 
         private void CheckTimeBlocks(object sender, EventArgs e)
         {
-            if (!_mediaPlayerForm.Visible)
+            if (!_VlcPlayerForm.Visible)
             {
                 return;
             }
@@ -130,7 +138,7 @@ namespace VideoScheduler
                         }
                     }
                     
-                    Play(timeSpanToStart.Duration());
+                    PlayVlc((long)timeSpanToStart.Duration().TotalMilliseconds);
                     break;
                 }
 
@@ -145,34 +153,17 @@ namespace VideoScheduler
             _playlist.Clear();
         }
 
-        private void Play(TimeSpan startTime)
+        private void PlayVlc(long? startTime)
         {
             if (_playlist.Count != 0)
             {
-                if (_mediaPlayerForm == null && _playlist.Count > 0)
+                if (_VlcPlayerForm == null && _playlist.Count > 0)
                 {
-                    OpenPlayer();
+                    OpenVlcPlayer();
                 }
-                _mediaPlayerForm.GetCurrentPlayer().URL = _playlist.Dequeue();
-                _mediaPlayerForm.GetCurrentPlayer().Ctlcontrols.currentPosition = startTime.TotalSeconds;
-                _listBoxQueue.Items.Remove(_mediaPlayerForm.GetCurrentPlayer().URL);
-
-                SetPreload();
-            }
-        }
-
-        private void Play()
-        {
-            if (_playlist.Count != 0)
-            {
-                if (_mediaPlayerForm == null && _playlist.Count > 0)
-                {
-                    OpenPlayer();
-                }
-                _mediaPlayerForm.GetCurrentPlayer().URL = _playlist.Dequeue();
-                _listBoxQueue.Items.Remove(_mediaPlayerForm.GetCurrentPlayer().URL);
-
-                SetPreload();
+                var url = _playlist.Dequeue();
+                _VlcPlayerForm.PlayVideo(url, startTime);
+                _listBoxQueue.Items.RemoveAt(0);
             }
         }
 
@@ -180,18 +171,6 @@ namespace VideoScheduler
         {
             _playlist.Enqueue(url);
             _listBoxQueue.Items.Add(url);
-        }
-
-        private void QueueNextVideo(AxWindowsMediaPlayer player)
-        {
-            if (_playlist.Count == 0)
-            {
-                return;
-            }
-            var url = _playlist.Dequeue();
-            player.URL = url;
-            player.Visible = false;
-
         }
 
         private void UpdateListBox()
@@ -203,70 +182,40 @@ namespace VideoScheduler
             }
         }
 
-        private void SetPreload()
+        private void OpenVlcPlayer()
         {
-            var preloadedPlayer = _mediaPlayerForm.GetHiddenPlayer();
-            QueueNextVideo(preloadedPlayer);
-        }
-
-        private void Player_PlayStateChange(object sender, _WMPOCXEvents_PlayStateChangeEvent e)
-        {
-            if (sender.Equals(_mediaPlayerForm.GetHiddenPlayer()) && e.newState == 3)
+            if (_VlcPlayerForm == null || _VlcPlayerForm.IsDisposed || !_VlcPlayerForm.Visible)
             {
-                _mediaPlayerForm.GetHiddenPlayer().Ctlcontrols.pause();
-            }
-            else if (sender.Equals(_mediaPlayerForm.GetCurrentPlayer()) && e.newState == 8)
-            {
-                NextVideo();
-            }
-        }
-
-        private void NextVideo()
-        {
-            SwitchPlayers();
-            SetPreload();
-            UpdateListBox();
-        }
-
-        private void SwitchPlayers()
-        {
-            _mediaPlayerForm.SwitchPlayers();
-        }
-
-        private void OpenPlayer()
-        {
-            if (_mediaPlayerForm == null || _mediaPlayerForm.IsDisposed || !_mediaPlayerForm.Visible)
-            {
-                _mediaPlayerForm = new Player();
+                _VlcPlayerForm = new VlcPlayer(this);
             }
             ClearQueue();
-            _mediaPlayerForm.Show();
-            _mediaPlayerForm.GetCurrentPlayer().PlayStateChange += Player_PlayStateChange;
-            QueueNextVideo(_mediaPlayerForm.GetCurrentPlayer());
+            _VlcPlayerForm.Show();
         }
 
         private void OnButtonClick(object sender, EventArgs e)
         {
             if (sender.Equals(_buttonOpenPlayer))
             {
-                if (_mediaPlayerForm.Visible)
+                if (_VlcPlayerForm.Visible)
                 {
                     return;
                 }
-                OpenPlayer();
-                _mediaPlayerForm.GetHiddenPlayer().PlayStateChange += Player_PlayStateChange;
+                OpenVlcPlayer();
             }
             else if (sender.Equals(_buttonOpenSchedule))
             {
                 ScheduleControl scheduleControl = new ScheduleControl(_persistenceManagers);
                 scheduleControl.Show();
-            } else if (sender.Equals(_buttonChangeLibraryPath))
+            }
+            else if (sender.Equals(_buttonChangeLibraryPath))
             {
                 ChangeLibraryPath();
-            } else if (sender.Equals(_buttonReloadBlock))
+            }
+            else if (sender.Equals(_buttonReloadBlock))
             {
                 ClearQueue();
                 loadschedule();
+                OpenVlcPlayer();
             }
         }
     }

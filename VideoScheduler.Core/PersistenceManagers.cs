@@ -41,7 +41,7 @@ namespace VideoScheduler.Core
             }
             catch (Exception ex)
             {
-
+                Logger.LogException(ex);
             }
             return path;
         }

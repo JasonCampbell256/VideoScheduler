@@ -33,7 +33,7 @@ namespace VideoScheduler.Core
         public ShowRun GetShowRun(Guid guid)
         {
             LoadRuns();
-            if (_runs.TryGetValue(guid, out ShowRun run));
+            if (_runs.TryGetValue(guid, out ShowRun run))
             {
                 return run;
             }

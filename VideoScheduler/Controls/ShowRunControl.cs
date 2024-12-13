@@ -11,8 +11,6 @@ namespace VideoScheduler
     {
         public ShowRun ShowRun { get; private set; }
 
-        private ShowRun tempShowRun;
-
         private PersistenceManagers PersistenceManagers;
 
         public ShowRunControl(PersistenceManagers persistenceManagers)
