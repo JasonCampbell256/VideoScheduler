@@ -46,6 +46,7 @@ namespace VideoScheduler
                 if (result == DialogResult.OK)
                 {
                     PersistenceManagers.SetFilePath(folderBrowserDialog.SelectedPath);
+                    libraryPath = PersistenceManagers.GetFilePath();
                 } else
                 {
                     NotifyAndExitForPathNotFound();
@@ -72,6 +73,11 @@ namespace VideoScheduler
             timer.Interval = 1000;
             timer.Tick += CheckTimeBlocks;
             timer.Start();
+
+            // If the user goes through the folder select flow the MainForm may render behind other open windows
+            this.WindowState = FormWindowState.Minimized;
+            this.Show();
+            this.WindowState = FormWindowState.Normal;
         }
 
         private void NotifyAndExitForPathNotFound()

@@ -41,7 +41,10 @@ namespace VideoScheduler
             {
                 if (!System.IO.File.Exists(file))
                 {
-                    System.IO.File.Create(file);
+                    using (System.IO.File.Create(file))
+                    {
+                        // Do nothing, the file should be empty at this point.
+                    }
                 }
             }
         }
