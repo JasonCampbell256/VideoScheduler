@@ -370,6 +370,7 @@ namespace VideoScheduler
                         LoadContent(timeBlock);
                         var newGridViewIndex = dataGridView2.Rows.Cast<DataGridViewRow>().Where(x => (x.Tag as ISchedulableContent).Guid == guid).First().Index;
                         dataGridView2.CurrentCell = dataGridView2.Rows[newGridViewIndex].Cells[0];
+                        EnableContentButtons(true);
                     }
                 }
             } else if (sender.Equals(_buttonContentDown))
@@ -396,6 +397,7 @@ namespace VideoScheduler
                         LoadContent(timeBlock);
                         var newGridViewIndex = dataGridView2.Rows.Cast<DataGridViewRow>().Where(x => (x.Tag as ISchedulableContent).Guid == guid).First().Index;
                         dataGridView2.CurrentCell = dataGridView2.Rows[newGridViewIndex].Cells[0];
+                        EnableContentButtons(true);
                     }
                 }
             }
@@ -459,9 +461,5 @@ namespace VideoScheduler
         }
         #endregion
 
-        private void OnRowLeave(object sender, DataGridViewCellEventArgs e)
-        {
-            EnableContentButtons(false);
-        }
     }
 }

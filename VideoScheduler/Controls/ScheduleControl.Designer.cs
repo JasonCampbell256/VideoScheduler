@@ -410,7 +410,6 @@
             this.dataGridView2.Size = new System.Drawing.Size(314, 314);
             this.dataGridView2.TabIndex = 1;
             this.dataGridView2.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.OnRowEnter);
-            this.dataGridView2.RowLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.OnRowLeave);
             // 
             // Type
             // 
