@@ -44,11 +44,14 @@
             this._labelDayOrDate = new System.Windows.Forms.Label();
             this._buttonCustomDate = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this._buttonEraseDay = new System.Windows.Forms.Button();
+            this._buttonCopyDay = new System.Windows.Forms.Button();
             this._buttonCopyTimeBlockToAnotherDay = new System.Windows.Forms.Button();
             this._buttonCopyTimeBlock = new System.Windows.Forms.Button();
             this._buttonRemoveTimeBlock = new System.Windows.Forms.Button();
-            this._buttonContentDown = new System.Windows.Forms.Button();
+            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this._buttonContentUp = new System.Windows.Forms.Button();
+            this._buttonContentDown = new System.Windows.Forms.Button();
             this._buttonAddMovie = new System.Windows.Forms.Button();
             this._buttonAddCommercialFiller = new System.Windows.Forms.Button();
             this._buttonAddVideoWithCriteria = new System.Windows.Forms.Button();
@@ -58,9 +61,6 @@
             this.Type = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ContentDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label1 = new System.Windows.Forms.Label();
-            this._buttonCopyDay = new System.Windows.Forms.Button();
-            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-            this._buttonEraseDay = new System.Windows.Forms.Button();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.splitContainer4 = new System.Windows.Forms.SplitContainer();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
@@ -68,11 +68,11 @@
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).BeginInit();
             this.splitContainer3.Panel1.SuspendLayout();
             this.splitContainer3.Panel2.SuspendLayout();
@@ -288,6 +288,30 @@
             this.splitContainer1.SplitterDistance = 295;
             this.splitContainer1.TabIndex = 0;
             // 
+            // _buttonEraseDay
+            // 
+            this._buttonEraseDay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this._buttonEraseDay.Location = new System.Drawing.Point(6, 585);
+            this._buttonEraseDay.Name = "_buttonEraseDay";
+            this._buttonEraseDay.Size = new System.Drawing.Size(285, 23);
+            this._buttonEraseDay.TabIndex = 8;
+            this._buttonEraseDay.Text = "Erase Entire Day";
+            this._buttonEraseDay.UseVisualStyleBackColor = true;
+            this._buttonEraseDay.Click += new System.EventHandler(this.OnButtonClick);
+            // 
+            // _buttonCopyDay
+            // 
+            this._buttonCopyDay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this._buttonCopyDay.Location = new System.Drawing.Point(6, 556);
+            this._buttonCopyDay.Name = "_buttonCopyDay";
+            this._buttonCopyDay.Size = new System.Drawing.Size(285, 23);
+            this._buttonCopyDay.TabIndex = 7;
+            this._buttonCopyDay.Text = "Copy Entire Day";
+            this._buttonCopyDay.UseVisualStyleBackColor = true;
+            this._buttonCopyDay.Click += new System.EventHandler(this.OnButtonClick);
+            // 
             // _buttonCopyTimeBlockToAnotherDay
             // 
             this._buttonCopyTimeBlockToAnotherDay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
@@ -324,16 +348,24 @@
             this._buttonRemoveTimeBlock.UseVisualStyleBackColor = true;
             this._buttonRemoveTimeBlock.Click += new System.EventHandler(this.OnButtonClick);
             // 
-            // _buttonContentDown
+            // splitContainer2
             // 
-            this._buttonContentDown.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._buttonContentDown.Location = new System.Drawing.Point(0, 0);
-            this._buttonContentDown.Name = "_buttonContentDown";
-            this._buttonContentDown.Size = new System.Drawing.Size(137, 23);
-            this._buttonContentDown.TabIndex = 0;
-            this._buttonContentDown.Text = "Move Down";
-            this._buttonContentDown.UseVisualStyleBackColor = true;
-            this._buttonContentDown.Click += new System.EventHandler(this.OnButtonClick);
+            this.splitContainer2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitContainer2.Location = new System.Drawing.Point(6, 438);
+            this.splitContainer2.Name = "splitContainer2";
+            // 
+            // splitContainer2.Panel1
+            // 
+            this.splitContainer2.Panel1.Controls.Add(this._buttonContentUp);
+            // 
+            // splitContainer2.Panel2
+            // 
+            this.splitContainer2.Panel2.Controls.Add(this._buttonContentDown);
+            this.splitContainer2.Size = new System.Drawing.Size(274, 23);
+            this.splitContainer2.SplitterDistance = 136;
+            this.splitContainer2.SplitterWidth = 1;
+            this.splitContainer2.TabIndex = 16;
             // 
             // _buttonContentUp
             // 
@@ -345,6 +377,17 @@
             this._buttonContentUp.Text = "Move Up";
             this._buttonContentUp.UseVisualStyleBackColor = true;
             this._buttonContentUp.Click += new System.EventHandler(this.OnButtonClick);
+            // 
+            // _buttonContentDown
+            // 
+            this._buttonContentDown.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._buttonContentDown.Location = new System.Drawing.Point(0, 0);
+            this._buttonContentDown.Name = "_buttonContentDown";
+            this._buttonContentDown.Size = new System.Drawing.Size(137, 23);
+            this._buttonContentDown.TabIndex = 0;
+            this._buttonContentDown.Text = "Move Down";
+            this._buttonContentDown.UseVisualStyleBackColor = true;
+            this._buttonContentDown.Click += new System.EventHandler(this.OnButtonClick);
             // 
             // _buttonAddMovie
             // 
@@ -451,48 +494,6 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Content";
             // 
-            // _buttonCopyDay
-            // 
-            this._buttonCopyDay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._buttonCopyDay.Location = new System.Drawing.Point(6, 556);
-            this._buttonCopyDay.Name = "_buttonCopyDay";
-            this._buttonCopyDay.Size = new System.Drawing.Size(285, 23);
-            this._buttonCopyDay.TabIndex = 7;
-            this._buttonCopyDay.Text = "Copy Entire Day";
-            this._buttonCopyDay.UseVisualStyleBackColor = true;
-            this._buttonCopyDay.Click += new System.EventHandler(this.OnButtonClick);
-            // 
-            // splitContainer2
-            // 
-            this.splitContainer2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.splitContainer2.Location = new System.Drawing.Point(6, 438);
-            this.splitContainer2.Name = "splitContainer2";
-            // 
-            // splitContainer2.Panel1
-            // 
-            this.splitContainer2.Panel1.Controls.Add(this._buttonContentUp);
-            // 
-            // splitContainer2.Panel2
-            // 
-            this.splitContainer2.Panel2.Controls.Add(this._buttonContentDown);
-            this.splitContainer2.Size = new System.Drawing.Size(274, 23);
-            this.splitContainer2.SplitterDistance = 136;
-            this.splitContainer2.SplitterWidth = 1;
-            this.splitContainer2.TabIndex = 16;
-            // 
-            // _buttonEraseDay
-            // 
-            this._buttonEraseDay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._buttonEraseDay.Location = new System.Drawing.Point(6, 585);
-            this._buttonEraseDay.Name = "_buttonEraseDay";
-            this._buttonEraseDay.Size = new System.Drawing.Size(285, 23);
-            this._buttonEraseDay.TabIndex = 8;
-            this._buttonEraseDay.Text = "Erase Entire Day";
-            this._buttonEraseDay.UseVisualStyleBackColor = true;
-            // 
             // splitContainer3
             // 
             this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -548,11 +549,11 @@
             this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
             this.splitContainer3.Panel1.ResumeLayout(false);
             this.splitContainer3.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();

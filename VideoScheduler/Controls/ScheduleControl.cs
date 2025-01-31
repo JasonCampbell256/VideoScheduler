@@ -64,6 +64,7 @@ namespace VideoScheduler
         private void LoadTimeBlocksForDay(DayOfWeek day)
         {
             ClearTimeBlocksRows();
+            ClearContent();
             var timeBlocks = PersistenceManagers.timeBlockManager.GetTimeBlocks(day);
             foreach (var timeBlock in timeBlocks)
             {
@@ -147,7 +148,7 @@ namespace VideoScheduler
                 var currentRow = dataGridView1.CurrentRow;
                 if (currentRow.Tag is TimeBlock)
                 {
-                    var messageBox = MessageBox.Show("Are you sure you want to delete this time block?", "Delete Time Block", MessageBoxButtons.YesNo);
+                    var messageBox = MessageBox.Show("Are you sure you want to delete this time block?", "Delete Time Block", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (messageBox.Equals(DialogResult.Yes))
                     {
                         PersistenceManagers.timeBlockManager.RemoveTimeBlock((TimeBlock)currentRow.Tag);
@@ -228,7 +229,7 @@ namespace VideoScheduler
                 {
                     if (dayPicker.SelectedDays.Any() && !(dayPicker.SelectedDays.Count == 1 && dayPicker.SelectedDays[0] == dayOfWeek))
                     {
-                        var confirmationDialog = MessageBox.Show("All time blocks in the selected days will be erased! Are you sure?", "Copy Day", MessageBoxButtons.YesNo);
+                        var confirmationDialog = MessageBox.Show("All time blocks in the selected days will be erased! Are you sure?", "Copy Day", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         if (confirmationDialog.Equals(DialogResult.Yes))
                         {
                             var timeBlocks = PersistenceManagers.timeBlockManager.GetTimeBlocks(dayOfWeek);
@@ -239,6 +240,15 @@ namespace VideoScheduler
                             }
                         }
                     }
+                }
+            }
+            else if (sender.Equals(_buttonEraseDay))
+            {
+                var confirmationDialog = MessageBox.Show($"All of {dayOfWeek}'s blocks will be erased! Are you sure?", "Erase Day", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (confirmationDialog.Equals(DialogResult.Yes))
+                {
+                    PersistenceManagers.timeBlockManager.RemoveAllTimeBlocksInDay(dayOfWeek);
+                    LoadTimeBlocksForDay(dayOfWeek);
                 }
             }
             else if (sender.Equals(_buttonAddVideoWithCriteria))
