@@ -201,7 +201,7 @@
             this._buttonEditTimeBlock.Location = new System.Drawing.Point(209, 555);
             this._buttonEditTimeBlock.Name = "_buttonEditTimeBlock";
             this._buttonEditTimeBlock.Size = new System.Drawing.Size(280, 23);
-            this._buttonEditTimeBlock.TabIndex = 13;
+            this._buttonEditTimeBlock.TabIndex = 14;
             this._buttonEditTimeBlock.Text = "Edit Time Block";
             this._buttonEditTimeBlock.UseVisualStyleBackColor = true;
             this._buttonEditTimeBlock.Click += new System.EventHandler(this.OnButtonClick);
@@ -299,7 +299,7 @@
             this._buttonRemoveTimeBlock.Location = new System.Drawing.Point(209, 585);
             this._buttonRemoveTimeBlock.Name = "_buttonRemoveTimeBlock";
             this._buttonRemoveTimeBlock.Size = new System.Drawing.Size(280, 23);
-            this._buttonRemoveTimeBlock.TabIndex = 14;
+            this._buttonRemoveTimeBlock.TabIndex = 15;
             this._buttonRemoveTimeBlock.Text = "Remove Time Block";
             this._buttonRemoveTimeBlock.UseVisualStyleBackColor = true;
             this._buttonRemoveTimeBlock.Click += new System.EventHandler(this.OnButtonClick);
@@ -465,7 +465,7 @@
             this._buttonCopyDay.Location = new System.Drawing.Point(209, 526);
             this._buttonCopyDay.Name = "_buttonCopyDay";
             this._buttonCopyDay.Size = new System.Drawing.Size(280, 23);
-            this._buttonCopyDay.TabIndex = 15;
+            this._buttonCopyDay.TabIndex = 13;
             this._buttonCopyDay.Text = "Copy Entire Day";
             this._buttonCopyDay.UseVisualStyleBackColor = true;
             this._buttonCopyDay.Click += new System.EventHandler(this.OnButtonClick);
