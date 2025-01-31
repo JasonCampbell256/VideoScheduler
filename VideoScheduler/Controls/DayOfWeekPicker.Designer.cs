@@ -149,6 +149,7 @@
             this._buttonDeselectAll.TabIndex = 8;
             this._buttonDeselectAll.Text = "Deselect All";
             this._buttonDeselectAll.UseVisualStyleBackColor = true;
+            this._buttonDeselectAll.Click += new System.EventHandler(this.OnButtonClick);
             // 
             // DayOfWeekPicker
             // 

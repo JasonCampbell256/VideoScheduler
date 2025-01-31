@@ -1,11 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace VideoScheduler
@@ -13,55 +7,39 @@ namespace VideoScheduler
     public partial class DayOfWeekPicker : Form
     {
         public List<DayOfWeek> SelectedDays { get; set; }
-        private List<CheckBox> DayCheckboxes { get; set; }
+        private Dictionary<DayOfWeek, CheckBox> DayCheckboxes { get; set; }
 
-        public DayOfWeekPicker()
+        public DayOfWeekPicker(DayOfWeek? sourceDay = null)
         {
             InitializeComponent();
             SelectedDays = new List<DayOfWeek>();
-            DayCheckboxes = new List<CheckBox>()
+            DayCheckboxes = new Dictionary<DayOfWeek, CheckBox>()
             {
-                _checkBoxMonday,
-                _checkBoxTuesday,
-                _checkBoxWednesday,
-                _checkBoxThursday,
-                _checkBoxFriday,
-                _checkBoxSaturday,
-                _checkBoxSunday
+                { DayOfWeek.Monday, _checkBoxMonday },
+                { DayOfWeek.Tuesday, _checkBoxTuesday },
+                { DayOfWeek.Wednesday, _checkBoxWednesday },
+                { DayOfWeek.Thursday, _checkBoxThursday },
+                { DayOfWeek.Friday, _checkBoxFriday },
+                { DayOfWeek.Saturday, _checkBoxSaturday },
+                { DayOfWeek.Sunday, _checkBoxSunday }
             };
+            if (sourceDay != null)
+            {
+                DayCheckboxes[sourceDay.Value].Enabled = false;
+            }
         }
 
 
         private void UpdateSelectedDays()
         {
             SelectedDays.Clear();
-            if (_checkBoxMonday.Checked)
+
+            foreach (DayOfWeek day in DayCheckboxes.Keys)
             {
-                SelectedDays.Add(DayOfWeek.Monday);
-            }
-            if (_checkBoxTuesday.Checked)
-            {
-                SelectedDays.Add(DayOfWeek.Tuesday);
-            }
-            if (_checkBoxWednesday.Checked)
-            {
-                SelectedDays.Add(DayOfWeek.Wednesday);
-            }
-            if (_checkBoxThursday.Checked)
-            {
-                SelectedDays.Add(DayOfWeek.Thursday);
-            }
-            if (_checkBoxFriday.Checked)
-            {
-                SelectedDays.Add(DayOfWeek.Friday);
-            }
-            if (_checkBoxSaturday.Checked)
-            {
-                SelectedDays.Add(DayOfWeek.Saturday);
-            }
-            if (_checkBoxSunday.Checked)
-            {
-                SelectedDays.Add(DayOfWeek.Sunday);
+                if (DayCheckboxes[day].Checked && DayCheckboxes[day].Enabled)
+                {
+                    SelectedDays.Add(day);
+                }
             }
         }
 
@@ -79,16 +57,22 @@ namespace VideoScheduler
             }
             else if (sender.Equals(_buttonSelectAll))
             {
-                foreach(var checkbox in DayCheckboxes)
+                foreach(var checkbox in DayCheckboxes.Values)
                 {
-                      checkbox.Checked = true;
+                    if (checkbox.Enabled)
+                    {
+                        checkbox.Checked = true;
+                    }
                 }
             }
             else if (sender.Equals(_buttonDeselectAll))
             {
-                foreach (var checkbox in DayCheckboxes)
+                foreach (var checkbox in DayCheckboxes.Values)
                 {
-                    checkbox.Checked = false;
+                    if (checkbox.Enabled)
+                    {
+                        checkbox.Checked = false;
+                    }
                 }
             }
         }

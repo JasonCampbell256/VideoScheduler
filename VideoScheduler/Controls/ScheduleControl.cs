@@ -147,8 +147,6 @@ namespace VideoScheduler
                 var currentRow = dataGridView1.CurrentRow;
                 if (currentRow.Tag is TimeBlock)
                 {
-                    // open a new dialog to ask the user if they are sure they want to delete the time block
-
                     var messageBox = MessageBox.Show("Are you sure you want to delete this time block?", "Delete Time Block", MessageBoxButtons.YesNo);
                     if (messageBox.Equals(DialogResult.Yes))
                     {
@@ -203,20 +201,41 @@ namespace VideoScheduler
             else if (sender.Equals(_buttonCopyTimeBlockToAnotherDay))
             {
                 var currentRow = dataGridView1.CurrentRow;
+                if (currentRow == null)
+                    return;
+
                 var timeBlock = (TimeBlock)currentRow.Tag;
-                if (timeBlock != null)
+                if (timeBlock == null)
+                    return;
+
+                var dayPicker = new DayOfWeekPicker(dayOfWeek);
+                if (dayPicker.ShowDialog() == DialogResult.OK)
                 {
-                    var dayPicker = new DayOfWeekPicker();
-                    if (dayPicker.ShowDialog() == DialogResult.OK)
+                    foreach (var day in dayPicker.SelectedDays)
                     {
-                        foreach (var day in dayPicker.SelectedDays)
+                        if (!day.Equals(dayOfWeek))
                         {
-                            if (!day.Equals(dayOfWeek))
+                            PersistenceManagers.timeBlockManager.CopyTimeBlockToDay(timeBlock, day);
+                        }
+                    }
+                }
+
+            }
+            else if (sender.Equals(_buttonCopyDay))
+            {
+                var dayPicker = new DayOfWeekPicker(dayOfWeek);
+                if (dayPicker.ShowDialog() == DialogResult.OK)
+                {
+                    if (dayPicker.SelectedDays.Any() && !(dayPicker.SelectedDays.Count == 1 && dayPicker.SelectedDays[0] == dayOfWeek))
+                    {
+                        var confirmationDialog = MessageBox.Show("All time blocks in the selected days will be erased! Are you sure?", "Copy Day", MessageBoxButtons.YesNo);
+                        if (confirmationDialog.Equals(DialogResult.Yes))
+                        {
+                            var timeBlocks = PersistenceManagers.timeBlockManager.GetTimeBlocks(dayOfWeek);
+                            foreach(var selectedDay in dayPicker.SelectedDays)
                             {
-                                var newBlock = timeBlock;
-                                newBlock.Guid = Guid.NewGuid();
-                                newBlock.Day = day;
-                                PersistenceManagers.timeBlockManager.AddOrUpdateTimeBlock(newBlock);
+                                PersistenceManagers.timeBlockManager.RemoveAllTimeBlocksInDay(selectedDay);
+                                timeBlocks.ForEach(timeBlock => PersistenceManagers.timeBlockManager.CopyTimeBlockToDay(timeBlock, selectedDay));
                             }
                         }
                     }

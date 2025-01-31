@@ -31,6 +31,19 @@ namespace VideoScheduler.Core
             SaveTimeBlocks();
         }
 
+        public void RemoveAllTimeBlocksInDay(DayOfWeek day)
+        {
+            GetTimeBlocks(day).ForEach(RemoveTimeBlock);
+        }
+
+        public void CopyTimeBlockToDay(TimeBlock timeBlock, DayOfWeek day)
+        {
+            var newBlock = timeBlock;
+            timeBlock.Guid = Guid.NewGuid();
+            timeBlock.Day = day;
+            AddOrUpdateTimeBlock(timeBlock);
+        }
+
         public List<TimeBlock> GetTimeBlocks(DayOfWeek day) 
         {
             // Load existing time blocks, if not already done
