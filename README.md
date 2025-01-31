@@ -29,3 +29,8 @@ Use of this application does not grant license for use of any copyrighted materi
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details
+
+## Support
+You can show your support by buying me a coffee! Donations are never required and will more than likely actually be spent on pizza.
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/jasonssoftware)
