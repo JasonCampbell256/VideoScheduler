@@ -115,6 +115,7 @@ namespace VideoScheduler
                     {
                         return;
                     }
+                    ClearQueue();
                     currentTimeBlock = timeBlock;
                     var videos = _persistenceManagers._picker.GetVideosForTimeBlock(timeBlock);
                     var timeElapsed = truncatedCurrentTime - timeBlock.StartTime;

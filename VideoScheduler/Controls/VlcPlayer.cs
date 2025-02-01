@@ -11,6 +11,7 @@ namespace VideoScheduler.Controls
     {
         private MainForm _mainForm;
         private bool _isFullscreen = false;
+        private bool _playing = false;
         private TransparentPanel _panel;
 
         public VlcPlayer(MainForm mainForm)
@@ -58,7 +59,7 @@ namespace VideoScheduler.Controls
 
         public void PlayVideo(string filePath, long? position)
         {
-            if (position != null && position != 0)
+            if (_playing)
             {
                 //In this case, we are loading a new timeblock or reloading the current one
                 //We want to dispose of the player here so it won't continue playing
@@ -125,9 +126,9 @@ namespace VideoScheduler.Controls
                     }));
 
                     // Subscribe to events
-                    mediaPlayer.Playing += (sender, args) => Console.WriteLine("Playback started.");
-                    mediaPlayer.EndReached += (sender, args) => PlayVideo(_mainForm.GetNextVideo(), null);
-                    mediaPlayer.EncounteredError += (sender, args) => Console.WriteLine("Playback error occurred.");
+                    mediaPlayer.Playing += (sender, args) => { Console.WriteLine("Playback started."); _playing = true; };
+                    mediaPlayer.EndReached += (sender, args) => { _playing = false; PlayVideo(_mainForm.GetNextVideo(), null); };
+                    mediaPlayer.EncounteredError += (sender, args) => { _playing = false; Console.WriteLine("Playback error occurred."); };
 
                     // Attach media and start playback
                     using (var media = new Media(libVlc, filePath, FromType.FromPath))
