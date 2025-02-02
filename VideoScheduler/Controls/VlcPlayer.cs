@@ -12,7 +12,8 @@ namespace VideoScheduler.Controls
         private MainForm _mainForm;
         private bool _isFullscreen = false;
         private bool _playing = false;
-        private TransparentPanel _panel;
+        private TransparentPanel _transparentPanel;
+        private BlackPanel _blackPanel;
 
         public VlcPlayer(MainForm mainForm)
         {
@@ -22,21 +23,41 @@ namespace VideoScheduler.Controls
 
             LibVLCSharp.Shared.Core.Initialize();
 
-            _panel = new TransparentPanel();
-            this.Controls.Add(_panel);
-            _panel.Dock = DockStyle.Fill;
-            _panel.DoubleClick += (sender, args) => OnDoubleClick(sender, args);
+            _transparentPanel = new TransparentPanel();
+            AddPanels(_transparentPanel);
+            _blackPanel = new BlackPanel();
+            AddPanels(_blackPanel);
+            SendPanelToBackSafe(_blackPanel);
         }
 
-        private void BringPanelToFrontSafe()
+        private void AddPanels(Panel panel)
         {
-            if (_panel.InvokeRequired)
+            this.Controls.Add(panel);
+            this.Dock = DockStyle.Fill;
+            this.DoubleClick += (sender, args) => OnDoubleClick(sender, args);
+        }
+
+        private void BringPanelToFrontSafe(Panel panel)
+        {
+            if (panel.InvokeRequired)
             {
-                _panel.Invoke(new Action(() => _panel.BringToFront()));
+                panel.Invoke(new Action(() => panel.BringToFront()));
             }
             else
             {
-                _panel.BringToFront();
+                panel.BringToFront();
+            }
+        }
+
+        private void SendPanelToBackSafe(Panel panel)
+        {
+            if (panel.InvokeRequired)
+            {
+                panel.Invoke(new Action(() => panel.SendToBack()));
+            }
+            else
+            {
+                panel.SendToBack();
             }
         }
 
@@ -126,8 +147,8 @@ namespace VideoScheduler.Controls
                     }));
 
                     // Subscribe to events
-                    mediaPlayer.Playing += (sender, args) => { Console.WriteLine("Playback started."); _playing = true; };
-                    mediaPlayer.EndReached += (sender, args) => { _playing = false; PlayVideo(_mainForm.GetNextVideo(), null); };
+                    mediaPlayer.Playing += (sender, args) => { SendPanelToBackSafe(_blackPanel); Console.WriteLine("Playback started."); _playing = true; };
+                    mediaPlayer.EndReached += (sender, args) => { BringPanelToFrontSafe(_blackPanel); _playing = false; PlayVideo(_mainForm.GetNextVideo(), null); };
                     mediaPlayer.EncounteredError += (sender, args) => { _playing = false; Console.WriteLine("Playback error occurred."); };
 
                     // Attach media and start playback
@@ -149,7 +170,7 @@ namespace VideoScheduler.Controls
                             Console.WriteLine($"Seeking to position: {position ?? 0}");
                             mediaPlayer.Time = position ?? 0;
                         }));
-                        BringPanelToFrontSafe();
+                        BringPanelToFrontSafe(_transparentPanel);
                     }
                 }
             }
@@ -207,5 +228,14 @@ namespace VideoScheduler.Controls
 
         protected override void OnPaint(PaintEventArgs e) =>
             e.Graphics.FillRectangle(new SolidBrush(this.BackColor), this.ClientRectangle);
+    }
+
+    /// <summary>
+    /// Covers the screen when a video ends so it isn't hanging at the last frame
+    /// </summary>
+    public class BlackPanel : Panel
+    {
+        protected override void OnPaint(PaintEventArgs e) =>
+            e.Graphics.FillRectangle(new SolidBrush(Color.Black), this.ClientRectangle);
     }
 }
