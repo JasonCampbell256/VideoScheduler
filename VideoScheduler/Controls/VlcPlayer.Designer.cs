@@ -28,39 +28,38 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this._toolStripMenuItemFullScreen = new System.Windows.Forms.ToolStripMenuItem();
-            this.contextMenuStrip1.SuspendLayout();
-            this.SuspendLayout();
+            components = new System.ComponentModel.Container();
+            contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(components);
+            _toolStripMenuItemFullScreen = new System.Windows.Forms.ToolStripMenuItem();
+            contextMenuStrip1.SuspendLayout();
+            SuspendLayout();
             // 
             // contextMenuStrip1
             // 
-            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this._toolStripMenuItemFullScreen});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(227, 36);
+            contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
+            contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { _toolStripMenuItemFullScreen });
+            contextMenuStrip1.Name = "contextMenuStrip1";
+            contextMenuStrip1.Size = new System.Drawing.Size(170, 26);
             // 
             // _toolStripMenuItemFullScreen
             // 
-            this._toolStripMenuItemFullScreen.Name = "_toolStripMenuItemFullScreen";
-            this._toolStripMenuItemFullScreen.Size = new System.Drawing.Size(226, 32);
-            this._toolStripMenuItemFullScreen.Text = "Toggle Full Screen";
-            this._toolStripMenuItemFullScreen.Click += new System.EventHandler(this.OnToolStripMenuItemClick);
+            _toolStripMenuItemFullScreen.Name = "_toolStripMenuItemFullScreen";
+            _toolStripMenuItemFullScreen.Size = new System.Drawing.Size(169, 22);
+            _toolStripMenuItemFullScreen.Text = "Toggle Full Screen";
+            _toolStripMenuItemFullScreen.Click += OnToolStripMenuItemClick;
             // 
             // VlcPlayer
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.Black;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.ContextMenuStrip = this.contextMenuStrip1;
-            this.Name = "VlcPlayer";
-            this.Text = "VlcPlayer";
-            this.contextMenuStrip1.ResumeLayout(false);
-            this.ResumeLayout(false);
-
+            AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            BackColor = System.Drawing.Color.Black;
+            ClientSize = new System.Drawing.Size(622, 338);
+            ContextMenuStrip = contextMenuStrip1;
+            Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            Name = "VlcPlayer";
+            Text = "VlcPlayer";
+            contextMenuStrip1.ResumeLayout(false);
+            ResumeLayout(false);
         }
 
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;

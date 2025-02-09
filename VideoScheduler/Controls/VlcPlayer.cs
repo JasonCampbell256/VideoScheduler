@@ -33,8 +33,8 @@ namespace VideoScheduler.Controls
         private void AddPanels(Panel panel)
         {
             this.Controls.Add(panel);
-            this.Dock = DockStyle.Fill;
-            this.DoubleClick += (sender, args) => OnDoubleClick(sender, args);
+            panel.Dock = DockStyle.Fill;
+            panel.DoubleClick += (sender, args) => OnDoubleClick(sender, args);
         }
 
         private void BringPanelToFrontSafe(Panel panel)

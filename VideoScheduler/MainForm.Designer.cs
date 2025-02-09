@@ -29,104 +29,99 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this._buttonOpenPlayer = new System.Windows.Forms.Button();
-            this._listBoxQueue = new System.Windows.Forms.ListBox();
-            this._buttonOpenSchedule = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this._buttonChangeLibraryPath = new System.Windows.Forms.Button();
-            this._buttonReloadBlock = new System.Windows.Forms.Button();
-            this.SuspendLayout();
+            _buttonOpenPlayer = new System.Windows.Forms.Button();
+            _listBoxQueue = new System.Windows.Forms.ListBox();
+            _buttonOpenSchedule = new System.Windows.Forms.Button();
+            label1 = new System.Windows.Forms.Label();
+            _buttonChangeLibraryPath = new System.Windows.Forms.Button();
+            _buttonReloadBlock = new System.Windows.Forms.Button();
+            SuspendLayout();
             // 
             // _buttonOpenPlayer
             // 
-            this._buttonOpenPlayer.Location = new System.Drawing.Point(18, 18);
-            this._buttonOpenPlayer.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this._buttonOpenPlayer.Name = "_buttonOpenPlayer";
-            this._buttonOpenPlayer.Size = new System.Drawing.Size(195, 35);
-            this._buttonOpenPlayer.TabIndex = 0;
-            this._buttonOpenPlayer.Text = "Open Player";
-            this._buttonOpenPlayer.UseVisualStyleBackColor = true;
-            this._buttonOpenPlayer.Click += new System.EventHandler(this.OnButtonClick);
+            _buttonOpenPlayer.Location = new System.Drawing.Point(14, 14);
+            _buttonOpenPlayer.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            _buttonOpenPlayer.Name = "_buttonOpenPlayer";
+            _buttonOpenPlayer.Size = new System.Drawing.Size(152, 26);
+            _buttonOpenPlayer.TabIndex = 0;
+            _buttonOpenPlayer.Text = "Open Player";
+            _buttonOpenPlayer.UseVisualStyleBackColor = true;
+            _buttonOpenPlayer.Click += OnButtonClick;
             // 
             // _listBoxQueue
             // 
-            this._listBoxQueue.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._listBoxQueue.FormattingEnabled = true;
-            this._listBoxQueue.HorizontalScrollbar = true;
-            this._listBoxQueue.ItemHeight = 20;
-            this._listBoxQueue.Location = new System.Drawing.Point(222, 38);
-            this._listBoxQueue.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this._listBoxQueue.Name = "_listBoxQueue";
-            this._listBoxQueue.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this._listBoxQueue.ScrollAlwaysVisible = true;
-            this._listBoxQueue.Size = new System.Drawing.Size(672, 584);
-            this._listBoxQueue.TabIndex = 5;
+            _listBoxQueue.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            _listBoxQueue.FormattingEnabled = true;
+            _listBoxQueue.HorizontalScrollbar = true;
+            _listBoxQueue.Location = new System.Drawing.Point(173, 43);
+            _listBoxQueue.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            _listBoxQueue.Name = "_listBoxQueue";
+            _listBoxQueue.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            _listBoxQueue.ScrollAlwaysVisible = true;
+            _listBoxQueue.Size = new System.Drawing.Size(524, 424);
+            _listBoxQueue.TabIndex = 5;
             // 
             // _buttonOpenSchedule
             // 
-            this._buttonOpenSchedule.Location = new System.Drawing.Point(18, 65);
-            this._buttonOpenSchedule.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this._buttonOpenSchedule.Name = "_buttonOpenSchedule";
-            this._buttonOpenSchedule.Size = new System.Drawing.Size(195, 35);
-            this._buttonOpenSchedule.TabIndex = 1;
-            this._buttonOpenSchedule.Text = "Schedule View";
-            this._buttonOpenSchedule.UseVisualStyleBackColor = true;
-            this._buttonOpenSchedule.Click += new System.EventHandler(this.OnButtonClick);
+            _buttonOpenSchedule.Location = new System.Drawing.Point(14, 49);
+            _buttonOpenSchedule.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            _buttonOpenSchedule.Name = "_buttonOpenSchedule";
+            _buttonOpenSchedule.Size = new System.Drawing.Size(152, 26);
+            _buttonOpenSchedule.TabIndex = 1;
+            _buttonOpenSchedule.Text = "Schedule View";
+            _buttonOpenSchedule.UseVisualStyleBackColor = true;
+            _buttonOpenSchedule.Click += OnButtonClick;
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(222, 18);
-            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(102, 20);
-            this.label1.TabIndex = 4;
-            this.label1.Text = "Video Queue";
+            label1.AutoSize = true;
+            label1.Location = new System.Drawing.Point(173, 14);
+            label1.Name = "label1";
+            label1.Size = new System.Drawing.Size(75, 15);
+            label1.TabIndex = 4;
+            label1.Text = "Video Queue";
             // 
             // _buttonChangeLibraryPath
             // 
-            this._buttonChangeLibraryPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this._buttonChangeLibraryPath.Location = new System.Drawing.Point(18, 552);
-            this._buttonChangeLibraryPath.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this._buttonChangeLibraryPath.Name = "_buttonChangeLibraryPath";
-            this._buttonChangeLibraryPath.Size = new System.Drawing.Size(195, 72);
-            this._buttonChangeLibraryPath.TabIndex = 3;
-            this._buttonChangeLibraryPath.Text = "Change Library Path";
-            this._buttonChangeLibraryPath.UseVisualStyleBackColor = true;
-            this._buttonChangeLibraryPath.Click += new System.EventHandler(this.OnButtonClick);
+            _buttonChangeLibraryPath.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            _buttonChangeLibraryPath.Location = new System.Drawing.Point(14, 414);
+            _buttonChangeLibraryPath.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            _buttonChangeLibraryPath.Name = "_buttonChangeLibraryPath";
+            _buttonChangeLibraryPath.Size = new System.Drawing.Size(152, 54);
+            _buttonChangeLibraryPath.TabIndex = 3;
+            _buttonChangeLibraryPath.Text = "Change Library Path";
+            _buttonChangeLibraryPath.UseVisualStyleBackColor = true;
+            _buttonChangeLibraryPath.Click += OnButtonClick;
             // 
             // _buttonReloadBlock
             // 
-            this._buttonReloadBlock.Location = new System.Drawing.Point(18, 109);
-            this._buttonReloadBlock.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this._buttonReloadBlock.Name = "_buttonReloadBlock";
-            this._buttonReloadBlock.Size = new System.Drawing.Size(195, 35);
-            this._buttonReloadBlock.TabIndex = 2;
-            this._buttonReloadBlock.Text = "Reload Block";
-            this._buttonReloadBlock.UseVisualStyleBackColor = true;
-            this._buttonReloadBlock.Click += new System.EventHandler(this.OnButtonClick);
+            _buttonReloadBlock.Location = new System.Drawing.Point(14, 82);
+            _buttonReloadBlock.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            _buttonReloadBlock.Name = "_buttonReloadBlock";
+            _buttonReloadBlock.Size = new System.Drawing.Size(152, 26);
+            _buttonReloadBlock.TabIndex = 2;
+            _buttonReloadBlock.Text = "Reload Block";
+            _buttonReloadBlock.UseVisualStyleBackColor = true;
+            _buttonReloadBlock.Click += OnButtonClick;
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(920, 645);
-            this.Controls.Add(this._buttonReloadBlock);
-            this.Controls.Add(this._buttonChangeLibraryPath);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this._buttonOpenSchedule);
-            this.Controls.Add(this._listBoxQueue);
-            this.Controls.Add(this._buttonOpenPlayer);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.Name = "MainForm";
-            this.Text = "Video Scheduler";
-            this.Load += new System.EventHandler(this.OnButtonClick);
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(716, 484);
+            Controls.Add(_buttonReloadBlock);
+            Controls.Add(_buttonChangeLibraryPath);
+            Controls.Add(label1);
+            Controls.Add(_buttonOpenSchedule);
+            Controls.Add(_listBoxQueue);
+            Controls.Add(_buttonOpenPlayer);
+            Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
+            Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            Name = "MainForm";
+            Text = "Video Scheduler";
+            Load += OnButtonClick;
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
