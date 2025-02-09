@@ -5,11 +5,13 @@ using System.Linq;
 using System.Windows.Forms;
 using VideoScheduler.Core;
 using VideoScheduler.Domain;
+using System.ComponentModel;
 
 namespace VideoScheduler.Controls
 {
     public partial class MovieControl : Form
     {
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public SchedulableMovie Movie { get; set; }
 
         private PersistenceManagers persistenceManagers;

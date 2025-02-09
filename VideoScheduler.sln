@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34003.232
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoScheduler", "VideoScheduler\VideoScheduler.csproj", "{3F1E6412-3A50-4DF2-BC0F-E161C501F352}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoScheduler", "VideoScheduler\VideoScheduler.csproj", "{3F1E6412-3A50-4DF2-BC0F-E161C501F352}"
 	ProjectSection(ProjectDependencies) = postProject
 		{421785E8-9ADA-4155-AFC3-8C8A9023CC80} = {421785E8-9ADA-4155-AFC3-8C8A9023CC80}
 		{4B68B343-0396-445A-B306-536381C40D3A} = {4B68B343-0396-445A-B306-536381C40D3A}
@@ -15,6 +15,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoScheduler.Core", "Vide
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoScheduler.Domain", "VideoScheduler.Domain\VideoScheduler.Domain.csproj", "{4B68B343-0396-445A-B306-536381C40D3A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoScheduler.UI", "VideoScheduler.UI\VideoScheduler.UI.csproj", "{C0569C1E-4CCA-43A1-ABF2-ECD01F30223C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{421785E8-9ADA-4155-AFC3-8C8A9023CC80} = {421785E8-9ADA-4155-AFC3-8C8A9023CC80}
+		{4B68B343-0396-445A-B306-536381C40D3A} = {4B68B343-0396-445A-B306-536381C40D3A}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,6 +54,14 @@ Global
 		{4B68B343-0396-445A-B306-536381C40D3A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4B68B343-0396-445A-B306-536381C40D3A}.Release|x64.ActiveCfg = Release|Any CPU
 		{4B68B343-0396-445A-B306-536381C40D3A}.Release|x64.Build.0 = Release|Any CPU
+		{C0569C1E-4CCA-43A1-ABF2-ECD01F30223C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0569C1E-4CCA-43A1-ABF2-ECD01F30223C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0569C1E-4CCA-43A1-ABF2-ECD01F30223C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C0569C1E-4CCA-43A1-ABF2-ECD01F30223C}.Debug|x64.Build.0 = Debug|Any CPU
+		{C0569C1E-4CCA-43A1-ABF2-ECD01F30223C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0569C1E-4CCA-43A1-ABF2-ECD01F30223C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0569C1E-4CCA-43A1-ABF2-ECD01F30223C}.Release|x64.ActiveCfg = Release|Any CPU
+		{C0569C1E-4CCA-43A1-ABF2-ECD01F30223C}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

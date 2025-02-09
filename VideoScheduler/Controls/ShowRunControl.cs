@@ -4,11 +4,13 @@ using System.Linq;
 using System.Windows.Forms;
 using VideoScheduler.Core;
 using VideoScheduler.Domain;
+using System.ComponentModel;
 
 namespace VideoScheduler
 {
     public partial class ShowRunControl : Form
     {
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ShowRun ShowRun { get; private set; }
 
         private PersistenceManagers PersistenceManagers;

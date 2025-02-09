@@ -15,6 +15,7 @@ namespace VideoScheduler.Controls
 {
     public partial class CommercialForm : Form
     {
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public CommercialFiller CommercialFiller { get; private set; }
 
         private readonly PersistenceManagers persistenceManagers;

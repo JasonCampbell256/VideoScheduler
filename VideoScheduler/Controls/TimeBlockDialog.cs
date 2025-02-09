@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Windows.Forms;
 using VideoScheduler.Domain;
+using System.ComponentModel;
 
 namespace VideoScheduler
 {
@@ -9,6 +10,7 @@ namespace VideoScheduler
     {
         private bool existing = false;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public TimeBlock TimeBlock { get; private set; }
 
         public TimeBlockDialog()

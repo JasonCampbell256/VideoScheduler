@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace VideoScheduler
 {
     public partial class DayOfWeekPicker : Form
     {
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public List<DayOfWeek> SelectedDays { get; set; }
         private Dictionary<DayOfWeek, CheckBox> DayCheckboxes { get; set; }
 
