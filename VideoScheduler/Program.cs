@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using System;
 
-namespace VideoScheduler
+namespace VideoScheduler.UI
 {
     internal sealed class Program
     {

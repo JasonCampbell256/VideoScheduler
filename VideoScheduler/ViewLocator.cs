@@ -1,9 +1,9 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using System;
-using VideoScheduler.ViewModels;
+using VideoScheduler.UI.ViewModels;
 
-namespace VideoScheduler
+namespace VideoScheduler.UI
 {
     public class ViewLocator : IDataTemplate
     {

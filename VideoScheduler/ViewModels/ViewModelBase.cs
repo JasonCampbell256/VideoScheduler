@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace VideoScheduler.ViewModels
+namespace VideoScheduler.UI.ViewModels
 {
     public class ViewModelBase : ObservableObject
     {

@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vlc="clr-namespace:LibVLCSharp.Avalonia;assembly=LibVLCSharp.Avalonia"
+             xmlns:vm="clr-namespace:VideoScheduler.UI.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="VideoScheduler.UI.Views.VideoPlayer"
+             x:DataType="vm:MainWindowViewModel"
+             DataContextChanged="OnDataContextChanged">
+	
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto, *, Auto">
+        <Label Grid.Row="0" HorizontalAlignment="Center">Video Player</Label>
+
+        <vlc:VideoView Grid.Row="1" MediaPlayer="{Binding MediaPlayer}"
+                       HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch">
+        </vlc:VideoView>
+    </Grid>
+</UserControl>

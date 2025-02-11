@@ -4,10 +4,10 @@ using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using System.Linq;
-using VideoScheduler.ViewModels;
-using VideoScheduler.Views;
+using VideoScheduler.UI.ViewModels;
+using VideoScheduler.UI.Views;
 
-namespace VideoScheduler
+namespace VideoScheduler.UI
 {
     public partial class App : Application
     {

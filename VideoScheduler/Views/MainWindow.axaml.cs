@@ -1,6 +1,7 @@
+using System.Runtime.InteropServices;
 using Avalonia.Controls;
 
-namespace VideoScheduler.Views
+namespace VideoScheduler.UI.Views
 {
     public partial class MainWindow : Window
     {
