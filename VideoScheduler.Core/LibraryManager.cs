@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -11,6 +12,13 @@ namespace VideoScheduler.Core
 {
     public class LibraryManager
     {
+        private static List<string> vlcSupportedVideoExtensions = new List<string>
+        {
+            ".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".mpg", ".mpeg", ".webm",
+            ".ogv", ".ogg", ".3gp", ".3g2", ".ts", ".vob", ".asf", ".divx", ".m2ts",
+            ".rmvb", ".f4v", ".dvr-ms", ".mxf", ".nsv", ".swf", ".yuv", ".mts", ".fmp4"
+        };
+
         public static VideoLibrary LoadLibrary(string path)
         {
             VideoLibrary library = new VideoLibrary();
@@ -18,7 +26,7 @@ namespace VideoScheduler.Core
             {
                 //get the folder name
                 string folderName = System.IO.Path.GetFileName(folder);
-                if (string.Equals("Shows", folderName, StringComparison.InvariantCultureIgnoreCase))
+                if (string.Equals("Shows", folderName, StringComparison.InvariantCultureIgnoreCase) || string.Equals("TV Shows", folderName, StringComparison.InvariantCultureIgnoreCase))
                 {
                     parseShows(library, folder);
                 }
@@ -87,33 +95,95 @@ namespace VideoScheduler.Core
         {
             foreach (string showFolder in System.IO.Directory.GetDirectories(showsFolderPath))
             {
-                string showName = System.IO.Path.GetFileName(showFolder);
+                var showName = System.IO.Path.GetFileName(showFolder);
                 TvShow show = new TvShow()
                 {
                     Title = showName
                 };
-                foreach (string seasonFolder in System.IO.Directory.GetDirectories(showFolder))
+
+                //legacy
+                foreach (string showSubFolder in System.IO.Directory.GetDirectories(showFolder))
                 {
-                    if (!isSeasonFormat(System.IO.Path.GetFileName(seasonFolder)))
+                    if (isSeasonFormat(System.IO.Path.GetFileName(showSubFolder)))
                     {
-                        continue;
+                        var seasonFolderName = System.IO.Path.GetFileName(showSubFolder);
+                        if (int.TryParse(seasonFolderName.Substring(6), out int seasonNumber)) {
+
+                            TvShowSeason season = new TvShowSeason(show, seasonNumber);
+                            foreach (string episodeFile in System.IO.Directory.GetFiles(showSubFolder))
+                            {
+                                if (!checkExtension(episodeFile))
+                                {
+                                    continue;
+                                }
+                                var nameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(episodeFile);
+                                if (int.TryParse(nameWithoutExtension, out int _episodeNumber))
+                                {
+                                    TvShowEpisode episode = new TvShowEpisode(season, _episodeNumber, episodeFile);
+                                    season.Episodes.Add(episode);
+                                }
+
+                            }
+                            show.Seasons.Add(season);
+                        }
                     }
-                    string seasonFolderName = System.IO.Path.GetFileName(seasonFolder);
-                    int seasonNumber = int.Parse(seasonFolderName.Substring(6));
-                    TvShowSeason season = new TvShowSeason(show, seasonNumber);
-                    foreach (string episodeFile in System.IO.Directory.GetFiles(seasonFolder))
+                }
+
+                scanShowFolders(library, show, showFolder);
+
+                library.Shows.Add(show);
+            }
+        }
+
+        private static bool checkExtension(string filePath)
+        {
+            var extension = Path.GetExtension(filePath);
+            if (extension == null) return false;
+            if (vlcSupportedVideoExtensions.Contains(extension)) return true;
+            return false;
+        }
+
+        private static void scanShowFolders(VideoLibrary library, TvShow show, string folderpath)
+        {
+            System.Diagnostics.Debug.WriteLine(folderpath);
+            foreach (var subFolder in System.IO.Directory.GetDirectories(folderpath))
+            {
+                scanShowFolders(library, show, subFolder);
+            }
+
+            foreach (var file in System.IO.Directory.GetFiles(folderpath))
+            {
+                try
+                {
+                    string nameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(file);
+                    var match = Regex.Match(nameWithoutExtension, @"s(?<season>\d{1,2})e(?<episode>\d{1,3})", RegexOptions.IgnoreCase);
+
+                    if (match.Success)
                     {
-                        string nameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(episodeFile);
-                        if (int.TryParse(nameWithoutExtension, out int _episodeNumber))
+                        int seasonNumber = int.Parse(match.Groups["season"].Value);
+                        int episodeNumber = int.Parse(match.Groups["episode"].Value);
+
+                        var existingSeason = show.Seasons.FirstOrDefault(season => season.SeasonNumber == seasonNumber, null);
+
+                        if (existingSeason == null)
                         {
-                            TvShowEpisode episode = new TvShowEpisode(season, _episodeNumber, episodeFile);
-                            season.Episodes.Add(episode);
+                            existingSeason = new TvShowSeason(show, seasonNumber);
+                            show.Seasons.Add(existingSeason);
                         }
 
+                        var existingEpisode = existingSeason.Episodes.FirstOrDefault(episode => episode.EpisodeNumber == episodeNumber, null);
+
+                        if (existingEpisode == null)
+                        {
+                            TvShowEpisode episode = new TvShowEpisode(existingSeason, episodeNumber, file);
+                            existingSeason.Episodes.Add(episode);
+                        }
                     }
-                    show.Seasons.Add(season);
                 }
-                library.Shows.Add(show);
+                catch
+                {
+                    continue;
+                }
             }
         }
 

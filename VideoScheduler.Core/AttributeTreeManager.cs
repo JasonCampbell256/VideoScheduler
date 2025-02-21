@@ -65,7 +65,7 @@ namespace VideoScheduler.Core
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.Message);
             }
         }
 
