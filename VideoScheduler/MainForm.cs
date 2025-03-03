@@ -164,7 +164,7 @@ namespace VideoScheduler
                     OpenVlcPlayer();
                 }
                 var url = _playlist.Dequeue();
-                _VlcPlayerForm.PlayVideo(url, startTime);
+                _VlcPlayerForm.PlayFirstVideo(url, startTime);
                 _listBoxQueue.Items.RemoveAt(0);
             }
         }
@@ -175,7 +175,7 @@ namespace VideoScheduler
             _listBoxQueue.Items.Add(url);
         }
 
-        private void UpdateListBox()
+        public void UpdateListBox()
         {
             _listBoxQueue.Items.Clear();
             foreach (var item in _playlist)

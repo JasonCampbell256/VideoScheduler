@@ -13,12 +13,12 @@ namespace VideoScheduler.Controls
     {
         private MainForm _mainForm;
         private bool _isFullscreen = false;
-        private bool _playing = false;
         private TransparentPanel _transparentPanel;
         private BlackPanel _blackPanel;
         private LibVLC _libVLC; 
         private MediaPlayer _mediaPlayer;
-        private Media _media;
+        private Media _currentMedia;
+        private Media _hiddenMedia;
 
         public VlcPlayer(MainForm mainForm)
         {
@@ -30,20 +30,13 @@ namespace VideoScheduler.Controls
             _libVLC = new LibVLC();
 
             _mediaPlayer = new MediaPlayer(_libVLC);
-            _mediaPlayer.Playing += (sender, args) => { SendPanelToBackSafe(_blackPanel); _playing = true; };
-            _mediaPlayer.EncounteredError += (sender, args) => { _playing = false; };
+            _mediaPlayer.Playing += (sender, args) => { SendPanelToBackSafe(_blackPanel); };
             _mediaPlayer.EndReached += (sender, args) =>
             {
                 this.BeginInvoke(new Action(() =>
                 {
                     BringPanelToFrontSafe(_blackPanel);
-                    _playing = false;
-
-                    string nextVideo = _mainForm.GetNextVideo();
-                    if (!string.IsNullOrEmpty(nextVideo) && File.Exists(nextVideo))
-                    {
-                        PlayVideo(nextVideo, null);
-                    }
+                     PlayNextVideo();
                 }));
             };
 
@@ -62,19 +55,53 @@ namespace VideoScheduler.Controls
             SendPanelToBackSafe(_blackPanel);
         }
 
-        public void PlayVideo(string filePath, long? position)
+        private void SwitchMedia()
+        {
+            var oldCurrent = _currentMedia;
+            var newCurrent = _hiddenMedia;
+
+            _currentMedia = newCurrent;
+            _hiddenMedia = oldCurrent;
+        }
+
+        public void PreloadNextVideo()
+        {
+            var nextVideo = _mainForm.GetNextVideo();
+            if (!string.IsNullOrEmpty(nextVideo))
+            {
+                _hiddenMedia = new Media(_libVLC, nextVideo);
+            }
+        }
+
+        public void PlayFirstVideo(string filePath, long? position)
         {
             _mediaPlayer.Stop();
             _mediaPlayer.Media?.Dispose();
-            _media = new Media(_libVLC, filePath, FromType.FromPath);
-            _mediaPlayer.Media = _media;
+            _currentMedia = new Media(_libVLC, filePath, FromType.FromPath);
+            _mediaPlayer.Media = _currentMedia;
             _mediaPlayer.Play();
 
             this.Invoke(new Action(() =>
             {
                 _mediaPlayer.Time = position ?? 0;
             }));
+
+            _mainForm.UpdateListBox();
             BringPanelToFrontSafe(_transparentPanel);
+            PreloadNextVideo();
+        }
+
+        public void PlayNextVideo()
+        {
+            _mediaPlayer.Stop();
+            if (_currentMedia == null) return;
+            SwitchMedia();
+            _hiddenMedia?.Dispose();
+            _mediaPlayer.Media = _currentMedia;
+            _mediaPlayer.Play();
+            _mainForm.UpdateListBox();
+            BringPanelToFrontSafe(_transparentPanel);
+            PreloadNextVideo();
         }
 
         private void AddPanels(Panel panel)
