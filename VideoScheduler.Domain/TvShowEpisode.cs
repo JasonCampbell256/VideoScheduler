@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VideoScheduler.Domain
 {
-    public class TvShowEpisode : IVideo
+    public class TvShowEpisode : IVideo, IComparable<TvShowEpisode>
     {
         public string FileName { get; set; }
         public string FilePath { get; set; }
@@ -55,6 +55,11 @@ namespace VideoScheduler.Domain
         public override string ToString()
         {
             return EpisodeNumber.ToString();
+        }
+
+        public int CompareTo(TvShowEpisode other)
+        {
+            return this.EpisodeNumber.CompareTo(other.EpisodeNumber);
         }
     }
 }

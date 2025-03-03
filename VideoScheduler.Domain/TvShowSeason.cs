@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VideoScheduler.Domain
 {
-    public class TvShowSeason
+    public class TvShowSeason : IComparable<TvShowSeason>
     {
         public TvShow Show { get; set; }
         public int SeasonNumber { get; set; }
@@ -22,6 +22,11 @@ namespace VideoScheduler.Domain
         public override string ToString()
         {
             return SeasonNumber.ToString();
+        }
+
+        public int CompareTo(TvShowSeason other)
+        {
+            return this.SeasonNumber.CompareTo(other.SeasonNumber);
         }
     }
 }

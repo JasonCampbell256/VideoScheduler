@@ -29,6 +29,21 @@ namespace VideoScheduler.Core
                 if (string.Equals("Shows", folderName, StringComparison.InvariantCultureIgnoreCase) || string.Equals("TV Shows", folderName, StringComparison.InvariantCultureIgnoreCase))
                 {
                     parseShows(library, folder);
+                    foreach (TvShow show in library.Shows)
+                    {
+                        if (show.Seasons.Count > 1)
+                        {
+                            show.Seasons.Sort();
+                        }
+
+                        foreach (TvShowSeason season in show.Seasons)
+                        {
+                            if (season.Episodes.Count > 1)
+                            {
+                                season.Episodes.Sort();
+                            }
+                        }
+                    }
                 }
                 else if (string.Equals("Movies", folderName, StringComparison.InvariantCultureIgnoreCase))
                 {
