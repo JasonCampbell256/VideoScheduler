@@ -26,6 +26,9 @@ namespace VideoScheduler.Core
                 if (string.Equals("Shows", folderName, StringComparison.InvariantCultureIgnoreCase) || string.Equals("TV Shows", folderName, StringComparison.InvariantCultureIgnoreCase))
                 {
                     parseShows(library, folder);
+
+                    library.Shows.Sort((a, b) => string.Compare(a.Title, b.Title, StringComparison.InvariantCultureIgnoreCase));
+
                     foreach (TvShow show in library.Shows)
                     {
                         if (show.Seasons.Count > 1)
@@ -129,8 +132,12 @@ namespace VideoScheduler.Core
                     {
                         var seasonFolderName = System.IO.Path.GetFileName(showSubFolder);
                         if (int.TryParse(seasonFolderName.Substring(6), out int seasonNumber)) {
-
-                            TvShowSeason season = new TvShowSeason(show, seasonNumber);
+                            var season = show.Seasons.Where(s => s.SeasonNumber == seasonNumber).FirstOrDefault();
+                            if (season == null)
+                            {
+                                season = new TvShowSeason(show, seasonNumber);
+                                show.Seasons.Add(season);
+                            }
                             foreach (string episodeFile in System.IO.Directory.GetFiles(showSubFolder))
                             {
                                 if (!checkExtension(episodeFile))
@@ -140,16 +147,20 @@ namespace VideoScheduler.Core
                                 var nameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(episodeFile);
                                 if (int.TryParse(nameWithoutExtension, out int _episodeNumber))
                                 {
-                                    TvShowEpisode episode = new TvShowEpisode(season, _episodeNumber, episodeFile);
-                                    season.Episodes.Add(episode);
-                                }
+                                    var episode = season.Episodes.FirstOrDefault(e => e.EpisodeNumber == _episodeNumber, null);
 
+                                    if (episode == null)
+                                    {
+                                        episode = new TvShowEpisode(season, _episodeNumber, episodeFile);
+                                        season.Episodes.Add(episode);
+                                    }
+                                }
                             }
-                            show.Seasons.Add(season);
                         }
-                    }
+                    }   
                 }
 
+                //new
                 scanShowFolders(library, show, showFolder);
 
                 if (library.GetShow(show.Title) == null && show.Seasons.Count > 0)
@@ -169,7 +180,6 @@ namespace VideoScheduler.Core
 
         private static void scanShowFolders(VideoLibrary library, TvShow show, string folderpath)
         {
-            System.Diagnostics.Debug.WriteLine(folderpath);
             foreach (var subFolder in System.IO.Directory.GetDirectories(folderpath))
             {
                 scanShowFolders(library, show, subFolder);
