@@ -221,7 +221,7 @@ namespace VideoScheduler
                         {
                             if (row.Tag != null && row.Tag.GetType() == typeof(TimeBlock))
                             {
-                                if (row.Tag == dialog.TimeBlock)
+                                if (((TimeBlock)row.Tag).Guid == dialog.TimeBlock.Guid)
                                 {
                                     dataGridView1.ClearSelection();
                                     dataGridView1.CurrentCell = row.Cells[0];
