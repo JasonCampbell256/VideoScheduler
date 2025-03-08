@@ -26,6 +26,11 @@ namespace VideoScheduler.Controls
             InitializeComponent();
             EnableFields(false);
             FillExistingCommercialFillers();
+            if (dataGridView1.Rows.Count > 0)
+            {
+                dataGridView1.CurrentCell = dataGridView1.Rows[0].Cells[0];
+                dataGridView1.CurrentRow.Selected = true;
+            }
         }
 
         private void FillExistingCommercialFillers()
@@ -76,9 +81,13 @@ namespace VideoScheduler.Controls
             {
                 ResetFields();
 
-                if (GetSelectedCommercialFiller() != null)
+                if (dataGridView1.Rows[e.RowIndex].Tag != null && dataGridView1.Rows[e.RowIndex].Tag.GetType() == typeof(CommercialFiller))
                 {
                     _buttonUseSelected.Enabled = true;
+
+                    var selectedFiller = (CommercialFiller)dataGridView1.Rows[e.RowIndex].Tag;
+
+                    _textBoxDescription.Text = selectedFiller.Description;
                 }
                 else
                 {
@@ -122,7 +131,8 @@ namespace VideoScheduler.Controls
 
                                     int index = dataGridView1.Rows.Add();
                                     dataGridView1.Rows[index].Tag = commercialFiller;
-                                    dataGridView1.Rows[index].Selected = true;
+                                    dataGridView1.CurrentCell = dataGridView1.Rows[index].Cells[0];
+                                    dataGridView1.CurrentRow.Selected = true;
                                 }
                             }
 
@@ -215,6 +225,7 @@ namespace VideoScheduler.Controls
                 dataGridView1.CurrentRow.SetValues(CommercialFiller.Description);
                 persistenceManagers.commercialFillerManager.AddOrUpdateCommercial(CommercialFiller);
                 EnableFields(false);
+                _buttonUseSelected.Enabled = true;
             }
         }
     }

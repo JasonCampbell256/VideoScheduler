@@ -21,6 +21,11 @@ namespace VideoScheduler
             EnableFields(false);
             _comboBoxShow.Items.AddRange(PersistenceManagers._library.Shows.Select(s => s.Title).ToArray());
             FillExistingRuns();
+            if (dataGridView1.Rows.Count > 0)
+            {
+                dataGridView1.CurrentCell = dataGridView1.Rows[0].Cells[0];
+                dataGridView1.CurrentRow.Selected = true;
+            }
         }
 
         private void FillExistingRuns()
@@ -31,18 +36,13 @@ namespace VideoScheduler
             }
         }
 
-        private ShowRun GetSelectedRun() 
+        private ShowRun GetSelectedRun()
         {
             if (dataGridView1.CurrentRow == null)
             {
                 return null;
             }
             return (ShowRun)dataGridView1.CurrentRow.Tag;
-        }
-
-        private ShowRun GetSelectedRun(int index)
-        {
-            return (ShowRun)dataGridView1.Rows[index].Tag;
         }
 
         private void AddShowRunRow(ShowRun showRun)
@@ -84,7 +84,8 @@ namespace VideoScheduler
                 if (GetSelectedRun() != null)
                 {
                     _comboBoxEpisode.SelectedItem = GetSelectedRun().NextEpisode;
-                } else
+                }
+                else
                 {
                     _comboBoxEpisode.SelectedIndex = 0;
                 }
@@ -118,11 +119,18 @@ namespace VideoScheduler
             if (sender.Equals(dataGridView1))
             {
                 ResetFields();
-                
-                if (GetSelectedRun(e.RowIndex) != null)
+
+                if (dataGridView1.Rows[e.RowIndex].Tag != null && dataGridView1.Rows[e.RowIndex].Tag.GetType() == typeof (ShowRun))
                 {
                     _buttonUseSelected.Enabled = true;
-                } else
+
+                    var selectedRun = (ShowRun)dataGridView1.Rows[e.RowIndex].Tag;
+
+                    _comboBoxShow.SelectedItem = selectedRun.NextEpisode.Season.Show.Title;
+                    _comboBoxSeason.SelectedItem = selectedRun.NextEpisode.Season.SeasonNumber;
+                    _textBoxDescription.Text = selectedRun.Description;
+                } 
+                else
                 {
                     _buttonUseSelected.Enabled = false;
                 }
@@ -166,11 +174,26 @@ namespace VideoScheduler
             return true;
         }
 
+        private void UpdateButtonEnabledStatus()
+        {
+            if (dataGridView1.Rows.Count > 0 && dataGridView1.CurrentRow != null && dataGridView1.CurrentRow.Tag.GetType() == typeof(ShowRun))
+            {
+                _buttonEditSelected.Enabled = true;
+                _buttonUseSelected.Enabled = true;
+            }
+            else
+            {
+                _buttonEditSelected.Enabled = false;
+                _buttonUseSelected.Enabled = false;
+            }
+        }
+
         private void OnSelectedIndexChanged(object sender, System.EventArgs e)
         {
             if (sender.Equals(_comboBoxShow))
             {
                 FillSeasonComboBox();
+                _textBoxDescription.Text = _comboBoxShow.Text;
             }
             else if (sender.Equals(_comboBoxSeason))
             {
@@ -178,16 +201,18 @@ namespace VideoScheduler
             }
         }
 
-        private void EditSelected()
+        private void LoadSelected(bool editMode)
         {
             ClearFields();
-            EnableFields(true);
-            if (GetSelectedRun() == null)
+            EnableFields(editMode);
+            ShowRun selectedRun = GetSelectedRun();
+            if (selectedRun == null)
             {
                 return;
             }
-            _comboBoxShow.SelectedItem = GetSelectedRun().NextEpisode.Season.Show.Title;
-            _comboBoxSeason.SelectedItem = GetSelectedRun().NextEpisode.Season.SeasonNumber;
+            _comboBoxShow.SelectedItem = selectedRun.NextEpisode.Season.Show.Title;
+            _comboBoxSeason.SelectedItem = selectedRun.NextEpisode.Season.SeasonNumber;
+            _textBoxDescription.Text = selectedRun.Description;
         }
 
         private void OnButtonClick(object sender, System.EventArgs e)
@@ -196,11 +221,11 @@ namespace VideoScheduler
             {
                 int index = dataGridView1.Rows.Add();
                 dataGridView1.CurrentCell = dataGridView1[0, index];
-                EditSelected();
+                LoadSelected(true);
             }
             else if (sender.Equals(_buttonEditSelected))
             {
-                EditSelected();
+                LoadSelected(true);
             }
             else if (sender.Equals(_buttonUseSelected))
             {
@@ -209,7 +234,8 @@ namespace VideoScheduler
                 {
                     DialogResult = DialogResult.OK;
                     Close();
-                } else
+                }
+                else
                 {
                     MessageBox.Show("Error retrieving run");
                 }
@@ -219,9 +245,16 @@ namespace VideoScheduler
                 if (!ValidateFields())
                 {
                     MessageBox.Show("Error saving run");
-                } else
+                }
+                else
                 {
                     EnableFields(false);
+                    var currentRow = dataGridView1.CurrentRow;
+                    dataGridView1.ClearSelection();
+                    dataGridView1.CurrentCell = currentRow.Cells[0];
+                    dataGridView1.CurrentRow.Selected = true;
+                    LoadSelected(false);
+                    UpdateButtonEnabledStatus();
                 }
             }
         }

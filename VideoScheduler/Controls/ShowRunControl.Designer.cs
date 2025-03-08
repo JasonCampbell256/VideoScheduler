@@ -28,221 +28,231 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.Show = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Season = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Episode = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this._buttonAddNew = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this._comboBoxShow = new System.Windows.Forms.ComboBox();
-            this._comboBoxSeason = new System.Windows.Forms.ComboBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this._comboBoxEpisode = new System.Windows.Forms.ComboBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this._textBoxDescription = new System.Windows.Forms.TextBox();
-            this._labelGUID = new System.Windows.Forms.Label();
-            this._buttonUseSelected = new System.Windows.Forms.Button();
-            this._buttonSave = new System.Windows.Forms.Button();
-            this._buttonEditSelected = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
-            this.SuspendLayout();
+            dataGridView1 = new System.Windows.Forms.DataGridView();
+            Show = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            Season = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            Episode = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            _buttonAddNew = new System.Windows.Forms.Button();
+            label1 = new System.Windows.Forms.Label();
+            _comboBoxShow = new System.Windows.Forms.ComboBox();
+            _comboBoxSeason = new System.Windows.Forms.ComboBox();
+            label2 = new System.Windows.Forms.Label();
+            _comboBoxEpisode = new System.Windows.Forms.ComboBox();
+            label3 = new System.Windows.Forms.Label();
+            label4 = new System.Windows.Forms.Label();
+            _textBoxDescription = new System.Windows.Forms.TextBox();
+            _labelGUID = new System.Windows.Forms.Label();
+            _buttonUseSelected = new System.Windows.Forms.Button();
+            _buttonSave = new System.Windows.Forms.Button();
+            _buttonEditSelected = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
+            SuspendLayout();
             // 
             // dataGridView1
             // 
-            this.dataGridView1.AllowUserToAddRows = false;
-            this.dataGridView1.AllowUserToDeleteRows = false;
-            this.dataGridView1.AllowUserToResizeRows = false;
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.Show,
-            this.Season,
-            this.Episode,
-            this.Description});
-            this.dataGridView1.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
-            this.dataGridView1.Location = new System.Drawing.Point(12, 12);
-            this.dataGridView1.MultiSelect = false;
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.ReadOnly = true;
-            this.dataGridView1.RowHeadersVisible = false;
-            this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView1.ShowEditingIcon = false;
-            this.dataGridView1.Size = new System.Drawing.Size(465, 356);
-            this.dataGridView1.TabIndex = 0;
-            this.dataGridView1.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.OnRowEnter);
+            dataGridView1.AllowUserToAddRows = false;
+            dataGridView1.AllowUserToDeleteRows = false;
+            dataGridView1.AllowUserToResizeRows = false;
+            dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { Show, Season, Episode, Description });
+            dataGridView1.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
+            dataGridView1.Location = new System.Drawing.Point(14, 14);
+            dataGridView1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            dataGridView1.MultiSelect = false;
+            dataGridView1.Name = "dataGridView1";
+            dataGridView1.ReadOnly = true;
+            dataGridView1.RowHeadersVisible = false;
+            dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            dataGridView1.ShowEditingIcon = false;
+            dataGridView1.Size = new System.Drawing.Size(542, 411);
+            dataGridView1.TabIndex = 0;
+            dataGridView1.RowEnter += OnRowEnter;
             // 
             // Show
             // 
-            this.Show.HeaderText = "Show";
-            this.Show.Name = "Show";
-            this.Show.ReadOnly = true;
+            Show.HeaderText = "Show";
+            Show.Name = "Show";
+            Show.ReadOnly = true;
             // 
             // Season
             // 
-            this.Season.HeaderText = "Season";
-            this.Season.Name = "Season";
-            this.Season.ReadOnly = true;
+            Season.HeaderText = "Season";
+            Season.Name = "Season";
+            Season.ReadOnly = true;
             // 
             // Episode
             // 
-            this.Episode.HeaderText = "Episode";
-            this.Episode.Name = "Episode";
-            this.Episode.ReadOnly = true;
+            Episode.HeaderText = "Episode";
+            Episode.Name = "Episode";
+            Episode.ReadOnly = true;
             // 
             // Description
             // 
-            this.Description.HeaderText = "Description";
-            this.Description.Name = "Description";
-            this.Description.ReadOnly = true;
+            Description.HeaderText = "Description";
+            Description.Name = "Description";
+            Description.ReadOnly = true;
             // 
             // _buttonAddNew
             // 
-            this._buttonAddNew.Location = new System.Drawing.Point(13, 375);
-            this._buttonAddNew.Name = "_buttonAddNew";
-            this._buttonAddNew.Size = new System.Drawing.Size(464, 23);
-            this._buttonAddNew.TabIndex = 1;
-            this._buttonAddNew.Text = "Add New";
-            this._buttonAddNew.UseVisualStyleBackColor = true;
-            this._buttonAddNew.Click += new System.EventHandler(this.OnButtonClick);
+            _buttonAddNew.Location = new System.Drawing.Point(15, 433);
+            _buttonAddNew.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            _buttonAddNew.Name = "_buttonAddNew";
+            _buttonAddNew.Size = new System.Drawing.Size(541, 27);
+            _buttonAddNew.TabIndex = 1;
+            _buttonAddNew.Text = "Add New";
+            _buttonAddNew.UseVisualStyleBackColor = true;
+            _buttonAddNew.Click += OnButtonClick;
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(492, 61);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(37, 13);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Show:";
+            label1.AutoSize = true;
+            label1.Location = new System.Drawing.Point(574, 70);
+            label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label1.Name = "label1";
+            label1.Size = new System.Drawing.Size(39, 15);
+            label1.TabIndex = 2;
+            label1.Text = "Show:";
             // 
             // _comboBoxShow
             // 
-            this._comboBoxShow.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this._comboBoxShow.FormattingEnabled = true;
-            this._comboBoxShow.Location = new System.Drawing.Point(576, 58);
-            this._comboBoxShow.Name = "_comboBoxShow";
-            this._comboBoxShow.Size = new System.Drawing.Size(166, 21);
-            this._comboBoxShow.TabIndex = 3;
-            this._comboBoxShow.SelectedIndexChanged += new System.EventHandler(this.OnSelectedIndexChanged);
+            _comboBoxShow.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            _comboBoxShow.FormattingEnabled = true;
+            _comboBoxShow.Location = new System.Drawing.Point(672, 67);
+            _comboBoxShow.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            _comboBoxShow.Name = "_comboBoxShow";
+            _comboBoxShow.Size = new System.Drawing.Size(193, 23);
+            _comboBoxShow.TabIndex = 3;
+            _comboBoxShow.SelectedIndexChanged += OnSelectedIndexChanged;
             // 
             // _comboBoxSeason
             // 
-            this._comboBoxSeason.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this._comboBoxSeason.FormattingEnabled = true;
-            this._comboBoxSeason.Location = new System.Drawing.Point(576, 85);
-            this._comboBoxSeason.Name = "_comboBoxSeason";
-            this._comboBoxSeason.Size = new System.Drawing.Size(166, 21);
-            this._comboBoxSeason.TabIndex = 5;
-            this._comboBoxSeason.SelectedIndexChanged += new System.EventHandler(this.OnSelectedIndexChanged);
+            _comboBoxSeason.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            _comboBoxSeason.FormattingEnabled = true;
+            _comboBoxSeason.Location = new System.Drawing.Point(672, 98);
+            _comboBoxSeason.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            _comboBoxSeason.Name = "_comboBoxSeason";
+            _comboBoxSeason.Size = new System.Drawing.Size(193, 23);
+            _comboBoxSeason.TabIndex = 5;
+            _comboBoxSeason.SelectedIndexChanged += OnSelectedIndexChanged;
             // 
             // label2
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(492, 88);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(46, 13);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "Season:";
+            label2.AutoSize = true;
+            label2.Location = new System.Drawing.Point(574, 102);
+            label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label2.Name = "label2";
+            label2.Size = new System.Drawing.Size(47, 15);
+            label2.TabIndex = 4;
+            label2.Text = "Season:";
             // 
             // _comboBoxEpisode
             // 
-            this._comboBoxEpisode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this._comboBoxEpisode.FormattingEnabled = true;
-            this._comboBoxEpisode.Location = new System.Drawing.Point(576, 112);
-            this._comboBoxEpisode.Name = "_comboBoxEpisode";
-            this._comboBoxEpisode.Size = new System.Drawing.Size(166, 21);
-            this._comboBoxEpisode.TabIndex = 7;
-            this._comboBoxEpisode.SelectedIndexChanged += new System.EventHandler(this.OnSelectedIndexChanged);
+            _comboBoxEpisode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            _comboBoxEpisode.FormattingEnabled = true;
+            _comboBoxEpisode.Location = new System.Drawing.Point(672, 129);
+            _comboBoxEpisode.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            _comboBoxEpisode.Name = "_comboBoxEpisode";
+            _comboBoxEpisode.Size = new System.Drawing.Size(193, 23);
+            _comboBoxEpisode.TabIndex = 7;
+            _comboBoxEpisode.SelectedIndexChanged += OnSelectedIndexChanged;
             // 
             // label3
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(492, 115);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(48, 13);
-            this.label3.TabIndex = 6;
-            this.label3.Text = "Episode:";
+            label3.AutoSize = true;
+            label3.Location = new System.Drawing.Point(574, 133);
+            label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label3.Name = "label3";
+            label3.Size = new System.Drawing.Size(51, 15);
+            label3.TabIndex = 6;
+            label3.Text = "Episode:";
             // 
             // label4
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(492, 142);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(63, 13);
-            this.label4.TabIndex = 8;
-            this.label4.Text = "Description:";
+            label4.AutoSize = true;
+            label4.Location = new System.Drawing.Point(574, 164);
+            label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label4.Name = "label4";
+            label4.Size = new System.Drawing.Size(70, 15);
+            label4.TabIndex = 8;
+            label4.Text = "Description:";
             // 
             // _textBoxDescription
             // 
-            this._textBoxDescription.Location = new System.Drawing.Point(576, 139);
-            this._textBoxDescription.Multiline = true;
-            this._textBoxDescription.Name = "_textBoxDescription";
-            this._textBoxDescription.Size = new System.Drawing.Size(166, 123);
-            this._textBoxDescription.TabIndex = 9;
+            _textBoxDescription.Location = new System.Drawing.Point(672, 160);
+            _textBoxDescription.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            _textBoxDescription.Multiline = true;
+            _textBoxDescription.Name = "_textBoxDescription";
+            _textBoxDescription.Size = new System.Drawing.Size(193, 141);
+            _textBoxDescription.TabIndex = 9;
             // 
             // _labelGUID
             // 
-            this._labelGUID.AutoSize = true;
-            this._labelGUID.Location = new System.Drawing.Point(495, 23);
-            this._labelGUID.Name = "_labelGUID";
-            this._labelGUID.Size = new System.Drawing.Size(0, 13);
-            this._labelGUID.TabIndex = 10;
+            _labelGUID.AutoSize = true;
+            _labelGUID.Location = new System.Drawing.Point(578, 27);
+            _labelGUID.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            _labelGUID.Name = "_labelGUID";
+            _labelGUID.Size = new System.Drawing.Size(0, 15);
+            _labelGUID.TabIndex = 10;
             // 
             // _buttonUseSelected
             // 
-            this._buttonUseSelected.Location = new System.Drawing.Point(13, 434);
-            this._buttonUseSelected.Name = "_buttonUseSelected";
-            this._buttonUseSelected.Size = new System.Drawing.Size(464, 23);
-            this._buttonUseSelected.TabIndex = 11;
-            this._buttonUseSelected.Text = "Use Selected";
-            this._buttonUseSelected.UseVisualStyleBackColor = true;
-            this._buttonUseSelected.Click += new System.EventHandler(this.OnButtonClick);
+            _buttonUseSelected.Location = new System.Drawing.Point(15, 501);
+            _buttonUseSelected.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            _buttonUseSelected.Name = "_buttonUseSelected";
+            _buttonUseSelected.Size = new System.Drawing.Size(541, 27);
+            _buttonUseSelected.TabIndex = 11;
+            _buttonUseSelected.Text = "Use Selected";
+            _buttonUseSelected.UseVisualStyleBackColor = true;
+            _buttonUseSelected.Click += OnButtonClick;
             // 
             // _buttonSave
             // 
-            this._buttonSave.Location = new System.Drawing.Point(495, 286);
-            this._buttonSave.Name = "_buttonSave";
-            this._buttonSave.Size = new System.Drawing.Size(258, 23);
-            this._buttonSave.TabIndex = 12;
-            this._buttonSave.Text = "Save";
-            this._buttonSave.UseVisualStyleBackColor = true;
-            this._buttonSave.Click += new System.EventHandler(this.OnButtonClick);
+            _buttonSave.Location = new System.Drawing.Point(578, 330);
+            _buttonSave.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            _buttonSave.Name = "_buttonSave";
+            _buttonSave.Size = new System.Drawing.Size(301, 27);
+            _buttonSave.TabIndex = 12;
+            _buttonSave.Text = "Save";
+            _buttonSave.UseVisualStyleBackColor = true;
+            _buttonSave.Click += OnButtonClick;
             // 
             // _buttonEditSelected
             // 
-            this._buttonEditSelected.Location = new System.Drawing.Point(13, 405);
-            this._buttonEditSelected.Name = "_buttonEditSelected";
-            this._buttonEditSelected.Size = new System.Drawing.Size(464, 23);
-            this._buttonEditSelected.TabIndex = 13;
-            this._buttonEditSelected.Text = "Edit Selected";
-            this._buttonEditSelected.UseVisualStyleBackColor = true;
-            this._buttonEditSelected.Click += new System.EventHandler(this.OnButtonClick);
+            _buttonEditSelected.Location = new System.Drawing.Point(15, 467);
+            _buttonEditSelected.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            _buttonEditSelected.Name = "_buttonEditSelected";
+            _buttonEditSelected.Size = new System.Drawing.Size(541, 27);
+            _buttonEditSelected.TabIndex = 13;
+            _buttonEditSelected.Text = "Edit Selected";
+            _buttonEditSelected.UseVisualStyleBackColor = true;
+            _buttonEditSelected.Click += OnButtonClick;
             // 
             // ShowRunControl
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(765, 480);
-            this.Controls.Add(this._buttonEditSelected);
-            this.Controls.Add(this._buttonSave);
-            this.Controls.Add(this._buttonUseSelected);
-            this.Controls.Add(this._labelGUID);
-            this.Controls.Add(this._textBoxDescription);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this._comboBoxEpisode);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this._comboBoxSeason);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this._comboBoxShow);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this._buttonAddNew);
-            this.Controls.Add(this.dataGridView1);
-            this.Name = "ShowRunControl";
-            this.Text = "ShowRunControl";
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(892, 554);
+            Controls.Add(_buttonEditSelected);
+            Controls.Add(_buttonSave);
+            Controls.Add(_buttonUseSelected);
+            Controls.Add(_labelGUID);
+            Controls.Add(_textBoxDescription);
+            Controls.Add(label4);
+            Controls.Add(_comboBoxEpisode);
+            Controls.Add(label3);
+            Controls.Add(_comboBoxSeason);
+            Controls.Add(label2);
+            Controls.Add(_comboBoxShow);
+            Controls.Add(label1);
+            Controls.Add(_buttonAddNew);
+            Controls.Add(dataGridView1);
+            Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            Name = "ShowRunControl";
+            Text = "ShowRunControl";
+            ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
