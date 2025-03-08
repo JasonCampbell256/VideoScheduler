@@ -21,7 +21,7 @@ namespace VideoScheduler.Domain
 
         public TvShow GetShow(string showName)
         {
-            return Shows.Where(show => show.Title == showName).First();
+            return Shows.FirstOrDefault(show => show.Title == showName);
         }
 
         public Movie GetMovie(SchedulableMovie schedulableMovie)

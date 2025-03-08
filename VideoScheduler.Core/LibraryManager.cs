@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using VideoScheduler.Domain;
 
 namespace VideoScheduler.Core
@@ -111,10 +108,19 @@ namespace VideoScheduler.Core
             foreach (string showFolder in System.IO.Directory.GetDirectories(showsFolderPath))
             {
                 var showName = System.IO.Path.GetFileName(showFolder);
-                TvShow show = new TvShow()
+                TvShow show;
+                if (library.GetShow(showName) != null)
                 {
-                    Title = showName
-                };
+                    show = library.GetShow(showName);
+                }
+                else
+                {
+                    show = new TvShow()
+                    {
+                        Title = showName
+                    };
+                }
+                
 
                 //legacy
                 foreach (string showSubFolder in System.IO.Directory.GetDirectories(showFolder))
@@ -146,7 +152,10 @@ namespace VideoScheduler.Core
 
                 scanShowFolders(library, show, showFolder);
 
-                library.Shows.Add(show);
+                if (library.GetShow(show.Title) == null && show.Seasons.Count > 0)
+                {
+                    library.Shows.Add(show);
+                }
             }
         }
 

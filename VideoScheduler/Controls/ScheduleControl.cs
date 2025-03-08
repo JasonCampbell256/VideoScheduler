@@ -21,6 +21,7 @@ namespace VideoScheduler
             this.PersistenceManagers = persistenceManagers;
             InitializeComponent();
             ChangeDay(dayOfWeek);
+            UpdateButtonEnabledStatus();
         }
 
         private void ChangeDay(DayOfWeek day)
@@ -70,6 +71,8 @@ namespace VideoScheduler
             {
                 AddTimeBlockRow(timeBlock);
             }
+            SelectFirstRowInGrid(dataGridView1);
+            UpdateButtonEnabledStatus();
         }
 
         private void ClearTimeBlocksRows()
@@ -121,23 +124,68 @@ namespace VideoScheduler
                     dataGridView2.Rows[rowIndex].Tag = contentObject;
                 }
             }
-            if (dataGridView2.Rows.Count != 0)
-            {
-                dataGridView2.Rows[0].Selected = true;
-            }
+            SelectFirstRowInGrid(dataGridView2);
+            UpdateButtonEnabledStatus();
         }
 
         private void ClearContent()
         {
             dataGridView2.Rows.Clear();
-            EnableContentButtons(false);
+            UpdateButtonEnabledStatus();
         }
 
-        private void EnableContentButtons(bool enable)
+        private void UpdateButtonEnabledStatus()
+        {
+            if (dataGridView1.CurrentRow == null || dataGridView1.CurrentRow.Tag == null || dataGridView1.CurrentRow.Tag.GetType() != typeof(TimeBlock))
+            {
+                EnableAddContentButtons(false);
+                EnableMoveContentButtons(false);
+            } else
+            {
+                EnableAddContentButtons(true);
+                if (dataGridView2.CurrentRow == null || dataGridView2.CurrentRow.Tag == null || !(dataGridView2.CurrentRow.Tag is ISchedulableContent))
+                {
+                    EnableMoveContentButtons(false);
+                } else
+                {
+                    EnableMoveContentButtons(true);
+                }
+            }
+        }
+
+        private void EnableAddContentButtons(bool enable)
+        {
+            _buttonAddVideoWithCriteria.Enabled = enable;
+            _buttonAddRun.Enabled = enable;
+            _buttonAddMovie.Enabled = enable;
+            _buttonAddCommercialFiller.Enabled = enable;
+        }
+
+        private void EnableMoveContentButtons(bool enable)
         {
             _buttonContentUp.Enabled = enable;
             _buttonContentDown.Enabled = enable;
             _buttonRemoveContent.Enabled = enable;
+        }
+
+        private void SelectFirstRowInGrid(DataGridView grid)
+        {
+            grid.ClearSelection();
+            if (grid.Rows.Count > 0)
+            {
+                grid.CurrentCell =  grid.Rows[0].Cells[0];
+                grid.CurrentRow.Selected = true;
+            }
+        }
+
+        private void SelectLastRowInGrid(DataGridView grid)
+        {
+            grid.ClearSelection();
+            if (grid.Rows.Count > 0)
+            {
+                grid.CurrentCell = grid.Rows[grid.Rows.Count - 1].Cells[0];
+                grid.CurrentRow.Selected = true;
+            }
         }
 
         #region Event Handlers
@@ -167,6 +215,21 @@ namespace VideoScheduler
                     {
                         LoadTimeBlocksForDay(dayOfWeek);
                     }
+                    if (dataGridView1.Rows.Count > 0)
+                    {
+                        foreach (DataGridViewRow row in dataGridView1.Rows)
+                        {
+                            if (row.Tag != null && row.Tag.GetType() == typeof(TimeBlock))
+                            {
+                                if (row.Tag == dialog.TimeBlock)
+                                {
+                                    dataGridView1.ClearSelection();
+                                    dataGridView1.CurrentCell = row.Cells[0];
+                                    row.Selected = true;
+                                }
+                            }
+                        }
+                    }
                 }
             }
             else if (sender.Equals(_buttonEditTimeBlock))
@@ -191,11 +254,23 @@ namespace VideoScheduler
                 {
                     var newBlock = timeBlock;
                     newBlock.Guid = Guid.NewGuid();
-                    var dialog = new TimeBlockDialog(newBlock, true);
+                    var dialog = new TimeBlockDialog(newBlock, true, timeBlock.Description);
                     if (dialog.ShowDialog() == DialogResult.OK)
                     {
                         PersistenceManagers.timeBlockManager.AddOrUpdateTimeBlock(newBlock);
                         LoadTimeBlocksForDay(dayOfWeek);
+                        foreach (DataGridViewRow row in dataGridView1.Rows)
+                        {
+                            if (row.Tag != null && row.Tag.GetType() == typeof(TimeBlock))
+                            {
+                                if (((TimeBlock)row.Tag).Guid == newBlock.Guid)
+                                {
+                                    dataGridView1.ClearSelection();
+                                    dataGridView1.CurrentCell = row.Cells[0];
+                                    row.Selected = true;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -301,6 +376,10 @@ namespace VideoScheduler
             }
             else if (sender.Equals(_buttonAddRun))
             {
+                if (dataGridView1.CurrentRow == null)
+                {
+                    return;
+                }
                 var timeBlock = (TimeBlock)dataGridView1.CurrentRow.Tag;
                 var dialog = new ShowRunControl(PersistenceManagers);
                 if (dialog.ShowDialog() == DialogResult.OK)
@@ -313,6 +392,14 @@ namespace VideoScheduler
                     }
                 }
                 LoadContent(timeBlock);
+                foreach(DataGridViewRow row in dataGridView2.Rows)
+                {
+                    if (dataGridView2.Tag != null && dataGridView2.Tag == dialog.ShowRun)
+                    {
+                        dataGridView2.ClearSelection();
+                        dataGridView2.CurrentCell = row.Cells[0];
+                    }
+                }
             }
             else if (sender.Equals(_buttonAddMovie))
             {
@@ -329,6 +416,7 @@ namespace VideoScheduler
                     }
                 }
                 LoadContent(timeBlock);
+                SelectLastRowInGrid(dataGridView2);
             }
             else if (sender.Equals(_buttonAddCommercialFiller))
             {
@@ -347,6 +435,7 @@ namespace VideoScheduler
                             PersistenceManagers.timeBlockManager.AddOrUpdateTimeBlock(timeBlock);
                             dataGridView1.CurrentRow.Tag = timeBlock;
                             LoadContent(timeBlock);
+                            SelectLastRowInGrid(dataGridView2);
                         }
                     }
 
@@ -387,7 +476,7 @@ namespace VideoScheduler
                     if (dataGridView2.CurrentRow.Tag is ISchedulableContent)
                     {
                         var guid = (dataGridView2.CurrentRow.Tag as ISchedulableContent).Guid;
-                        var contentIndex = timeBlock.ContentGuids.IndexOf(guid);
+                        var contentIndex = dataGridView2.CurrentRow.Index;
                         
                         if (contentIndex != 0)
                         {
@@ -397,9 +486,9 @@ namespace VideoScheduler
                         PersistenceManagers.timeBlockManager.AddOrUpdateTimeBlock(timeBlock);
                         dataGridView1.CurrentRow.Tag = timeBlock;
                         LoadContent(timeBlock);
-                        var newGridViewIndex = dataGridView2.Rows.Cast<DataGridViewRow>().Where(x => (x.Tag as ISchedulableContent).Guid == guid).First().Index;
+                        var newGridViewIndex = contentIndex > 0 ?  contentIndex - 1 : 0;
                         dataGridView2.CurrentCell = dataGridView2.Rows[newGridViewIndex].Cells[0];
-                        EnableContentButtons(true);
+                        dataGridView2.Rows[newGridViewIndex].Selected = true;
                     }
                 }
             } else if (sender.Equals(_buttonContentDown))
@@ -409,12 +498,12 @@ namespace VideoScheduler
                     return;
                 }
                 var timeBlock = (TimeBlock)dataGridView1.CurrentRow.Tag;
-                if (timeBlock != null)
+                if (timeBlock != null && dataGridView2.CurrentRow.Index < dataGridView2.Rows.Count -1)
                 {
                     if (dataGridView2.CurrentRow.Tag is ISchedulableContent)
                     {
                         var guid = (dataGridView2.CurrentRow.Tag as ISchedulableContent).Guid;
-                        var contentIndex = timeBlock.ContentGuids.IndexOf(guid);
+                        var contentIndex = dataGridView2.CurrentRow.Index;
 
                         if (contentIndex < timeBlock.ContentGuids.Count -1)
                         {
@@ -424,12 +513,13 @@ namespace VideoScheduler
                         PersistenceManagers.timeBlockManager.AddOrUpdateTimeBlock(timeBlock);
                         dataGridView1.CurrentRow.Tag = timeBlock;
                         LoadContent(timeBlock);
-                        var newGridViewIndex = dataGridView2.Rows.Cast<DataGridViewRow>().Where(x => (x.Tag as ISchedulableContent).Guid == guid).First().Index;
+                        var newGridViewIndex = contentIndex + 1;
                         dataGridView2.CurrentCell = dataGridView2.Rows[newGridViewIndex].Cells[0];
-                        EnableContentButtons(true);
+                        dataGridView2.Rows[newGridViewIndex].Selected = true;
                     }
                 }
             }
+            UpdateButtonEnabledStatus();
         }
 
         private void OnDayButtonClick(object sender, EventArgs e)
@@ -439,35 +529,54 @@ namespace VideoScheduler
             if (sender.Equals(_buttonMonday))
             {
                 ChangeDay(DayOfWeek.Monday);
+                _buttonTuesday.Select();
             }
             else if (sender.Equals(_buttonTuesday))
             {
                 ChangeDay(DayOfWeek.Tuesday);
+                _buttonWednesday.Select();
             }
             else if (sender.Equals(_buttonWednesday))
             {
                 ChangeDay(DayOfWeek.Wednesday);
+                _buttonThursday.Select();
             }
             else if (sender.Equals(_buttonThursday))
             {
                 ChangeDay(DayOfWeek.Thursday);
+                _buttonFriday.Select();
             }
             else if (sender.Equals(_buttonFriday))
             {
                 ChangeDay(DayOfWeek.Friday);
+                _buttonSaturday.Select();
             }
             else if (sender.Equals(_buttonSaturday))
             {
                 ChangeDay(DayOfWeek.Saturday);
+                _buttonSunday.Select();
             }
             else if (sender.Equals(_buttonSunday))
             {
                 ChangeDay(DayOfWeek.Sunday);
+                _buttonMonday.Select();
             }
             else if (sender.Equals(_buttonCustomDate))
             {
                 //TODO
             }
+
+            SelectFirstRowInGrid(dataGridView1);
+            if (dataGridView1.Rows.Count > 0)
+            {
+                var timeBlock = (TimeBlock)dataGridView1.Rows[0].Tag;
+                if (timeBlock != null)
+                {
+                    LoadContent(timeBlock);
+                }
+            }
+          
+            UpdateButtonEnabledStatus();
         }
 
         private void OnRowEnter(object sender, DataGridViewCellEventArgs e)
@@ -481,11 +590,7 @@ namespace VideoScheduler
                 }
             } else if (sender.Equals(dataGridView2))
             {
-                var content = (ISchedulableContent)dataGridView2.Rows[e.RowIndex].Tag;
-                if (content != null)
-                {
-                    EnableContentButtons(true);
-                }
+                UpdateButtonEnabledStatus();
             }
         }
         #endregion

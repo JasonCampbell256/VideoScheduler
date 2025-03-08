@@ -23,7 +23,7 @@ namespace VideoScheduler
             InitializeComponent();
             PopulateComboBoxes();
             _dateTimePickerStart.Value = DateTime.Today;
-            _dateTimePickerEnd.Value = DateTime.Today + new TimeSpan(23, 59, 59);
+            _dateTimePickerEnd.Value = DateTime.Today + new TimeSpan(0, 30, 0);
             _comboBoxDayOfWeek.SelectedItem = day;
         }
 
@@ -39,7 +39,7 @@ namespace VideoScheduler
             existing = true;
         }
 
-        public TimeBlockDialog(TimeBlock timeBlock, bool isCopy)
+        public TimeBlockDialog(TimeBlock timeBlock, bool isCopy, string description = "")
         {
             InitializeComponent();
             PopulateComboBoxes();
@@ -49,6 +49,7 @@ namespace VideoScheduler
             var oldEndTime = TimeBlock.EndTime;
             _dateTimePickerStart.Value = DateTime.Today.Add(oldEndTime);
             _dateTimePickerEnd.Value = DateTime.Today.Add(oldEndTime - oldStartTime + oldEndTime);
+            _textBoxDescription.Text = description;
             existing = true;
         }
 
