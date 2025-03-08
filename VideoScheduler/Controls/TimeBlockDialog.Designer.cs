@@ -57,7 +57,7 @@
             label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             label2.Name = "label2";
             label2.Size = new System.Drawing.Size(60, 15);
-            label2.TabIndex = 1;
+            label2.TabIndex = 2;
             label2.Text = "Start Time";
             // 
             // label3
@@ -67,7 +67,7 @@
             label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             label3.Name = "label3";
             label3.Size = new System.Drawing.Size(56, 15);
-            label3.TabIndex = 2;
+            label3.TabIndex = 4;
             label3.Text = "End Time";
             // 
             // _comboBoxDayOfWeek
@@ -78,7 +78,7 @@
             _comboBoxDayOfWeek.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             _comboBoxDayOfWeek.Name = "_comboBoxDayOfWeek";
             _comboBoxDayOfWeek.Size = new System.Drawing.Size(79, 23);
-            _comboBoxDayOfWeek.TabIndex = 3;
+            _comboBoxDayOfWeek.TabIndex = 1;
             // 
             // _buttonSave
             // 
@@ -86,7 +86,7 @@
             _buttonSave.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             _buttonSave.Name = "_buttonSave";
             _buttonSave.Size = new System.Drawing.Size(88, 27);
-            _buttonSave.TabIndex = 6;
+            _buttonSave.TabIndex = 8;
             _buttonSave.Text = "Save";
             _buttonSave.UseVisualStyleBackColor = true;
             _buttonSave.Click += OnButtonClick;
@@ -97,7 +97,7 @@
             _buttonCancel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             _buttonCancel.Name = "_buttonCancel";
             _buttonCancel.Size = new System.Drawing.Size(88, 27);
-            _buttonCancel.TabIndex = 7;
+            _buttonCancel.TabIndex = 9;
             _buttonCancel.Text = "Cancel";
             _buttonCancel.UseVisualStyleBackColor = true;
             _buttonCancel.Click += OnButtonClick;
@@ -109,7 +109,7 @@
             _textBoxDescription.Multiline = true;
             _textBoxDescription.Name = "_textBoxDescription";
             _textBoxDescription.Size = new System.Drawing.Size(185, 67);
-            _textBoxDescription.TabIndex = 9;
+            _textBoxDescription.TabIndex = 7;
             // 
             // label4
             // 
@@ -118,7 +118,7 @@
             label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             label4.Name = "label4";
             label4.Size = new System.Drawing.Size(67, 15);
-            label4.TabIndex = 8;
+            label4.TabIndex = 6;
             label4.Text = "Description";
             // 
             // _dateTimePickerStart
@@ -128,7 +128,7 @@
             _dateTimePickerStart.Name = "_dateTimePickerStart";
             _dateTimePickerStart.ShowUpDown = true;
             _dateTimePickerStart.Size = new System.Drawing.Size(124, 23);
-            _dateTimePickerStart.TabIndex = 10;
+            _dateTimePickerStart.TabIndex = 3;
             // 
             // _dateTimePickerEnd
             // 
@@ -137,7 +137,7 @@
             _dateTimePickerEnd.Name = "_dateTimePickerEnd";
             _dateTimePickerEnd.ShowUpDown = true;
             _dateTimePickerEnd.Size = new System.Drawing.Size(124, 23);
-            _dateTimePickerEnd.TabIndex = 11;
+            _dateTimePickerEnd.TabIndex = 5;
             _dateTimePickerEnd.ValueChanged += OnDateTimePickerValueChanged;
             // 
             // TimeBlockDialog

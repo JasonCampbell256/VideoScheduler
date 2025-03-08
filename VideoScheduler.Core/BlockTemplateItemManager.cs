@@ -9,7 +9,7 @@ namespace VideoScheduler.Core
     public class BlockTemplateItemManager
     {
         private Dictionary<Guid, BlockTemplateItem> _blockTemplateItems = new Dictionary<Guid, BlockTemplateItem>();
-        private string path = "blockTemplateItems.json";
+        private string path = @"data\blockTemplateItems.json";
 
         public void AddOrUpdateBlockTemplateItem(BlockTemplateItem blockTemplateItem)
         {
@@ -42,7 +42,7 @@ namespace VideoScheduler.Core
         {
             if (File.Exists(path))
             {
-                string json = File.ReadAllText("blockTemplateItems.json");
+                string json = File.ReadAllText(path);
 
                 _blockTemplateItems = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<Guid, BlockTemplateItem>>(json);
             }
@@ -57,7 +57,7 @@ namespace VideoScheduler.Core
         {
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(_blockTemplateItems);
 
-            string tempFile = "temp_blockTemplateItems.json";
+            string tempFile = @"data\temp_blockTemplateItems.json";
 
             try
             {

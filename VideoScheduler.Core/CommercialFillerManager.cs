@@ -9,7 +9,7 @@ namespace VideoScheduler.Core
     public class CommercialFillerManager
     {
         private Dictionary<Guid, CommercialFiller> _commercials = new Dictionary<Guid, CommercialFiller>();
-        string path = "commercialFillers.json";
+        string path = @"data\commercialFillers.json";
 
         public void AddOrUpdateCommercial(CommercialFiller commercial)
         {
@@ -45,7 +45,7 @@ namespace VideoScheduler.Core
         {
             if (System.IO.File.Exists(path))
             {
-                string json = System.IO.File.ReadAllText("commercialFillers.json");
+                string json = System.IO.File.ReadAllText(path);
 
                 _commercials = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<Guid, CommercialFiller>>(json);
             }
@@ -60,9 +60,9 @@ namespace VideoScheduler.Core
         {
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(_commercials);
 
-            string tempFile = "temp_commercialFillers.json";
+            string tempFile = @"data\temp_commercialFillers.json";
 
-            string actualFile = "commercialFillers.json";
+            string actualFile = @"data\commercialFillers.json";
 
             try
             {

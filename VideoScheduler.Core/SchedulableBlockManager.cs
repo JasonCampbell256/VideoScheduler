@@ -10,7 +10,7 @@ namespace VideoScheduler.Core
     public class SchedulableBlockManager
     {
         private Dictionary<Guid, SchedulableBlock> _schedulableBlocks = new Dictionary<Guid, SchedulableBlock>();
-        private string path = "schedulableBlocks.json";
+        private string path = @"data\schedulableBlocks.json";
 
         public void AddOrUpdateSchedulableBlock(SchedulableBlock schedulableBlock)
         {
@@ -43,7 +43,7 @@ namespace VideoScheduler.Core
         {
             if (File.Exists(path))
             {
-                string json = File.ReadAllText("schedulableBlocks.json");
+                string json = File.ReadAllText(path);
 
                 _schedulableBlocks = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<Guid, SchedulableBlock>>(json);
             }
@@ -57,7 +57,7 @@ namespace VideoScheduler.Core
         {
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(_schedulableBlocks);
 
-            string tempFile = "temp_schedulableBlocks.json";
+            string tempFile = @"data\temp_schedulableBlocks.json";
 
             try
             {

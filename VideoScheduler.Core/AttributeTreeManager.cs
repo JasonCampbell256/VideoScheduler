@@ -9,7 +9,7 @@ namespace VideoScheduler.Core
     public class AttributeTreeManager
     {
         private Dictionary<Guid, AttributeNode> _trees = new Dictionary<Guid, AttributeNode>();
-        string path = "attributeTrees.json";
+        string path = @"data\attributeTrees.json";
 
         public void AddNewTree(AttributeNode tree)
         {
@@ -32,7 +32,7 @@ namespace VideoScheduler.Core
         {
             if (File.Exists(path))
             {
-                string json = File.ReadAllText("attributeTrees.json");
+                string json = File.ReadAllText(path);
 
                 _trees = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<Guid, AttributeNode>>(json);
             }
@@ -47,9 +47,9 @@ namespace VideoScheduler.Core
         {
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(_trees);
 
-            string tempFile = "temp_attributeTrees.json";
+            string tempFile = @"data\temp_attributeTrees.json";
 
-            string actualFile = "attributeTrees.json";
+            string actualFile = @"data\attributeTrees.json";
 
             try
             {

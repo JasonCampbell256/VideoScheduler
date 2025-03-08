@@ -29,7 +29,7 @@ namespace VideoScheduler.Core
         {
             JObject settings = new JObject();
             settings["FilePath"] = path;
-            File.WriteAllText(@"settings.json", settings.ToString());
+            File.WriteAllText(@"data\settings.json", settings.ToString());
         }
 
         public static string GetFilePath()
@@ -37,7 +37,7 @@ namespace VideoScheduler.Core
             string path = null;
             try
             {
-                path = JObject.Parse(File.ReadAllText(@"settings.json"))["FilePath"].ToString();
+                path = JObject.Parse(File.ReadAllText(@"data\settings.json"))["FilePath"].ToString();
             }
             catch (Exception ex)
             {

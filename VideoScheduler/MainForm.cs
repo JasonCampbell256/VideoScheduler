@@ -165,7 +165,6 @@ namespace VideoScheduler
                 }
                 var url = _playlist.Dequeue();
                 _VlcPlayerForm.PlayFirstVideo(url, startTime);
-                _listBoxQueue.Items.RemoveAt(0);
             }
         }
 

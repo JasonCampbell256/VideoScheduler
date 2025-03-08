@@ -9,7 +9,7 @@ namespace VideoScheduler.Core
     public class MovieRunManager
     {
         private Dictionary<Guid, SchedulableMovie> _movies = new Dictionary<Guid, SchedulableMovie> ();
-        private string path = "movieRuns.json";
+        private string path = @"data\movieRuns.json";
 
         public MovieRunManager()
         {
@@ -62,7 +62,7 @@ namespace VideoScheduler.Core
         {
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(_movies);
 
-            string tempFile = "temp_movieRuns.json";
+            string tempFile = @"data\temp_movieRuns.json";
 
             try
             {

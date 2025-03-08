@@ -60,9 +60,9 @@ namespace VideoScheduler.Core
 
         private void LoadTimeBlocks()
         {
-            if (File.Exists("timeBlocks.json"))
+            if (File.Exists(@"data\timeBlocks.json"))
             {
-                string json = File.ReadAllText("timeBlocks.json");
+                string json = File.ReadAllText(@"data\timeBlocks.json");
                 _timeBlocks = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<Guid, TimeBlock>>(json);
             }
             if (_timeBlocks == null)
@@ -75,9 +75,9 @@ namespace VideoScheduler.Core
         {
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(_timeBlocks);
 
-            string tempFile = "temp_timeBlocks.json";
+            string tempFile = @"data\temp_timeBlocks.json";
 
-            string actualFile = "timeBlocks.json";
+            string actualFile = @"data\timeBlocks.json";
 
             try
             {

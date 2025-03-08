@@ -27,15 +27,16 @@ namespace VideoScheduler
 
         private static void InitializeSettings()
         {
+            Directory.CreateDirectory("data");
             List<string> files = new List<string>()
             {
-"attributeTrees.json",
-"blockTemplateItems.json",
-"schedulableBlocks.json",
-"showRuns.json",
-"movieRuns.json",
-"timeBlocks.json",
-"settings.json"
+@"data\attributeTrees.json",
+@"data\blockTemplateItems.json",
+@"data\schedulableBlocks.json",
+@"data\showRuns.json",
+@"data\movieRuns.json",
+@"data\timeBlocks.json",
+@"data\settings.json"
             };
             foreach (var file in files)
             {
