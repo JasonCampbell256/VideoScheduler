@@ -30,6 +30,10 @@ namespace VideoScheduler.Controls
             _libVLC = new LibVLC();
 
             _mediaPlayer = new MediaPlayer(_libVLC);
+            //TODO retrieve logo options from settings
+            _mediaPlayer.SetLogoString(VideoLogoOption.File, Path.Combine(Application.StartupPath, "logo2.png"));
+            _mediaPlayer.SetLogoInt(VideoLogoOption.Enable, 1);
+
             _mediaPlayer.Playing += (sender, args) => { SendPanelToBackSafe(_blackPanel); };
             _mediaPlayer.EndReached += (sender, args) =>
             {
@@ -162,6 +166,20 @@ namespace VideoScheduler.Controls
             if (sender.Equals(_toolStripMenuItemFullScreen))
             {
                 ToggleFullScreen();
+            }
+            else if (sender.Equals(logoSettingsToolStripMenuItem))
+            {
+                var playerSettings = new PlayerSettings(_mediaPlayer);
+                var VideoSettingsDialog = new PlayerSettingsDialog(_mediaPlayer);
+                if (VideoSettingsDialog.ShowDialog() == DialogResult.OK)
+                {
+                    // TODO save current settings
+                }
+                else
+                {
+                    // Revert player to previous settings
+                    playerSettings.ApplySettings(_mediaPlayer);
+                }
             }
         }
 
