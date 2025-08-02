@@ -36,7 +36,8 @@ namespace VideoScheduler
 @"data\showRuns.json",
 @"data\movieRuns.json",
 @"data\timeBlocks.json",
-@"data\settings.json"
+@"data\settings.json",
+@"data\currentVideo.json",
             };
             foreach (var file in files)
             {

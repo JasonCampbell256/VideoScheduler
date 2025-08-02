@@ -99,10 +99,11 @@ namespace VideoScheduler
 
         private void CheckTimeBlocks(object sender, EventArgs e)
         {
-            if (!_VlcPlayerForm.Visible)
+            if (_VlcPlayerForm == null || _VlcPlayerForm.IsDisposed || !_VlcPlayerForm.Visible)
             {
                 return;
             }
+
             loadschedule();
             TimeSpan currentTime = DateTime.Now.TimeOfDay;
             var truncatedCurrentTime = new TimeSpan(currentTime.Hours, currentTime.Minutes, currentTime.Seconds);
@@ -111,21 +112,34 @@ namespace VideoScheduler
             {
                 if (truncatedCurrentTime >= timeBlock.StartTime && truncatedCurrentTime < timeBlock.EndTime)
                 {
+                    Logger.LogMessage("Time block found.");
                     if (currentTimeBlock != null && currentTimeBlock.Guid == timeBlock.Guid)
                     {
+                        // Already playing this block, but ensure queue is not empty and player is running
+                        if (_playlist.Count == 0 && _VlcPlayerForm != null && _VlcPlayerForm.Visible)
+                        {
+                            
+                            var videos = _persistenceManagers._picker.GetVideosForTimeBlock(timeBlock);
+                            foreach (var video in videos)
+                            {
+                                AddToQueue(video.FilePath);
+                            }
+                            Logger.LogMessage( $"Queued {_playlist.Count} videos." );
+                            PlayVlc(0);
+                        }
                         return;
                     }
                     ClearQueue();
                     currentTimeBlock = timeBlock;
-                    var videos = _persistenceManagers._picker.GetVideosForTimeBlock(timeBlock);
+                    var videosForBlock = _persistenceManagers._picker.GetVideosForTimeBlock(timeBlock);
                     var timeElapsed = truncatedCurrentTime - timeBlock.StartTime;
 
-                    //find the video that should be playing
-                    var timespanCounter = new TimeSpan(0, 0, 0);
-                    var timeSpanToStart = new TimeSpan(0, 0, 0);
+                    // Find the video that should be playing
+                    var timespanCounter = TimeSpan.Zero;
+                    var timeSpanToStart = TimeSpan.Zero;
                     var firstVideoFound = false;
 
-                    foreach (var video in videos)
+                    foreach (var video in videosForBlock)
                     {
                         var videoDuration = VideoPicker.GetDuration(video.FilePath);
                         timespanCounter += videoDuration;
@@ -139,12 +153,10 @@ namespace VideoScheduler
                             }
                         }
                     }
-                    
+                    Logger.LogMessage($"Queued {_playlist.Count} videos.");
                     PlayVlc((long)timeSpanToStart.Duration().TotalMilliseconds);
                     break;
                 }
-
-
             }
         }
 

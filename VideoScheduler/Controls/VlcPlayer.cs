@@ -1,6 +1,7 @@
 ﻿using LibVLCSharp.Shared;
 using LibVLCSharp.WinForms;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -30,7 +31,7 @@ namespace VideoScheduler.Controls
             _libVLC = new LibVLC();
 
             _mediaPlayer = new MediaPlayer(_libVLC);
-            _mediaPlayer.Playing += (sender, args) => { SendPanelToBackSafe(_blackPanel); };
+            _mediaPlayer.Playing += (sender, args) => { SendPanelToBackSafe(_blackPanel); LogCurrentPath(); };
             _mediaPlayer.EndReached += (sender, args) =>
             {
                 this.BeginInvoke(new Action(() =>
@@ -102,6 +103,41 @@ namespace VideoScheduler.Controls
             _mainForm.UpdateListBox();
             BringPanelToFrontSafe(_transparentPanel);
             PreloadNextVideo();
+        }
+
+        private void LogCurrentPath()
+        {
+            Logger.LogMessage($"Now Playing: {_currentMedia?.Mrl}");
+            try
+            {
+                // write the current media to a file
+                var filePath = @"data\currentVideo.json";
+
+                // _currentMedia.Meta() accepts MetadataType enum as parameter. serialize the output of every possible MetadataType to json
+                var metaDict = new Dictionary<string, string>();
+                foreach (MetadataType metaType in Enum.GetValues(typeof(MetadataType)))
+                {
+                    try
+                    {
+                        var value = _currentMedia.Meta(metaType);
+                        if (!string.IsNullOrEmpty(value))
+                        {
+                            metaDict[metaType.ToString()] = value;
+                        } else if (metaType == MetadataType.URL)
+                        {
+                            metaDict[metaType.ToString()] = _currentMedia.Mrl;
+                        }
+                    }
+                    catch { /* ignore individual meta errors */ }
+                }
+
+                string json = Newtonsoft.Json.JsonConvert.SerializeObject(metaDict, Newtonsoft.Json.Formatting.Indented);
+                File.WriteAllText(filePath, json);
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
 
         private void AddPanels(Panel panel)
