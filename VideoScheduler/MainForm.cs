@@ -115,18 +115,6 @@ namespace VideoScheduler
                     Logger.LogMessage("Time block found.");
                     if (currentTimeBlock != null && currentTimeBlock.Guid == timeBlock.Guid)
                     {
-                        // Already playing this block, but ensure queue is not empty and player is running
-                        if (_playlist.Count == 0 && _VlcPlayerForm != null && _VlcPlayerForm.Visible)
-                        {
-                            
-                            var videos = _persistenceManagers._picker.GetVideosForTimeBlock(timeBlock);
-                            foreach (var video in videos)
-                            {
-                                AddToQueue(video.FilePath);
-                            }
-                            Logger.LogMessage( $"Queued {_playlist.Count} videos." );
-                            PlayVlc(0);
-                        }
                         return;
                     }
                     ClearQueue();
