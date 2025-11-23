@@ -1,0 +1,219 @@
+@page "/groups"
+@using VideoScheduler.Data
+@inject YamlRepository Repository
+@inject SchedulePlanner Planner
+
+<h3>Group Manager</h3>
+
+<div class="row" style="height: calc(100vh - 120px); overflow: hidden;">
+    <div class="col-md-3 h-100">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center flex-shrink-0">
+                <span>Groups</span>
+                <button class="btn btn-sm btn-primary" @onclick="CreateGroup">+</button>
+            </div>
+            <div class="list-group list-group-flush flex-grow-1" style="overflow-y: auto;">
+                @foreach (var group in Repository.Library.Groups.Where(g => g.Type == GroupType.General))
+                {
+                    <button class="list-group-item list-group-item-action @(SelectedGroup == group ? "active" : "")" 
+                            @onclick="() => SelectGroup(group)">
+                        @group.Name
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9 h-100">
+        @if (SelectedGroup != null)
+        {
+            <div class="card h-100">
+                <div class="card-header flex-shrink-0">
+                    <div class="input-group">
+                        <span class="input-group-text">Group Name</span>
+                        <input type="text" class="form-control" @bind="SelectedGroup.Name" readonly="@(!IsEditing)" />
+                        @if (IsEditing)
+                        {
+                            <button class="btn btn-success" @onclick="Save">Save</button>
+                            @if (IsDeleteConfirming)
+                            {
+                                <span class="mx-2 text-danger fw-bold">Sure?</span>
+                                <button class="btn btn-danger" @onclick="ConfirmDelete">Yes</button>
+                                <button class="btn btn-secondary" @onclick="CancelDelete">No</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-danger" @onclick="DeleteGroup">Delete</button>
+                            }
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" @onclick="StartEdit">Edit</button>
+                        }
+                    </div>
+                </div>
+                <div class="card-body d-flex flex-column" style="overflow: hidden;">
+                    <div class="row flex-grow-1" style="min-height: 0;">
+                        <div class="@(IsEditing ? "col-md-6" : "col-md-12") d-flex flex-column h-100">
+                            <h5 class="flex-shrink-0">In Group (@SelectedGroup.AssetIds.Count)</h5>
+                            <div class="list-group flex-grow-1" style="overflow-y: auto; border: 1px solid #ddd;">
+                                @foreach (var assetId in SelectedGroup.AssetIds.ToList())
+                                {
+                                    var asset = GetAsset(assetId);
+                                    if (asset != null)
+                                    {
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="text-truncate" title="@asset.Title">@asset.Title</span>
+                                            @if (IsEditing)
+                                            {
+                                                <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveFromGroup(assetId)">
+                                                    <span class="bi bi-x"></span> -
+                                                </button>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                         <div class="list-group-item d-flex justify-content-between align-items-center text-muted">
+                                            <span>Unknown ID: @assetId</span>
+                                            @if (IsEditing)
+                                            {
+                                                <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveFromGroup(assetId)">-</button>
+                                            }
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        @if (IsEditing)
+                        {
+                            <div class="col-md-6 d-flex flex-column h-100">
+                                <h5 class="flex-shrink-0">Available Assets</h5>
+                                <input type="text" class="form-control mb-2 flex-shrink-0" placeholder="Search..." @bind="SearchTerm" @bind:event="oninput" />
+                                <div class="list-group flex-grow-1" style="overflow-y: auto; border: 1px solid #ddd;">
+                                    @foreach (var asset in FilteredAssets)
+                                    {
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="text-truncate" title="@asset.Title">@asset.Title</span>
+                                            <button class="btn btn-sm btn-outline-success" @onclick="() => AddToGroup(asset.Id)">
+                                                <span class="bi bi-plus"></span> +
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">Select a group to manage assets.</div>
+        }
+    </div>
+</div>
+
+@code {
+    private AssetGroup? SelectedGroup { get; set; }
+    private string SearchTerm { get; set; } = "";
+    private bool IsEditing { get; set; } = false;
+    private bool IsDeleteConfirming { get; set; } = false;
+
+    private void SelectGroup(AssetGroup group)
+    {
+        SelectedGroup = group;
+        IsEditing = false;
+        IsDeleteConfirming = false;
+        SearchTerm = "";
+    }
+
+    private void StartEdit()
+    {
+        IsEditing = true;
+    }
+
+    private void CreateGroup()
+    {
+        var newGroup = new AssetGroup
+        {
+            Id = Guid.NewGuid().ToString().Substring(0, 8),
+            Name = "New Group",
+            Type = GroupType.General
+        };
+        Repository.Library.Groups.Add(newGroup);
+        SelectedGroup = newGroup;
+        IsEditing = true;
+        Repository.SaveLibrary();
+    }
+
+    private void DeleteGroup()
+    {
+        IsDeleteConfirming = true;
+    }
+
+    private void ConfirmDelete()
+    {
+        if (SelectedGroup != null)
+        {
+            Repository.Library.Groups.Remove(SelectedGroup);
+            SelectedGroup = null;
+            IsEditing = false;
+            IsDeleteConfirming = false;
+            Repository.SaveLibrary();
+        }
+    }
+
+    private void CancelDelete()
+    {
+        IsDeleteConfirming = false;
+    }
+
+    private void Save()
+    {
+        Repository.SaveLibrary();
+        IsEditing = false;
+        Planner.RefreshForecast();
+    }
+
+    private Asset? GetAsset(string id)
+    {
+        return Repository.Library.Commercials.FirstOrDefault(c => c.Id == id) 
+            ?? Repository.Library.Bumpers.FirstOrDefault(b => b.Id == id);
+    }
+
+    private void AddToGroup(string assetId)
+    {
+        if (SelectedGroup != null && !SelectedGroup.AssetIds.Contains(assetId))
+        {
+            SelectedGroup.AssetIds.Add(assetId);
+        }
+    }
+
+    private void RemoveFromGroup(string assetId)
+    {
+        if (SelectedGroup != null)
+        {
+            SelectedGroup.AssetIds.Remove(assetId);
+        }
+    }
+
+    private IEnumerable<Asset> FilteredAssets
+    {
+        get
+        {
+            var query = Repository.Library.Commercials.Concat(Repository.Library.Bumpers);
+            
+            // Filter out items already in the group
+            if (SelectedGroup != null)
+            {
+                query = query.Where(c => !SelectedGroup.AssetIds.Contains(c.Id));
+            }
+
+            if (!string.IsNullOrWhiteSpace(SearchTerm))
+            {
+                query = query.Where(c => c.Title.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase));
+            }
+            return query.OrderBy(c => c.Title);
+        }
+    }
+}

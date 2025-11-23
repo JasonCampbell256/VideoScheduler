@@ -1,0 +1,470 @@
+@page "/library"
+@using VideoScheduler.Data
+@inject YamlRepository Repository
+@inject LibraryScanner Scanner
+
+<h3>Library Manager</h3>
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <div class="input-group mb-2">
+            <input type="text" class="form-control" placeholder="Folder path..." @bind="ScanPath" />
+            <button class="btn btn-outline-secondary" @onclick="() => ShowBrowser = !ShowBrowser">Browse...</button>
+        </div>
+        
+        @if (ShowBrowser)
+        {
+            <div class="mb-3">
+                <FolderBrowser InitialPath="@ScanPath" OnPathSelected="OnFolderSelected" />
+            </div>
+        }
+        
+        @if (IsScanConfirming)
+        {
+            <div class="alert alert-warning">
+                <strong>Warning:</strong> Scanning a new folder will synchronize your library. Any items not found in the new scan will be removed.
+                <div class="mt-2">
+                    <button class="btn btn-danger" @onclick="ConfirmScan">Proceed with Scan</button>
+                    <button class="btn btn-secondary" @onclick="CancelScan">Cancel</button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <button class="btn btn-primary" @onclick="InitiateScan" disabled="@IsScanning">
+                @if (IsScanning)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span>Scanning...</span>
+                }
+                else
+                {
+                    <span>Scan Folder</span>
+                }
+            </button>
+            <button class="btn btn-danger" @onclick="ClearLibrary" disabled="@IsScanning">Clear Library</button>
+        }
+    </div>
+</div>
+
+@if (IsScanning)
+{
+    <div class="progress mb-3">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: @(ScanPercent)%;" aria-valuenow="@ScanPercent" aria-valuemin="0" aria-valuemax="100">@ScanPercent%</div>
+    </div>
+    <div class="text-muted mb-3"><small>@ScanStatus</small></div>
+}
+
+@if (Message != null)
+{
+    <div class="alert alert-info">@Message</div>
+}
+
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link @(ActiveTab == "shows" ? "active" : "")" @onclick='() => ActiveTab = "shows"' style="cursor:pointer">Shows (@Repository.Library.Shows.Count)</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(ActiveTab == "movies" ? "active" : "")" @onclick='() => ActiveTab = "movies"' style="cursor:pointer">Movies (@Repository.Library.Movies.Count)</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(ActiveTab == "bumpers" ? "active" : "")" @onclick='() => ActiveTab = "bumpers"' style="cursor:pointer">Bumpers (@Repository.Library.Bumpers.Count)</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(ActiveTab == "commercials" ? "active" : "")" @onclick='() => ActiveTab = "commercials"' style="cursor:pointer">Commercials (@Repository.Library.Commercials.Count)</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(ActiveTab == "groups" ? "active" : "")" @onclick='() => ActiveTab = "groups"' style="cursor:pointer">Groups (@Repository.Library.Groups.Count)</a>
+    </li>
+</ul>
+
+@if (ActiveTab == "shows")
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Episodes</th>
+                <th>Default Duration</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var show in Repository.Library.Shows)
+            {
+                <tr>
+                    <td>@show.Title</td>
+                    <td>@show.Episodes.Count</td>
+                    <td>@(show.DefaultDurationSec / 60) min</td>
+                    <td>
+                        <a href="show/@show.Id" class="btn btn-sm btn-info">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (ActiveTab == "movies")
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>File Path</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var movie in Repository.Library.Movies)
+            {
+                <tr>
+                    <td>@movie.Title</td>
+                    <td>@movie.FilePath</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (ActiveTab == "bumpers")
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Duration</th>
+                <th>File Path</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Repository.Library.Bumpers)
+            {
+                <tr>
+                    <td>@item.Title</td>
+                    <td>@item.Type</td>
+                    <td>@item.DurationSec s</td>
+                    <td>@item.FilePath</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (ActiveTab == "commercials")
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Duration</th>
+                <th>File Path</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Repository.Library.Commercials)
+            {
+                <tr>
+                    <td>@item.Title</td>
+                    <td>@item.DurationSec s</td>
+                    <td>@item.FilePath</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (ActiveTab == "groups")
+{
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <span>Asset Groups</span>
+                    <button class="btn btn-sm btn-primary" @onclick="CreateGroup">+</button>
+                </div>
+                <div class="list-group list-group-flush">
+                    @foreach (var g in Repository.Library.Groups)
+                    {
+                        <button class="list-group-item list-group-item-action @(SelectedGroup == g ? "active" : "")" 
+                                @onclick="() => SelectGroup(g)">
+                            @g.Name
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            @if (SelectedGroup != null)
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <div class="input-group">
+                            <input type="text" class="form-control" @bind="SelectedGroup.Name" />
+                            <button class="btn btn-danger" @onclick="DeleteGroup">Delete</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h6>Assets in Group (@SelectedGroup.AssetIds.Count)</h6>
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            @foreach (var asset in GetAllAssets())
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" 
+                                           checked="@SelectedGroup.AssetIds.Contains(asset.Id)"
+                                           @onchange="@(e => ToggleAssetInGroup(asset.Id, (bool)(e.Value ?? false)))" />
+                                    <label class="form-check-label">
+                                        [@asset.Type] @asset.Title
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">Select a group to edit.</div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">Select a tab to view content.</div>
+}
+
+@if (ScanLogs.Any())
+{
+    <div class="card mb-3">
+        <div class="card-header">Scan Logs</div>
+        <div class="card-body bg-light" style="max-height: 200px; overflow-y: auto;">
+            <ul class="list-unstyled mb-0">
+                @foreach (var log in ScanLogs)
+                {
+                    <li><small>@log</small></li>
+                }
+            </ul>
+        </div>
+    </div>
+}
+
+@code {
+    private string ScanPath { get; set; } = "";
+    private string? Message { get; set; }
+    private List<string> ScanLogs { get; set; } = new List<string>();
+    private bool ShowBrowser { get; set; } = false;
+    private string ActiveTab { get; set; } = "shows";
+    
+    private bool IsScanning { get; set; } = false;
+    private bool IsScanConfirming { get; set; } = false;
+    private int ScanPercent { get; set; } = 0;
+    private string ScanStatus { get; set; } = "";
+
+    private AssetGroup? SelectedGroup { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrEmpty(Repository.Library.LastScanPath))
+        {
+            ScanPath = Repository.Library.LastScanPath;
+        }
+        else
+        {
+            ScanPath = System.IO.Directory.GetCurrentDirectory();
+        }
+    }
+
+    private void SelectGroup(AssetGroup g)
+    {
+        SelectedGroup = g;
+    }
+
+    private void CreateGroup()
+    {
+        var newGroup = new AssetGroup
+        {
+            Id = Guid.NewGuid().ToString().Substring(0, 8),
+            Name = "New Group"
+        };
+        Repository.Library.Groups.Add(newGroup);
+        SelectedGroup = newGroup;
+        Repository.SaveLibrary();
+    }
+
+    private void DeleteGroup()
+    {
+        if (SelectedGroup != null)
+        {
+            Repository.Library.Groups.Remove(SelectedGroup);
+            SelectedGroup = null;
+            Repository.SaveLibrary();
+        }
+    }
+
+    private void ToggleAssetInGroup(string assetId, bool isChecked)
+    {
+        if (SelectedGroup == null) return;
+        if (isChecked && !SelectedGroup.AssetIds.Contains(assetId))
+        {
+            SelectedGroup.AssetIds.Add(assetId);
+        }
+        else if (!isChecked && SelectedGroup.AssetIds.Contains(assetId))
+        {
+            SelectedGroup.AssetIds.Remove(assetId);
+        }
+        Repository.SaveLibrary();
+    }
+
+    private IEnumerable<Asset> GetAllAssets()
+    {
+        return Repository.Library.Bumpers
+            .Concat(Repository.Library.Commercials);
+    }
+
+    private async Task OnFolderSelected(string path)
+    {
+        ScanPath = path;
+        ShowBrowser = false;
+        await InitiateScan();
+    }
+
+    private async Task InitiateScan()
+    {
+        bool hasItems = Repository.Library.Shows.Any() || 
+                        Repository.Library.Movies.Any() || 
+                        Repository.Library.Bumpers.Any();
+        
+        if (hasItems)
+        {
+            IsScanConfirming = true;
+        }
+        else
+        {
+            await ConfirmScan();
+        }
+    }
+
+    private void CancelScan()
+    {
+        IsScanConfirming = false;
+    }
+
+    private async Task ConfirmScan()
+    {
+        IsScanConfirming = false;
+        await ScanFolder();
+    }
+
+    private async Task ScanFolder()
+    {
+        if (string.IsNullOrWhiteSpace(ScanPath)) return;
+
+        // Save the path immediately
+        Repository.Library.LastScanPath = ScanPath;
+        Repository.SaveLibrary();
+
+        IsScanning = true;
+        ScanLogs.Clear();
+        Message = null;
+        ScanPercent = 0;
+        ScanStatus = "Starting scan...";
+
+        var progress = new Progress<(string Message, int Percent)>(update =>
+        {
+            ScanStatus = update.Message;
+            ScanPercent = update.Percent;
+            StateHasChanged();
+        });
+
+        var result = await Scanner.ScanLibraryAsync(ScanPath, progress);
+        var newData = result.Data;
+        ScanLogs = result.Logs;
+        
+        // Sync Shows: Add new, Update existing, Remove missing
+        // 1. Remove shows that are no longer in the scan result
+        var showsToRemove = Repository.Library.Shows.Where(s => !newData.Shows.Any(ns => ns.Id == s.Id)).ToList();
+        foreach (var s in showsToRemove) Repository.Library.Shows.Remove(s);
+
+        // 2. Update or Add shows
+        foreach (var newShow in newData.Shows)
+        {
+            var existingShow = Repository.Library.Shows.FirstOrDefault(s => s.Id == newShow.Id);
+            if (existingShow == null)
+            {
+                Repository.Library.Shows.Add(newShow);
+            }
+            else
+            {
+                // Sync Episodes
+                // Remove episodes not in new data
+                var epsToRemove = existingShow.Episodes.Where(e => !newShow.Episodes.Any(ne => ne.Id == e.Id)).ToList();
+                foreach (var e in epsToRemove) existingShow.Episodes.Remove(e);
+
+                // Add or Update episodes
+                foreach (var newEp in newShow.Episodes)
+                {
+                    var existingEp = existingShow.Episodes.FirstOrDefault(e => e.Id == newEp.Id);
+                    if (existingEp == null)
+                    {
+                        existingShow.Episodes.Add(newEp);
+                    }
+                    else
+                    {
+                        // Update properties if needed (e.g. duration, path)
+                        existingEp.FilePath = newEp.FilePath;
+                        existingEp.DurationSec = newEp.DurationSec;
+                    }
+                }
+                // Re-sort
+                existingShow.Episodes = existingShow.Episodes.OrderBy(e => e.Season).ThenBy(e => e.Number).ToList();
+            }
+        }
+
+        // Sync Movies
+        SyncAssets(Repository.Library.Movies, newData.Movies);
+        SyncAssets(Repository.Library.Bumpers, newData.Bumpers);
+        SyncAssets(Repository.Library.Commercials, newData.Commercials);
+
+        Repository.SaveLibrary();
+        Message = $"Scan Complete. Library synced and saved.";
+        IsScanning = false;
+    }
+
+    private void SyncAssets(List<Asset> currentList, List<Asset> newList)
+    {
+        // Remove missing
+        var toRemove = currentList.Where(c => !newList.Any(n => n.Id == c.Id)).ToList();
+        foreach (var item in toRemove) currentList.Remove(item);
+
+        // Add new or update
+        foreach (var newItem in newList)
+        {
+            var existing = currentList.FirstOrDefault(c => c.Id == newItem.Id);
+            if (existing == null)
+            {
+                currentList.Add(newItem);
+            }
+            else
+            {
+                existing.FilePath = newItem.FilePath;
+                existing.DurationSec = newItem.DurationSec;
+            }
+        }
+    }
+
+    private void MergeAssets(List<Asset> target, List<Asset> source)
+    {
+        // Deprecated by SyncAssets
+    }
+
+    private void ClearLibrary()
+    {
+        Repository.Library.Shows.Clear();
+        Repository.Library.Movies.Clear();
+        Repository.Library.Bumpers.Clear();
+        Repository.Library.Commercials.Clear();
+        Repository.Library.Groups.Clear();
+        
+        Repository.SaveLibrary();
+        
+        ScanLogs.Clear();
+        Message = "Library cleared and saved.";
+    }
+}

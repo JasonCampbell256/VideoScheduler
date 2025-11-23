@@ -1,0 +1,86 @@
+﻿@inherits LayoutComponentBase
+@using VideoScheduler.Data
+@using System.Threading
+@inject SchedulePlanner Planner
+@inject AutomationService Automation
+@implements IDisposable
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4" style="background-color: #212529; color: white; justify-content: space-between;">
+            <div class="d-flex align-items-center overflow-hidden">
+                <span class="fw-bold me-2 text-nowrap">Now Playing:</span>
+                <span class="text-truncate me-2" style="max-width: 400px;" title="@_currentFile">@_currentFile</span>
+                <span class="mx-2">|</span>
+                <span class="text-nowrap">@_currentTime</span>
+            </div>
+            
+            @if (_showRefreshNotification)
+            {
+                <div class="alert alert-success py-1 px-3 m-0 fade show position-absolute start-50 translate-middle-x" role="alert" style="z-index: 1000;">
+                    Schedule Refreshed
+                </div>
+            }
+
+            <a href="https://buymeacoffee.com/jasonssoftware" target="_blank" class="text-light text-decoration-none small text-nowrap">Buy Me a Coffee</a>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    private string _currentFile = "Not Playing";
+    private string _currentTime = "00:00";
+    private bool _showRefreshNotification = false;
+    private Timer? _notificationTimer;
+
+    protected override void OnInitialized()
+    {
+        Planner.Initialize();
+        Automation.OnStatusUpdated += UpdateStatus;
+        Planner.OnPlaylistUpdated += ShowRefreshNotification;
+    }
+
+    private void UpdateStatus()
+    {
+        InvokeAsync(() => {
+            if (Automation.LastStatus != null)
+            {
+                _currentFile = System.IO.Path.GetFileName(Automation.LastStatus.Filename) ?? "Unknown";
+                var timeSpan = TimeSpan.FromSeconds(Automation.LastStatus.Time);
+                _currentTime = timeSpan.ToString(@"hh\:mm\:ss");
+                StateHasChanged();
+            }
+        });
+    }
+
+    private void ShowRefreshNotification()
+    {
+        InvokeAsync(() => {
+            _showRefreshNotification = true;
+            StateHasChanged();
+            
+            _notificationTimer?.Dispose();
+            _notificationTimer = new Timer(_ => {
+                InvokeAsync(() => {
+                    _showRefreshNotification = false;
+                    StateHasChanged();
+                });
+            }, null, 3000, Timeout.Infinite);
+        });
+    }
+
+    public void Dispose()
+    {
+        Automation.OnStatusUpdated -= UpdateStatus;
+        Planner.OnPlaylistUpdated -= ShowRefreshNotification;
+        _notificationTimer?.Dispose();
+    }
+}

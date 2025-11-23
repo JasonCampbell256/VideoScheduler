@@ -1,0 +1,103 @@
+@using System.IO
+
+<div class="card">
+    <div class="card-header">
+        <strong>Current Path:</strong> @(string.IsNullOrEmpty(CurrentPath) ? "Select Drive" : CurrentPath)
+    </div>
+    <div class="card-body">
+        <div class="btn-group mb-3">
+            <button class="btn btn-secondary" @onclick="GoUp" disabled="@IsRoot">Up</button>
+            <button class="btn btn-primary" @onclick="SelectCurrent" disabled="@string.IsNullOrEmpty(CurrentPath)">Select This Folder</button>
+        </div>
+
+        <div class="list-group">
+            @foreach (var dir in Directories)
+            {
+                <button type="button" class="list-group-item list-group-item-action" @onclick="() => NavigateTo(dir)">
+                    <span class="oi oi-folder" aria-hidden="true"></span> 
+                    @(string.IsNullOrEmpty(CurrentPath) ? dir : Path.GetFileName(dir))
+                </button>
+            }
+            @if (Directories.Count == 0)
+            {
+                <div class="text-muted p-2">No subfolders found.</div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string InitialPath { get; set; }
+    [Parameter] public EventCallback<string> OnPathSelected { get; set; }
+
+    private string CurrentPath { get; set; }
+    private List<string> Directories { get; set; } = new List<string>();
+    
+    // IsRoot is true if we are at the "Drive Selection" screen
+    private bool IsRoot => string.IsNullOrEmpty(CurrentPath);
+
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrWhiteSpace(InitialPath) && Directory.Exists(InitialPath))
+        {
+            CurrentPath = InitialPath;
+        }
+        else
+        {
+            CurrentPath = Directory.GetCurrentDirectory();
+        }
+        LoadDirectory();
+    }
+
+    private void LoadDirectory()
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(CurrentPath))
+            {
+                // List Drives (C:\, D:\ on Windows; / on Linux)
+                Directories = DriveInfo.GetDrives().Select(d => d.Name).ToList();
+            }
+            else
+            {
+                Directories = Directory.GetDirectories(CurrentPath).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Directories = new List<string>();
+            Console.WriteLine($"Error accessing {CurrentPath}: {ex.Message}");
+        }
+    }
+
+    private void NavigateTo(string path)
+    {
+        CurrentPath = path;
+        LoadDirectory();
+    }
+
+    private void GoUp()
+    {
+        if (string.IsNullOrEmpty(CurrentPath)) return;
+
+        var parent = Directory.GetParent(CurrentPath);
+        if (parent == null)
+        {
+            // We are at a root (e.g. C:\ or /), go to drive selection
+            CurrentPath = "";
+        }
+        else
+        {
+            CurrentPath = parent.FullName;
+        }
+        LoadDirectory();
+    }
+
+    private async Task SelectCurrent()
+    {
+        if (!string.IsNullOrEmpty(CurrentPath))
+        {
+            await OnPathSelected.InvokeAsync(CurrentPath);
+        }
+    }
+}

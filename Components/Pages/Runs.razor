@@ -1,0 +1,169 @@
+@page "/runs"
+@using VideoScheduler.Data
+@inject YamlRepository Repository
+@inject SchedulePlanner Planner
+
+<h3>Show Runs</h3>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Runs</span>
+                <button class="btn btn-sm btn-primary" @onclick="CreateRun">+</button>
+            </div>
+            <div class="list-group list-group-flush">
+                @foreach (var run in Repository.Library.Runs)
+                {
+                    <button class="list-group-item list-group-item-action @(SelectedRun == run ? "active" : "")" 
+                            @onclick="() => SelectRun(run)">
+                        @run.Name
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        @if (SelectedRun != null)
+        {
+            <div class="card">
+                <div class="card-header">
+                    <div class="input-group">
+                        <input type="text" class="form-control" @bind="SelectedRun.Name" readonly="@(!IsEditing)" />
+                        @if (IsEditing)
+                        {
+                            <button class="btn btn-success" @onclick="Save">Save</button>
+                            @if (IsDeleteConfirming)
+                            {
+                                <span class="mx-2 text-danger fw-bold align-self-center">Sure?</span>
+                                <button class="btn btn-danger" @onclick="ConfirmDelete">Yes</button>
+                                <button class="btn btn-secondary" @onclick="CancelDelete">No</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-danger" @onclick="DeleteRun">Delete</button>
+                            }
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" @onclick="StartEdit">Edit</button>
+                        }
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Show</label>
+                        <select class="form-select" @bind="SelectedRun.ShowId" disabled="@(!IsEditing)">
+                            <option value="">-- Select Show --</option>
+                            @foreach (var show in Repository.Library.Shows.OrderBy(s => s.Title))
+                            {
+                                <option value="@show.Id">@show.Title</option>
+                            }
+                        </select>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(SelectedRun.ShowId))
+                    {
+                        var show = Repository.Library.Shows.FirstOrDefault(s => s.Id == SelectedRun.ShowId);
+                        if (show != null)
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Current Episode</label>
+                                <select class="form-select" @bind="SelectedRun.CurrentEpisodeId" disabled="@(!IsEditing)">
+                                    @foreach (var ep in show.Episodes)
+                                    {
+                                        <option value="@ep.Id">S@(ep.Season) E@(ep.Number) - @ep.Title</option>
+                                    }
+                                </select>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                Next to play: 
+                                @{
+                                    var currentEp = show.Episodes.FirstOrDefault(e => e.Id == SelectedRun.CurrentEpisodeId);
+                                    if (currentEp != null)
+                                    {
+                                        <span>@currentEp.Title (S@(currentEp.Season) E@(currentEp.Number))</span>
+                                    }
+                                    else
+                                    {
+                                        <span>None selected</span>
+                                    }
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">Select a run to edit or create a new one.</div>
+        }
+    </div>
+</div>
+
+@code {
+    private ShowRun? SelectedRun { get; set; }
+    private bool IsEditing { get; set; } = false;
+    private bool IsDeleteConfirming { get; set; } = false;
+
+    private void SelectRun(ShowRun run)
+    {
+        SelectedRun = run;
+        IsEditing = false;
+        IsDeleteConfirming = false;
+    }
+
+    private void StartEdit()
+    {
+        IsEditing = true;
+    }
+
+    private void CreateRun()
+    {
+        var newRun = new ShowRun
+        {
+            Id = Guid.NewGuid().ToString().Substring(0, 8),
+            Name = "New Run",
+            ShowId = "",
+            CurrentEpisodeId = ""
+        };
+        Repository.Library.Runs.Add(newRun);
+        SelectedRun = newRun;
+        IsEditing = true;
+        IsDeleteConfirming = false;
+    }
+
+    private void DeleteRun()
+    {
+        IsDeleteConfirming = true;
+    }
+
+    private void ConfirmDelete()
+    {
+        if (SelectedRun != null)
+        {
+            Repository.Library.Runs.Remove(SelectedRun);
+            SelectedRun = null;
+            IsEditing = false;
+            IsDeleteConfirming = false;
+            Repository.SaveLibrary();
+        }
+    }
+
+    private void CancelDelete()
+    {
+        IsDeleteConfirming = false;
+    }
+
+    private void Save()
+    {
+        IsEditing = false;
+        Repository.SaveLibrary();
+        if (SelectedRun != null)
+        {
+            Planner.RefreshForecast(SelectedRun.Id);
+        }
+    }
+}

@@ -1,0 +1,389 @@
+@page "/templates"
+@using VideoScheduler.Data
+@inject YamlRepository Repository
+
+<h3>Segment Editor</h3>
+
+<div class="row">
+    <!-- Template List -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Segments</span>
+                <button class="btn btn-sm btn-primary" @onclick="CreateTemplate">+</button>
+            </div>
+            <div class="list-group list-group-flush">
+                @foreach (var t in Repository.Templates.Templates)
+                {
+                    <button class="list-group-item list-group-item-action @(SelectedTemplate == t ? "active" : "")" 
+                            @onclick="() => SelectTemplate(t)">
+                        @t.Name
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Editor -->
+    <div class="col-md-8">
+        @if (SelectedTemplate != null)
+        {
+            <div class="card">
+                <div class="card-header">
+                    <div class="input-group">
+                        <span class="input-group-text">Name</span>
+                        <input type="text" class="form-control" @bind="SelectedTemplate.Name" readonly="@(!IsEditing)" />
+                        @if (IsEditing)
+                        {
+                            <button class="btn btn-success" @onclick="SaveTemplates">Save</button>
+                            @if (IsDeleteConfirming)
+                            {
+                                <span class="mx-2 text-danger fw-bold">Sure?</span>
+                                <button class="btn btn-danger" @onclick="ConfirmDelete">Yes</button>
+                                <button class="btn btn-secondary" @onclick="CancelDelete">No</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-danger" @onclick="DeleteTemplate">Delete</button>
+                            }
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" @onclick="StartEdit">Edit</button>
+                        }
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5>Segment Items</h5>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Details</th>
+                                @if (IsEditing)
+                                {
+                                    <th>Actions</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in SelectedTemplate.Structure.Select((val, index) => new { val, index }))
+                            {
+                                <tr>
+                                    <td>@item.val.Type</td>
+                                    <td>
+                                        @if (item.val.Type == BlockItemType.Fixed)
+                                        {
+                                            <small>Asset: @item.val.AssetId</small>
+                                        }
+                                        else if (item.val.Type == BlockItemType.Dynamic)
+                                        {
+                                            var source = !string.IsNullOrEmpty(item.val.GroupId) 
+                                                ? $"Group: {Repository.Library.Groups.FirstOrDefault(g => g.Id == item.val.GroupId)?.Name ?? item.val.GroupId}" 
+                                                : $"Category: {item.val.Category}";
+                                            <small>@source (@item.val.Duration s)</small>
+                                        }
+                                        else if (item.val.Type == BlockItemType.ContentSegment)
+                                        {
+                                            var run = Repository.Library.Runs.FirstOrDefault(r => r.Id == item.val.RunId);
+                                            <small>Run: @(run?.Name ?? "None")</small>
+                                        }
+                                        else if (item.val.Type == BlockItemType.CommercialBreak)
+                                        {
+                                            var source = !string.IsNullOrEmpty(item.val.GroupId) 
+                                                ? $"Group: {Repository.Library.Groups.FirstOrDefault(g => g.Id == item.val.GroupId)?.Name ?? "Unknown"}" 
+                                                : "All Commercials";
+                                            var duration = item.val.AutoDuration ? "Auto" : $"{item.val.Duration}s";
+                                            <small>@source (@duration)</small>
+                                        }
+                                    </td>
+                                    @if (IsEditing)
+                                    {
+                                        <td>
+                                            <button class="btn btn-sm btn-secondary" @onclick="() => MoveUp(item.index)" disabled="@(item.index == 0)">↑</button>
+                                            <button class="btn btn-sm btn-secondary" @onclick="() => MoveDown(item.index)" disabled="@(item.index == SelectedTemplate.Structure.Count - 1)">↓</button>
+                                            <button class="btn btn-sm btn-danger" @onclick="() => RemoveItem(item.val)">X</button>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    @if (IsEditing)
+                    {
+                        <hr />
+                        <h6>Add New Item</h6>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto">
+                                <select class="form-select" @bind="NewItemType">
+                                    <option value="@BlockItemType.Fixed">Specific Asset</option>
+                                    <option value="@BlockItemType.Dynamic">Random</option>
+                                    <option value="@BlockItemType.ContentSegment">Show Run</option>
+                                    <option value="@BlockItemType.CommercialBreak">Commercial Break</option>
+                                </select>
+                            </div>
+                            
+                            @if (NewItemType == BlockItemType.Fixed)
+                            {
+                                <div class="col">
+                                    <select class="form-select" @bind="NewItemAssetId">
+                                        <option value="">-- Select Asset --</option>
+                                        <optgroup label="Bumpers">
+                                            @foreach(var b in Repository.Library.Bumpers) { <option value="@b.Id">@b.Title</option> }
+                                        </optgroup>
+                                        <optgroup label="Commercials">
+                                            @foreach(var c in Repository.Library.Commercials) { <option value="@c.Id">@c.Title</option> }
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            }
+                            else if (NewItemType == BlockItemType.Dynamic)
+                            {
+                                <div class="col-auto">
+                                    <select class="form-select" @bind="NewItemDynamicSourceType">
+                                        <option value="Category">Category</option>
+                                        <option value="Group">Asset Group</option>
+                                    </select>
+                                </div>
+
+                                @if (NewItemDynamicSourceType == "Category")
+                                {
+                                    <div class="col-auto">
+                                        <select class="form-select" @bind="NewItemCategory">
+                                            <option value="Commercial">Commercial</option>
+                                            <option value="BumperIntro">Bumper Intro</option>
+                                            <option value="BumperOutro">Bumper Outro</option>
+                                            <option value="BumperTransition">Bumper Transition</option>
+                                        </select>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-auto">
+                                        <select class="form-select" @bind="NewItemGroupId">
+                                            <option value="">-- Select Group --</option>
+                                            @foreach(var g in Repository.Library.Groups.Where(g => g.Type == GroupType.General))
+                                            {
+                                                <option value="@g.Id">@g.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                }
+                            }
+                            else if (NewItemType == BlockItemType.ContentSegment)
+                            {
+                                <div class="col-auto">
+                                    <select class="form-select" @bind="NewItemRunId">
+                                        <option value="">-- Select Run --</option>
+                                        @foreach(var r in Repository.Library.Runs)
+                                        {
+                                            <option value="@r.Id">@r.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                            }
+                            else if (NewItemType == BlockItemType.CommercialBreak)
+                            {
+                                <div class="col-auto">
+                                    <select class="form-select" @bind="NewItemCommercialSource">
+                                        <option value="All">All Commercials</option>
+                                        <option value="Group">Specific Group</option>
+                                    </select>
+                                </div>
+                                @if (NewItemCommercialSource == "Group")
+                                {
+                                    <div class="col-auto">
+                                        <select class="form-select" @bind="NewItemCommercialGroupId">
+                                            <option value="">-- Select Group --</option>
+                                            @foreach(var g in Repository.Library.Groups.Where(g => g.Type == GroupType.Commercial))
+                                            {
+                                                <option value="@g.Id">@g.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                }
+
+                                <div class="col-auto">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="NewItemAutoDuration" id="autoDurationCheck">
+                                        <label class="form-check-label" for="autoDurationCheck">
+                                            Auto
+                                        </label>
+                                    </div>
+                                </div>
+
+                                @if (!NewItemAutoDuration)
+                                {
+                                    <div class="col-auto">
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" placeholder="Min" @bind="NewItemDurationMin" style="width: 70px;" />
+                                            <span class="input-group-text">:</span>
+                                            <input type="number" class="form-control" placeholder="Sec" @bind="NewItemDurationSec" style="width: 70px;" />
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                            <div class="col-auto">
+                                <button class="btn btn-primary" @onclick="AddItem">Add</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">Select a segment to edit.</div>
+        }
+    </div>
+</div>
+
+@code {
+    private SlotTemplate? SelectedTemplate { get; set; }
+    
+    // New Item Form State
+    private BlockItemType NewItemType { get; set; } = BlockItemType.Fixed;
+    private string NewItemAssetId { get; set; } = string.Empty;
+    
+    // Dynamic Config
+    private string NewItemDynamicSourceType { get; set; } = "Category"; // "Category" or "Group"
+    private string NewItemCategory { get; set; } = "Commercial";
+    private string NewItemGroupId { get; set; } = string.Empty;
+
+    // Commercial Break Config
+    private string NewItemCommercialSource { get; set; } = "All";
+    private string NewItemCommercialGroupId { get; set; } = string.Empty;
+    private bool NewItemAutoDuration { get; set; }
+    private int NewItemDurationMin { get; set; } = 0;
+    private int NewItemDurationSec { get; set; } = 30;
+
+    // Show Run Config
+    private string NewItemRunId { get; set; } = string.Empty;
+
+    private int NewItemDuration { get; set; } = 30; // Legacy/Fallback
+    private int NewItemSegment { get; set; } = 1;
+
+    private bool IsEditing { get; set; } = false;
+    private bool IsDeleteConfirming { get; set; } = false;
+
+    private void SelectTemplate(SlotTemplate t)
+    {
+        SelectedTemplate = t;
+        IsEditing = false;
+        IsDeleteConfirming = false;
+    }
+
+    private void StartEdit()
+    {
+        IsEditing = true;
+    }
+
+    private void CreateTemplate()
+    {
+        var newTemplate = new SlotTemplate
+        {
+            Id = Guid.NewGuid().ToString().Substring(0, 8),
+            Name = "New Segment",
+            Structure = new List<BlockItem>()
+        };
+        Repository.Templates.Templates.Add(newTemplate);
+        SelectedTemplate = newTemplate;
+        IsEditing = true;
+    }
+
+    private void DeleteTemplate()
+    {
+        IsDeleteConfirming = true;
+    }
+
+    private void ConfirmDelete()
+    {
+        if (SelectedTemplate != null)
+        {
+            Repository.Templates.Templates.Remove(SelectedTemplate);
+            SelectedTemplate = null;
+            IsEditing = false;
+            IsDeleteConfirming = false;
+            Repository.SaveTemplates();
+        }
+    }
+
+    private void CancelDelete()
+    {
+        IsDeleteConfirming = false;
+    }
+
+    private void SaveTemplates()
+    {
+        Repository.SaveTemplates();
+        IsEditing = false;
+    }
+
+    private void MoveUp(int index)
+    {
+        if (SelectedTemplate == null || index <= 0) return;
+        var item = SelectedTemplate.Structure[index];
+        SelectedTemplate.Structure.RemoveAt(index);
+        SelectedTemplate.Structure.Insert(index - 1, item);
+    }
+
+    private void MoveDown(int index)
+    {
+        if (SelectedTemplate == null || index >= SelectedTemplate.Structure.Count - 1) return;
+        var item = SelectedTemplate.Structure[index];
+        SelectedTemplate.Structure.RemoveAt(index);
+        SelectedTemplate.Structure.Insert(index + 1, item);
+    }
+
+    private void RemoveItem(BlockItem item)
+    {
+        SelectedTemplate?.Structure.Remove(item);
+    }
+
+    private void AddItem()
+    {
+        if (SelectedTemplate == null) return;
+        var newItem = new BlockItem { Type = NewItemType };
+
+        if (NewItemType == BlockItemType.Fixed)
+        {
+            if (string.IsNullOrEmpty(NewItemAssetId)) return;
+            newItem.AssetId = NewItemAssetId;
+        }
+        else if (NewItemType == BlockItemType.Dynamic)
+        {
+            if (NewItemDynamicSourceType == "Category")
+            {
+                newItem.Category = Enum.Parse<ContentType>(NewItemCategory);
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(NewItemGroupId)) return;
+                newItem.GroupId = NewItemGroupId;
+            }
+            // Duration removed for Dynamic/Random as requested
+        }
+        else if (NewItemType == BlockItemType.ContentSegment)
+        {
+            if (string.IsNullOrEmpty(NewItemRunId)) return;
+            newItem.RunId = NewItemRunId;
+        }
+        else if (NewItemType == BlockItemType.CommercialBreak)
+        {
+            if (NewItemCommercialSource == "Group")
+            {
+                newItem.GroupId = NewItemCommercialGroupId;
+            }
+            
+            newItem.AutoDuration = NewItemAutoDuration;
+            if (!NewItemAutoDuration)
+            {
+                newItem.Duration = (NewItemDurationMin * 60) + NewItemDurationSec;
+            }
+        }
+
+        SelectedTemplate.Structure.Add(newItem);
+    }
+}

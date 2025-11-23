@@ -1,0 +1,99 @@
+@page "/show/{Id}"
+@using VideoScheduler.Data
+@inject YamlRepository Repository
+@inject NavigationManager Nav
+
+<h3>@(Show?.Title ?? "Show Not Found")</h3>
+
+@if (Show != null)
+{
+    <div class="mb-3">
+        <button class="btn btn-outline-secondary" @onclick="GoBack">← Back to Library</button>
+    </div>
+
+    <div class="accordion" id="seasonsAccordion">
+        @foreach (var seasonGroup in GetSeasons())
+        {
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button @(IsExpanded(seasonGroup.Key) ? "" : "collapsed")" 
+                            type="button" 
+                            @onclick="() => ToggleSeason(seasonGroup.Key)">
+                        Season @seasonGroup.Key (@seasonGroup.Count() episodes)
+                    </button>
+                </h2>
+                <div class="accordion-collapse collapse @(IsExpanded(seasonGroup.Key) ? "show" : "")">
+                    <div class="accordion-body">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">#</th>
+                                    <th>Title</th>
+                                    <th>Duration</th>
+                                    <th>Path</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var ep in seasonGroup.OrderBy(e => e.Number))
+                                {
+                                    <tr>
+                                        <td>@ep.Number</td>
+                                        <td>@(string.IsNullOrEmpty(ep.Title) ? $"Episode {ep.Number}" : ep.Title)</td>
+                                        <td>@(ep.DurationSec / 60)m @(ep.DurationSec % 60)s</td>
+                                        <td><small class="text-muted">@ep.FilePath</small></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">Show not found.</div>
+    <button class="btn btn-primary" @onclick="GoBack">Back to Library</button>
+}
+
+@code {
+    [Parameter] public string Id { get; set; }
+
+    private Show Show { get; set; }
+    private HashSet<int> ExpandedSeasons { get; set; } = new HashSet<int>();
+
+    protected override void OnInitialized()
+    {
+        Show = Repository.Library.Shows.FirstOrDefault(s => s.Id == Id);
+        if (Show != null && Show.Episodes.Any())
+        {
+            // Expand first season by default
+            ExpandedSeasons.Add(Show.Episodes.Min(e => e.Season));
+        }
+    }
+
+    private IEnumerable<IGrouping<int, Episode>> GetSeasons()
+    {
+        if (Show == null) return Enumerable.Empty<IGrouping<int, Episode>>();
+        return Show.Episodes.GroupBy(e => e.Season).OrderBy(g => g.Key);
+    }
+
+    private bool IsExpanded(int season)
+    {
+        return ExpandedSeasons.Contains(season);
+    }
+
+    private void ToggleSeason(int season)
+    {
+        if (ExpandedSeasons.Contains(season))
+            ExpandedSeasons.Remove(season);
+        else
+            ExpandedSeasons.Add(season);
+    }
+
+    private void GoBack()
+    {
+        Nav.NavigateTo("library");
+    }
+}

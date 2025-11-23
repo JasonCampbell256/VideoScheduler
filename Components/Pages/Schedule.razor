@@ -1,0 +1,372 @@
+@page "/schedule"
+@using VideoScheduler.Data
+@inject YamlRepository Repository
+@inject SchedulePlanner Planner
+
+<NavigationLock OnBeforeInternalNavigation="OnBeforeInternalNavigation" ConfirmExternalNavigation="@(IsEditing && !string.IsNullOrEmpty(ErrorMessage))" />
+
+<h3>Schedule Editor</h3>
+
+<div class="card">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs">
+            @foreach (var day in Enum.GetValues<DayOfWeek>())
+            {
+                <li class="nav-item">
+                    <a class="nav-link @(SelectedDay == day ? "active" : "")" @onclick="() => SelectDay(day)" style="cursor: pointer;">
+                        @day
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>@SelectedDay Schedule</h5>
+            <div>
+                @if (IsEditing)
+                {
+                    <button class="btn btn-primary btn-sm" @onclick="AddTimeBlock">Add Time Block</button>
+                    <button class="btn btn-success btn-sm" @onclick="SaveSchedule">Save Changes</button>
+                    <button class="btn btn-secondary btn-sm" @onclick="CancelEdit">Cancel</button>
+                }
+                else
+                {
+                    <button class="btn btn-primary btn-sm" @onclick="StartEdit">Edit Schedule</button>
+                }
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @ErrorMessage
+                <button type="button" class="btn-close" @onclick="() => ErrorMessage = null" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (DisplaySchedule != null)
+        {
+            @foreach (var timeBlock in DisplaySchedule.TimeBlocks.OrderBy(t => t.StartTime))
+            {
+                <div class="card mb-3 border-primary">
+                    <div class="card-header d-flex align-items-center gap-2">
+                        <input type="text" class="form-control form-control-sm" placeholder="Time Block Name" @bind="timeBlock.Name" style="width: 150px;" readonly="@(!IsEditing)" />
+                        <input type="time" class="form-control form-control-sm" @bind="timeBlock.StartTime" style="width: 120px;" readonly="@(!IsEditing)" />
+                        <span>to</span>
+                        <input type="time" class="form-control form-control-sm" @bind="timeBlock.EndTime" style="width: 120px;" readonly="@(!IsEditing)" />
+                        
+                        <div class="ms-auto btn-group">
+                            <button class="btn btn-outline-secondary btn-sm" @onclick="() => CopyTimeBlock(timeBlock)" title="Copy to...">
+                                Copy
+                            </button>
+                            @if (IsEditing)
+                            {
+                                <button class="btn btn-outline-danger btn-sm" @onclick="() => RemoveTimeBlock(timeBlock)" title="Delete">
+                                    Delete
+                                </button>
+                            }
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h6>Segments</h6>
+                        <div class="list-group mb-2">
+                            @foreach (var segment in timeBlock.Segments)
+                            {
+                                @if (IsEditing)
+                                {
+                                    <div class="list-group-item d-flex justify-content-between align-items-center p-1">
+                                        <select class="form-select form-select-sm border-0" @bind="segment.TemplateId">
+                                            <option value="">-- Select Segment --</option>
+                                            @foreach (var t in Repository.Templates.Templates)
+                                            {
+                                                <option value="@t.Id">@t.Name</option>
+                                            }
+                                        </select>
+                                        <button class="btn btn-sm text-danger" @onclick="() => RemoveSegment(timeBlock, segment)">
+                                            <span class="bi bi-x"></span> X
+                                        </button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="list-group-item p-1">
+                                        @GetTemplateName(segment.TemplateId)
+                                    </div>
+                                }
+                            }
+                        </div>
+                        @if (IsEditing)
+                        {
+                            <button class="btn btn-outline-secondary btn-sm w-100" @onclick="() => AddSegment(timeBlock)">+ Add Segment</button>
+                        }
+                    </div>
+                </div>
+            }
+            
+            @if (!DisplaySchedule.TimeBlocks.Any())
+            {
+                <div class="text-muted text-center p-4">No time blocks defined for this day.</div>
+            }
+        }
+    </div>
+</div>
+
+@if (TimeBlockToCopy != null)
+{
+    <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Copy Time Block</h5>
+                    <button type="button" class="btn-close" @onclick="CancelCopy"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Copy <strong>@TimeBlockToCopy.Name</strong> to:</p>
+                    <div class="list-group mb-3">
+                        @foreach (var day in Enum.GetValues<DayOfWeek>())
+                        {
+                            var hasConflict = HasConflict(day, TimeBlockToCopy);
+                            var isSelected = SelectedCopyDays.Contains(day);
+                            
+                            <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center @(hasConflict ? "list-group-item-danger" : "") @(isSelected ? "active" : "")" 
+                                    @onclick="() => ToggleCopyDay(day)" 
+                                    disabled="@hasConflict">
+                                <span>
+                                    @day @(hasConflict ? " (Conflict)" : "")
+                                </span>
+                                @if (isSelected)
+                                {
+                                    <span class="bi bi-check-lg"></span>
+                                }
+                            </button>
+                        }
+                    </div>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button class="btn btn-secondary" @onclick="CancelCopy">Cancel</button>
+                        <button class="btn btn-primary" @onclick="PerformCopy" disabled="@(!SelectedCopyDays.Any())">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private DayOfWeek SelectedDay { get; set; } = DayOfWeek.Monday;
+    private DaySchedule? CurrentDaySchedule => Repository.Schedule.Days.FirstOrDefault(d => d.Day == SelectedDay);
+    private DaySchedule? WorkingSchedule { get; set; }
+    private DaySchedule? DisplaySchedule => IsEditing ? WorkingSchedule : CurrentDaySchedule;
+    
+    private ScheduleTimeBlock? TimeBlockToCopy { get; set; }
+    private HashSet<DayOfWeek> SelectedCopyDays { get; set; } = new();
+    private string? ErrorMessage;
+    private bool IsEditing { get; set; } = false;
+
+    protected override void OnInitialized()
+    {
+        EnsureDaysExist();
+    }
+
+    private void OnBeforeInternalNavigation(LocationChangingContext context)
+    {
+        if (IsEditing)
+        {
+            // If invalid, block navigation
+            if (!ValidateSchedule(WorkingSchedule))
+            {
+                context.PreventNavigation();
+            }
+            // If valid but unsaved, we allow navigation (changes will be lost/discarded)
+        }
+    }
+
+    private void EnsureDaysExist()
+    {
+        foreach (var day in Enum.GetValues<DayOfWeek>())
+        {
+            if (!Repository.Schedule.Days.Any(d => d.Day == day))
+            {
+                Repository.Schedule.Days.Add(new DaySchedule { Day = day });
+            }
+        }
+    }
+
+    private void SelectDay(DayOfWeek day)
+    {
+        if (IsEditing)
+        {
+            if (!ValidateSchedule(WorkingSchedule)) return;
+            // If valid, we discard changes when switching days (or we could prompt to save)
+            // For now, let's assume switching days cancels edit if valid.
+            CancelEdit();
+        }
+        SelectedDay = day;
+        ErrorMessage = null;
+    }
+
+    private void StartEdit()
+    {
+        if (CurrentDaySchedule == null) return;
+        
+        // Deep copy to WorkingSchedule
+        WorkingSchedule = new DaySchedule 
+        { 
+            Day = CurrentDaySchedule.Day,
+            TimeBlocks = CurrentDaySchedule.TimeBlocks.Select(tb => new ScheduleTimeBlock
+            {
+                Id = tb.Id,
+                Name = tb.Name,
+                StartTime = tb.StartTime,
+                EndTime = tb.EndTime,
+                Segments = tb.Segments.Select(s => new ScheduledSegment 
+                { 
+                    Id = s.Id, 
+                    TemplateId = s.TemplateId 
+                }).ToList()
+            }).ToList()
+        };
+        
+        IsEditing = true;
+    }
+
+    private void CancelEdit()
+    {
+        IsEditing = false;
+        WorkingSchedule = null;
+        ErrorMessage = null;
+    }
+
+    private void AddTimeBlock()
+    {
+        WorkingSchedule?.TimeBlocks.Add(new ScheduleTimeBlock 
+        { 
+            Name = "New Time Block",
+            StartTime = new TimeOnly(12, 0),
+            EndTime = new TimeOnly(13, 0)
+        });
+    }
+
+    private void RemoveTimeBlock(ScheduleTimeBlock timeBlock)
+    {
+        WorkingSchedule?.TimeBlocks.Remove(timeBlock);
+    }
+
+    private void AddSegment(ScheduleTimeBlock timeBlock)
+    {
+        timeBlock.Segments.Add(new ScheduledSegment());
+    }
+
+    private void RemoveSegment(ScheduleTimeBlock timeBlock, ScheduledSegment segment)
+    {
+        timeBlock.Segments.Remove(segment);
+    }
+
+    private void CopyTimeBlock(ScheduleTimeBlock timeBlock)
+    {
+        TimeBlockToCopy = timeBlock;
+        SelectedCopyDays.Clear();
+    }
+
+    private void CancelCopy()
+    {
+        TimeBlockToCopy = null;
+        SelectedCopyDays.Clear();
+    }
+
+    private void ToggleCopyDay(DayOfWeek day)
+    {
+        if (SelectedCopyDays.Contains(day))
+            SelectedCopyDays.Remove(day);
+        else
+            SelectedCopyDays.Add(day);
+    }
+
+    private void PerformCopy()
+    {
+        if (TimeBlockToCopy == null || !SelectedCopyDays.Any()) return;
+
+        foreach (var targetDay in SelectedCopyDays)
+        {
+            var targetSchedule = Repository.Schedule.Days.FirstOrDefault(d => d.Day == targetDay);
+            if (targetSchedule != null)
+            {
+                // Deep copy
+                var newTimeBlock = new ScheduleTimeBlock
+                {
+                    Name = TimeBlockToCopy.Name,
+                    StartTime = TimeBlockToCopy.StartTime,
+                    EndTime = TimeBlockToCopy.EndTime,
+                    Segments = TimeBlockToCopy.Segments.Select(b => new ScheduledSegment { TemplateId = b.TemplateId }).ToList()
+                };
+                targetSchedule.TimeBlocks.Add(newTimeBlock);
+            }
+        }
+        
+        Repository.SaveSchedule(); // Auto-save for copy operation
+        Planner.RefreshForecast();
+        TimeBlockToCopy = null;
+        SelectedCopyDays.Clear();
+    }
+
+    private void SaveSchedule()
+    {
+        ErrorMessage = null;
+        if (!ValidateSchedule(WorkingSchedule)) return;
+
+        if (WorkingSchedule != null && CurrentDaySchedule != null)
+        {
+            WorkingSchedule.TimeBlocks.Sort((a, b) => a.StartTime.CompareTo(b.StartTime));
+            
+            // Apply changes to repository
+            CurrentDaySchedule.TimeBlocks = WorkingSchedule.TimeBlocks;
+            Repository.SaveSchedule();
+            Planner.RefreshForecast();
+        }
+
+        IsEditing = false;
+        WorkingSchedule = null;
+    }
+
+    private bool ValidateSchedule(DaySchedule? schedule)
+    {
+        if (schedule == null) return true;
+
+        var blocks = schedule.TimeBlocks.OrderBy(b => b.StartTime).ToList();
+        for (int i = 0; i < blocks.Count; i++)
+        {
+            var block = blocks[i];
+            if (block.EndTime <= block.StartTime)
+            {
+                ErrorMessage = $"Time block '{block.Name}' ends before it starts. Blocks cannot cross midnight.";
+                return false;
+            }
+
+            if (i < blocks.Count - 1)
+            {
+                var nextBlock = blocks[i + 1];
+                if (block.EndTime > nextBlock.StartTime)
+                {
+                    ErrorMessage = $"Time block '{block.Name}' overlaps with '{nextBlock.Name}'.";
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private bool HasConflict(DayOfWeek day, ScheduleTimeBlock blockToCopy)
+    {
+        var targetDaySchedule = Repository.Schedule.Days.FirstOrDefault(d => d.Day == day);
+        if (targetDaySchedule == null) return false;
+
+        return targetDaySchedule.TimeBlocks.Any(b => 
+            blockToCopy.StartTime < b.EndTime && blockToCopy.EndTime > b.StartTime);
+    }
+
+    private string GetTemplateName(string templateId)
+    {
+        var template = Repository.Templates.Templates.FirstOrDefault(t => t.Id == templateId);
+        return template?.Name ?? "Unknown Segment";
+    }
+}
