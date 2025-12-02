@@ -1,5 +1,6 @@
 @page "/vlc-test"
 @using VideoScheduler.Data
+@using VideoScheduler.Services
 @inject VlcService Vlc
 @inject YamlRepository Repository
 
@@ -24,7 +25,7 @@
         @if (CurrentStatus != null && IsConnected)
         {
             <div>
-                <span class="badge bg-info text-dark me-2">@CurrentStatus.State.ToUpper()</span>
+                <span class="badge bg-info text-dark me-2">@CurrentStatus.State</span>
                 <span class="me-2">@FormatTime(CurrentStatus.Time) / @FormatTime(CurrentStatus.Length)</span>
             </div>
         }

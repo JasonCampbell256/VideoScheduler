@@ -1,5 +1,7 @@
 ﻿@page "/"
 @using VideoScheduler.Data
+@using VideoScheduler.Data.Models
+@using VideoScheduler.Services
 @inject SchedulePlanner Planner
 @inject VlcService Vlc
 @inject AutomationService Automation
@@ -16,6 +18,7 @@
         <input type="number" class="form-control" @bind="DaysToForecast" min="1" max="14" style="width: 80px;" />
     </div>
     <button class="btn btn-primary" @onclick="Generate">Generate</button>
+    <button class="btn btn-warning" @onclick="RegenerateCurrent">Regenerate Current Block</button>
     
     <div class="form-check form-switch ms-3 mb-2">
         <input class="form-check-input" type="checkbox" id="autoPlaySwitch" checked="@Automation.IsAutoPlaying" @onchange="ToggleAutoPlay">
@@ -37,7 +40,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Planner.CurrentPlaylist)
+            @foreach (var item in Planner.CurrentPlaylist.Where(i => i.EstimatedStartTime.AddSeconds(i.DurationSec) > DateTime.Now))
             {
                 <tr class="@(IsCurrentItem(item) ? "table-primary" : "")">
                     <td>@item.EstimatedStartTime.ToString("ddd MMM dd")</td>
@@ -59,17 +62,22 @@
     protected override void OnInitialized()
     {
         DaysToForecast = Repository.AppState.ForecastDays;
-        Planner.OnPlaylistUpdated += StateHasChanged;
-        Automation.OnStateChanged += StateHasChanged;
+        Planner.OnPlaylistUpdated += RefreshUI;
+        Automation.OnStateChanged += RefreshUI;
         // Refresh UI every second to update "Current Item" highlight
         _uiTimer = new System.Threading.Timer(_ => InvokeAsync(StateHasChanged), null, 0, 1000);
     }
 
     public void Dispose()
     {
-        Planner.OnPlaylistUpdated -= StateHasChanged;
-        Automation.OnStateChanged -= StateHasChanged;
+        Planner.OnPlaylistUpdated -= RefreshUI;
+        Automation.OnStateChanged -= RefreshUI;
         _uiTimer?.Dispose();
+    }
+
+    private void RefreshUI()
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     private void ToggleAutoPlay(ChangeEventArgs e)
@@ -81,6 +89,12 @@
     {
         Repository.AppState.ForecastDays = DaysToForecast;
         Planner.RefreshForecast();
+    }
+
+    private void RegenerateCurrent()
+    {
+        Repository.AppState.ForecastDays = DaysToForecast;
+        Planner.RefreshForecast(forceCurrentBlock: true);
     }
 
     private bool IsCurrentItem(PlaylistItem item)

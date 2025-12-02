@@ -1,5 +1,7 @@
 @page "/schedule"
 @using VideoScheduler.Data
+@using VideoScheduler.Data.Models
+@using VideoScheduler.Services
 @inject YamlRepository Repository
 @inject SchedulePlanner Planner
 
@@ -69,36 +71,33 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <h6>Segments</h6>
-                        <div class="list-group mb-2">
-                            @foreach (var segment in timeBlock.Segments)
-                            {
-                                @if (IsEditing)
-                                {
-                                    <div class="list-group-item d-flex justify-content-between align-items-center p-1">
-                                        <select class="form-select form-select-sm border-0" @bind="segment.TemplateId">
-                                            <option value="">-- Select Segment --</option>
-                                            @foreach (var t in Repository.Templates.Templates)
-                                            {
-                                                <option value="@t.Id">@t.Name</option>
-                                            }
-                                        </select>
-                                        <button class="btn btn-sm text-danger" @onclick="() => RemoveSegment(timeBlock, segment)">
-                                            <span class="bi bi-x"></span> X
-                                        </button>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="list-group-item p-1">
-                                        @GetTemplateName(segment.TemplateId)
-                                    </div>
-                                }
-                            }
-                        </div>
+                        <h6>Segment</h6>
                         @if (IsEditing)
                         {
-                            <button class="btn btn-outline-secondary btn-sm w-100" @onclick="() => AddSegment(timeBlock)">+ Add Segment</button>
+                            @if (!timeBlock.Segments.Any()) { timeBlock.Segments.Add(new ScheduledSegment()); }
+                            var firstSegment = timeBlock.Segments.First();
+                            
+                            <select class="form-select form-select-sm" @bind="firstSegment.TemplateId">
+                                <option value="">-- Select Segment --</option>
+                                @foreach (var t in Repository.Templates.Templates)
+                                {
+                                    <option value="@t.Id">@t.Name</option>
+                                }
+                            </select>
+                        }
+                        else
+                        {
+                            var firstSegment = timeBlock.Segments.FirstOrDefault();
+                            if (firstSegment != null)
+                            {
+                                <div class="p-1">
+                                    @GetTemplateName(firstSegment.TemplateId)
+                                </div>
+                            }
+                            else 
+                            {
+                                <div class="text-muted p-1">No Segment Selected</div>
+                            }
                         }
                     </div>
                 </div>
@@ -243,7 +242,8 @@
         { 
             Name = "New Time Block",
             StartTime = new TimeOnly(12, 0),
-            EndTime = new TimeOnly(13, 0)
+            EndTime = new TimeOnly(13, 0),
+            Segments = new List<ScheduledSegment> { new ScheduledSegment() }
         });
     }
 

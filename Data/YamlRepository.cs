@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using VideoScheduler.Data.Models;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 

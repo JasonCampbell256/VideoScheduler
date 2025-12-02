@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
-@using VideoScheduler.Data
 @using System.Threading
+@using VideoScheduler.Data
+@using VideoScheduler.Services
 @inject SchedulePlanner Planner
 @inject AutomationService Automation
 @implements IDisposable
@@ -43,7 +44,6 @@
 
     protected override void OnInitialized()
     {
-        Planner.Initialize();
         Automation.OnStatusUpdated += UpdateStatus;
         Planner.OnPlaylistUpdated += ShowRefreshNotification;
     }
