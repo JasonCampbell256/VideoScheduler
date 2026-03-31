@@ -85,6 +85,72 @@ On the **Home** page:
 2. Click **Generate** to build the playlist
 3. Enable **Sync with VLC** to start automated playback
 
+## How the Scheduling Entities Relate
+
+If you're new to VideoScheduler, this is the mental model:
+
+`Library assets` -> `Show Runs` -> `Segment Templates` -> `Weekly Schedule` -> `Generated Playlist`
+
+### 1) Library assets (your source media)
+
+After scanning, VideoScheduler stores:
+- **Shows** and their episodes
+- **Movies**
+- **Bumpers**
+- **Commercials**
+- **Asset Groups** (named collections of asset IDs, including commercial groups)
+
+Everything else in the app points back to this scanned library data.
+
+### 2) Show Runs (episode progression state)
+
+A **Show Run** references one show and tracks which episode should play next.
+When a run is used in playback, it advances automatically.
+
+Use runs when you want a series to continue over time (instead of choosing a fixed episode manually each time).
+
+### 3) Segment Templates (reusable content blocks)
+
+A **Segment Template** is made of ordered **Block Items**.
+Each block item describes how to fill part of that segment, for example:
+- Fixed asset
+- Random from group/category
+- Show content (via a Run)
+- Commercial break
+- Movie
+
+Think of templates as reusable "program formats" (for example: intro bumper -> episode -> ad break -> bumper).
+
+### 4) Weekly Schedule (when templates run)
+
+The **Schedule** is organized as:
+- **Day**
+- **Time Blocks** (start/end windows)
+- **Scheduled Segments** inside each time block (each references a template)
+
+This defines *when* your template formats should run across the week.
+
+### 5) Generated Playlist / App State (what will actually play)
+
+When you click **Generate**, VideoScheduler resolves:
+- schedule timing
+- template structure
+- random/group selections
+- current run episode positions
+
+into a concrete playlist (`appstate.yaml`) that VLC sync uses for playback.
+
+## Quick Setup Recipe
+
+For a reliable first schedule:
+1. Scan media in **Library**.
+2. Create at least one **Show Run** per show you want to rotate.
+3. Create one or more **Segment Templates** that reference those runs/groups.
+4. Assign templates to **Schedule** time blocks for each day.
+5. Generate on **Home**, review forecast, then enable **Sync with VLC**.
+
+If playback content is unexpected, verify this chain in order: Library -> Runs -> Templates -> Schedule -> Generate.
+
 ## Features
 
 | Feature | Description |
@@ -112,16 +178,6 @@ All data is stored as YAML files in the `DataFiles/` folder:
 - Windows 10/11
 - .NET 10.0 Runtime
 - VLC media player with HTTP interface enabled
-
-## Running on Linux
-
-The application can run on Linux without the system tray icon:
-
-```bash
-dotnet VideoScheduler.dll
-```
-
-Note: The Windows Forms tray icon is only available on Windows builds.
 
 ## Demo
 
