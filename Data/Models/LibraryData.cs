@@ -5,7 +5,7 @@ namespace VideoScheduler.Data.Models
     public class LibraryData
     {
         public List<Show> Shows { get; set; } = new List<Show>();
-        public List<Asset> Movies { get; set; } = new List<Asset>();
+        public List<Movie> Movies { get; set; } = new List<Movie>();
         public List<Asset> Bumpers { get; set; } = new List<Asset>();
         public List<Asset> Commercials { get; set; } = new List<Asset>();
         public List<AssetGroup> Groups { get; set; } = new List<AssetGroup>();

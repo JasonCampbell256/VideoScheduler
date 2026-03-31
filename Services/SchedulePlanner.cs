@@ -274,7 +274,7 @@ namespace VideoScheduler.Services
                                     asset = FindAsset(item.AssetId);
                                     sourceInfo = "Fixed";
                                 }
-                                else if (item.Type == BlockItemType.Dynamic)
+                                else if (item.Type == BlockItemType.RandomFromGroup)
                                 {
                                     asset = PickRandomAsset(item);
                                     sourceInfo = item.GroupId != null ? "Dynamic Group" : "Dynamic Category";
@@ -285,15 +285,20 @@ namespace VideoScheduler.Services
                                     var run = _repository.Library.Runs.FirstOrDefault(r => r.Id == item.RunId);
                                     sourceInfo = run != null ? $"Run: {run.Name}" : "Run";
                                 }
-
-                                resolvedItems.Add(new ResolvedBlockItem
+                                else if (item.Type == BlockItemType.Movie)
                                 {
-                                    OriginalItem = item,
-                                    Asset = asset,
-                                    Duration = asset?.DurationSec ?? 0,
-                                    SourceInfo = sourceInfo,
-                                    RunId = item.Type == BlockItemType.ContentSegment ? item.RunId : null
-                                });
+                                    asset = _repository.Library.Movies.FirstOrDefault(m => m.Id == item.MovieId);
+                                    sourceInfo = "Movie";
+                                }
+
+                                    resolvedItems.Add(new ResolvedBlockItem
+                                    {
+                                        OriginalItem = item,
+                                        Asset = asset,
+                                        Duration = asset?.DurationSec ?? 0,
+                                        SourceInfo = sourceInfo,
+                                        RunId = item.Type == BlockItemType.ContentSegment ? item.RunId : null
+                                    });
                             }
                         }
                     }

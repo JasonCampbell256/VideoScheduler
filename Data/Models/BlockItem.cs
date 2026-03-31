@@ -23,5 +23,9 @@ namespace VideoScheduler.Data.Models
 
         // For Commercial Break
         public bool AutoDuration { get; set; }
+
+        // For Movie
+        public string MovieId { get; set; }
+        public string Title { get; set; }
     }
 }

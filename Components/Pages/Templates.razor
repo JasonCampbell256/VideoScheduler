@@ -77,12 +77,17 @@
                                         {
                                             <small>Asset: @item.val.AssetId</small>
                                         }
-                                        else if (item.val.Type == BlockItemType.Dynamic)
+                                        else if (item.val.Type == BlockItemType.RandomFromGroup)
                                         {
                                             var source = !string.IsNullOrEmpty(item.val.GroupId) 
                                                 ? $"Group: {Repository.Library.Groups.FirstOrDefault(g => g.Id == item.val.GroupId)?.Name ?? item.val.GroupId}" 
                                                 : $"Category: {item.val.Category}";
                                             <small>@source (@item.val.Duration s)</small>
+                                        }
+                                        else if (item.val.Type == BlockItemType.Movie)
+                                        {
+                                            var movie = Repository.Library.Movies.FirstOrDefault(m => m.Id == item.val.AssetId);
+                                            <small>Movie: @(item.val.Title)</small>
                                         }
                                         else if (item.val.Type == BlockItemType.ContentSegment)
                                         {
@@ -118,9 +123,10 @@
                         <div class="row g-2 align-items-center">
                             <div class="col-auto">
                                 <select class="form-select" @bind="NewItemType">
-                                    <option value="@BlockItemType.Fixed">Specific Asset</option>
-                                    <option value="@BlockItemType.Dynamic">Random</option>
                                     <option value="@BlockItemType.ContentSegment">Show Run</option>
+                                    <option value="@BlockItemType.Movie">Movie</option>
+                                    <option value="@BlockItemType.Fixed">Specific Asset</option>
+                                    <option value="@BlockItemType.RandomFromGroup">Random from Group</option>
                                     <option value="@BlockItemType.CommercialBreak">Commercial Break</option>
                                 </select>
                             </div>
@@ -139,38 +145,31 @@
                                     </select>
                                 </div>
                             }
-                            else if (NewItemType == BlockItemType.Dynamic)
+                            else if (NewItemType == BlockItemType.Movie)
                             {
                                 <div class="col-auto">
-                                    <select class="form-select" @bind="NewItemDynamicSourceType">
-                                        <option value="Category">Category</option>
-                                        <option value="Group">Asset Group</option>
+                                    <select class="form-select" @bind="NewItemAssetId">
+                                        <option value="">-- Select Movie --</option>
+                                        @foreach (var movie in Repository.Library.Movies)
+                                        {
+                                            <option value="@movie.Id">@movie.Title</option>
+                                        }
                                     </select>
                                 </div>
 
-                                @if (NewItemDynamicSourceType == "Category")
-                                {
-                                    <div class="col-auto">
-                                        <select class="form-select" @bind="NewItemCategory">
-                                            <option value="Commercial">Commercial</option>
-                                            <option value="BumperIntro">Bumper Intro</option>
-                                            <option value="BumperOutro">Bumper Outro</option>
-                                            <option value="BumperTransition">Bumper Transition</option>
-                                        </select>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="col-auto">
-                                        <select class="form-select" @bind="NewItemGroupId">
-                                            <option value="">-- Select Group --</option>
-                                            @foreach(var g in Repository.Library.Groups.Where(g => g.Type == GroupType.General))
-                                            {
-                                                <option value="@g.Id">@g.Name</option>
-                                            }
-                                        </select>
-                                    </div>
-                                }
+                            }
+                            else if (NewItemType == BlockItemType.RandomFromGroup)
+                            {
+                                <div class="col-auto">
+                                    <select class="form-select" @bind="NewItemGroupId">
+                                        <option value="">-- Select Group --</option>
+                                        @foreach (var g in Repository.Library.Groups.Where(g => g.Type == GroupType.General))
+                                        {
+                                            <option value="@g.Id">@g.Name</option>
+                                        }
+                                    </select>
+                                </div>
+
                             }
                             else if (NewItemType == BlockItemType.ContentSegment)
                             {
@@ -243,14 +242,12 @@
 
 @code {
     private SlotTemplate? SelectedTemplate { get; set; }
-    
+
     // New Item Form State
     private BlockItemType NewItemType { get; set; } = BlockItemType.Fixed;
     private string NewItemAssetId { get; set; } = string.Empty;
-    
+
     // Dynamic Config
-    private string NewItemDynamicSourceType { get; set; } = "Category"; // "Category" or "Group"
-    private string NewItemCategory { get; set; } = "Commercial";
     private string NewItemGroupId { get; set; } = string.Empty;
 
     // Commercial Break Config
@@ -265,6 +262,9 @@
 
     private int NewItemDuration { get; set; } = 30; // Legacy/Fallback
     private int NewItemSegment { get; set; } = 1;
+
+    // Movie Config
+    private string NewItemTitle { get; set; } = string.Empty;
 
     private bool IsEditing { get; set; } = false;
     private bool IsDeleteConfirming { get; set; } = false;
@@ -353,23 +353,21 @@
             if (string.IsNullOrEmpty(NewItemAssetId)) return;
             newItem.AssetId = NewItemAssetId;
         }
-        else if (NewItemType == BlockItemType.Dynamic)
+        else if (NewItemType == BlockItemType.RandomFromGroup)
         {
-            if (NewItemDynamicSourceType == "Category")
-            {
-                newItem.Category = Enum.Parse<ContentType>(NewItemCategory);
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(NewItemGroupId)) return;
-                newItem.GroupId = NewItemGroupId;
-            }
-            // Duration removed for Dynamic/Random as requested
+            if (string.IsNullOrEmpty(NewItemGroupId)) return;
+            newItem.GroupId = NewItemGroupId;
         }
         else if (NewItemType == BlockItemType.ContentSegment)
         {
             if (string.IsNullOrEmpty(NewItemRunId)) return;
             newItem.RunId = NewItemRunId;
+        }
+        else if (NewItemType == BlockItemType.Movie)
+        {
+            if (string.IsNullOrEmpty(NewItemAssetId)) return;
+            newItem.MovieId = NewItemAssetId;
+            newItem.Title = Repository.Library.Movies.FirstOrDefault(m => m.Id == NewItemAssetId)?.Title ?? "Unknown Movie";
         }
         else if (NewItemType == BlockItemType.CommercialBreak)
         {

@@ -4,13 +4,7 @@ namespace VideoScheduler.Data
     {
         Show,
         Movie,
-        BumperIntro,
-        BumperOutro,
-        BumperTransition,
         Commercial,
-        Review,
-        Speech,
-        MusicVideo,
-        StationId
+        Bumper
     }
 }

@@ -85,7 +85,7 @@ namespace VideoScheduler.Services
                 if (Directory.Exists(moviesPath))
                 {
                     logs.Add($"Found 'Movies' folder. Scanning...");
-                    data.Movies = ScanAssets(moviesPath, ContentType.Movie, logs, ReportProgress);
+                    data.Movies = ScanMovies(moviesPath, logs, ReportProgress);
                 }
                 else
                 {
@@ -97,7 +97,7 @@ namespace VideoScheduler.Services
                 if (Directory.Exists(bumpersPath))
                 {
                     logs.Add($"Found 'Bumpers' folder.");
-                    data.Bumpers = ScanAssets(bumpersPath, ContentType.BumperTransition, logs, ReportProgress);
+                    data.Bumpers = ScanAssets(bumpersPath, ContentType.Bumper, logs, ReportProgress);
                 }
 
                 // 4. Scan Commercials
@@ -287,6 +287,34 @@ namespace VideoScheduler.Services
             return shows;
         }
 
+        private List<Movie> ScanMovies(string root, List<string> logs, Action<string> onFileProcessed)
+        {
+            var movies = new List<Movie>();
+            // Recursive scan
+            var files = Directory.GetFiles(root, "*.*", SearchOption.AllDirectories)
+                .Where(f => VideoExtensions.Contains(Path.GetExtension(f).ToLower()));
+
+            foreach (var file in files)
+            {
+                var name = Path.GetFileNameWithoutExtension(file);
+                onFileProcessed?.Invoke($"Scanning {name}");
+                var id = GenerateId(name);
+                var duration = GetDuration(file);
+
+                movies.Add(new Movie
+                {
+                    Id = id,
+                    Title = name,
+                    DurationSec = duration,
+                    FilePath = file,
+                    Tags = new List<string>()
+                });
+            }
+            logs.Add($"Scanned {root}: Found {movies.Count} movies");
+
+            return movies;
+        }
+
         private List<Asset> ScanAssets(string root, ContentType type, List<string> logs, Action<string> onFileProcessed)
         {
             var assets = new List<Asset>();
@@ -299,24 +327,13 @@ namespace VideoScheduler.Services
                 var name = Path.GetFileNameWithoutExtension(file);
                 onFileProcessed?.Invoke($"Scanning {name}");
                 var id = GenerateId(name);
-
-                // If it's a bumper, maybe refine type based on folder?
-                // e.g. Bumpers/Intros -> BumperIntro
-                var refinedType = type;
-                if (type == ContentType.BumperTransition)
-                {
-                    if (file.Contains("Intro", StringComparison.OrdinalIgnoreCase)) refinedType = ContentType.BumperIntro;
-                    else if (file.Contains("Outro", StringComparison.OrdinalIgnoreCase)) refinedType = ContentType.BumperOutro;
-                }
-
                 var duration = GetDuration(file);
-                if (duration == 0) duration = type == ContentType.Movie ? 7200 : 30;
 
                 assets.Add(new Asset
                 {
                     Id = id,
                     Title = name,
-                    Type = refinedType,
+                    Type = type,
                     DurationSec = duration,
                     FilePath = file,
                     Tags = new List<string>()

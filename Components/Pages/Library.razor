@@ -420,7 +420,22 @@ else
         }
 
         // Sync Movies
-        SyncAssets(Repository.Library.Movies, newData.Movies);
+        var moviesToRemove = Repository.Library.Movies.Where(m => !newData.Movies.Any(nm => nm.Id == m.Id)).ToList();
+        foreach (var m in moviesToRemove) Repository.Library.Movies.Remove(m);
+        foreach (var newMovie in newData.Movies)
+        {
+            var existingMovie = Repository.Library.Movies.FirstOrDefault(m => m.Id == newMovie.Id);
+            if (existingMovie == null)
+            {
+                Repository.Library.Movies.Add(newMovie);
+            }
+            else
+            {
+                existingMovie.FilePath = newMovie.FilePath;
+                existingMovie.DurationSec = newMovie.DurationSec;
+            }
+        }
+
         SyncAssets(Repository.Library.Bumpers, newData.Bumpers);
         SyncAssets(Repository.Library.Commercials, newData.Commercials);
 

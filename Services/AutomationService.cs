@@ -54,16 +54,18 @@ namespace VideoScheduler.Services
             
             if (index == -1) return false;
 
-            DateTime endTime;
+            var naturalEndTime = item.EstimatedStartTime.AddSeconds(item.DurationSec);
+            DateTime endTime = naturalEndTime;
             
             if (index < playlist.Count - 1)
             {
                 var nextItem = playlist[index + 1];
-                endTime = nextItem.EstimatedStartTime;
-            }
-            else
-            {
-                endTime = item.EstimatedStartTime.AddSeconds(item.DurationSec);
+                // If the next item starts before this one naturally ends, cut it short.
+                // Otherwise, leave it alone (do not extend to fill gaps).
+                if (nextItem.EstimatedStartTime < naturalEndTime)
+                {
+                    endTime = nextItem.EstimatedStartTime;
+                }
             }
 
             return now >= item.EstimatedStartTime && now < endTime;
@@ -94,7 +96,6 @@ namespace VideoScheduler.Services
                 var currentPlaylist = _planner.CurrentPlaylist;
                 if (!IsAutoPlaying || currentPlaylist == null || !currentPlaylist.Any()) return;
 
-                var now = DateTime.Now;
                 var expectedItem = currentPlaylist.FirstOrDefault(i => IsCurrentItem(i, currentPlaylist));
 
                 if (expectedItem == null) return;
@@ -119,13 +120,13 @@ namespace VideoScheduler.Services
                 bool isWrongFile = string.IsNullOrEmpty(currentVlcFilename) || 
                                    !string.IsNullOrEmpty(expectedFilename) && !currentVlcFilename.Contains(expectedFilename, StringComparison.OrdinalIgnoreCase);
 
-                var expectedOffset = (now - expectedItem.EstimatedStartTime).TotalSeconds;
+                var expectedOffset = (DateTime.Now - expectedItem.EstimatedStartTime).TotalSeconds;
 
                 if (status.State == VlcState.Stopped || status.State == VlcState.Unknown || isWrongFile)
                 {
                     Console.WriteLine($"Automation: Playing {expectedItem.Title}");
                     await _vlc.Play(expectedItem.FilePath);
-                    await Task.Delay(500);
+                    await Task.Delay(50);
                     if (expectedOffset > 0)
                     {
                         await _vlc.Seek((int)expectedOffset);

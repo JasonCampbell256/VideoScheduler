@@ -49,7 +49,7 @@
 
         @if (DisplaySchedule != null)
         {
-            @foreach (var timeBlock in DisplaySchedule.TimeBlocks.OrderBy(t => t.StartTime))
+            @foreach (var timeBlock in DisplaySchedule.TimeBlocks)
             {
                 <div class="card mb-3 border-primary">
                     <div class="card-header d-flex align-items-center gap-2">
@@ -165,6 +165,11 @@
     protected override void OnInitialized()
     {
         EnsureDaysExist();
+
+        foreach (var daySchedule in Repository.Schedule.Days)
+        {
+            daySchedule.TimeBlocks.Sort((a, b) => a.StartTime.CompareTo(b.StartTime));
+        }
     }
 
     private void OnBeforeInternalNavigation(LocationChangingContext context)
@@ -238,7 +243,7 @@
 
     private void AddTimeBlock()
     {
-        WorkingSchedule?.TimeBlocks.Add(new ScheduleTimeBlock 
+        WorkingSchedule?.TimeBlocks.Insert(0, new ScheduleTimeBlock 
         { 
             Name = "New Time Block",
             StartTime = new TimeOnly(12, 0),

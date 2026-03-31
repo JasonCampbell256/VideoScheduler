@@ -3,8 +3,9 @@ namespace VideoScheduler.Data
     public enum BlockItemType
     {
         Fixed,
-        Dynamic,
+        RandomFromGroup,
         ContentSegment,
-        CommercialBreak
+        CommercialBreak,
+        Movie
     }
 }
