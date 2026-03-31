@@ -7,7 +7,22 @@ VideoScheduler is a cross-platform VLC-based video scheduler that allows you to 
 1. Download the latest release ZIP file
 2. Extract to any folder
 3. Run `VideoScheduler.exe`
-4. Access the web UI at `http://localhost:5000`
+4. Access the web UI at `http://localhost:5050`
+
+### Configure Web Port
+
+The app's HTTP port is configurable via `appsettings.json`:
+
+```json
+{
+  "Server": {
+    "Port": 5050
+  }
+}
+```
+
+Change `Server:Port` to any free port from `1` to `65535`, then restart VideoScheduler.
+If the configured port is invalid or already in use, startup will fail with a clear error.
 
 ### VLC Setup (Required)
 
@@ -95,7 +110,7 @@ All data is stored as YAML files in the `DataFiles/` folder:
 ## System Requirements
 
 - Windows 10/11
-- .NET 9.0 Runtime
+- .NET 10.0 Runtime
 - VLC media player with HTTP interface enabled
 
 ## Running on Linux

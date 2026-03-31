@@ -7,8 +7,13 @@ using System.Windows.Forms;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Set fixed URL for the tray app
-var appUrl = "http://localhost:5000";
+var configuredPort = builder.Configuration.GetValue<int>("Server:Port", 5000);
+if (configuredPort < 1 || configuredPort > 65535)
+{
+    throw new InvalidOperationException($"Invalid Server:Port value '{configuredPort}'. Expected a value between 1 and 65535.");
+}
+
+var appUrl = $"http://localhost:{configuredPort}";
 builder.WebHost.UseUrls(appUrl);
 
 // Add services to the container.
