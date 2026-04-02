@@ -13,6 +13,10 @@ namespace VideoScheduler.Services
         private bool _isSyncing = false;
         private HashSet<string> _playedItems = new HashSet<string>();
 
+        // Max seconds to let a finishing video overrun before hard-cutting,
+        // and min seconds into the next video before seeking (to absorb load time).
+        private const int TransitionGraceSec = 5;
+
         public bool IsAutoPlaying { get; set; }
         public VlcStatus? LastStatus { get; private set; }
         public event Action? OnStateChanged;
@@ -100,6 +104,27 @@ namespace VideoScheduler.Services
 
                 if (expectedItem == null) return;
 
+                // If we failed to get status earlier, we can't sync
+                if (!_vlc.IsConnected) return;
+
+                var expectedFilename = Path.GetFileName(expectedItem.FilePath);
+                var currentVlcFilename = status.Filename;
+                
+                bool isWrongFile = string.IsNullOrEmpty(currentVlcFilename) || 
+                                   !string.IsNullOrEmpty(expectedFilename) && !currentVlcFilename.Contains(expectedFilename, StringComparison.OrdinalIgnoreCase);
+
+                // Grace period: if VLC is playing the previous video and it's almost
+                // done, let it finish rather than hard-cutting (which would also cause
+                // the next video to seek past its first few seconds).
+                if (isWrongFile && status.State == VlcState.Playing && status.Length > 0)
+                {
+                    var remainingTime = status.Length - status.Time;
+                    if (remainingTime > 0 && remainingTime <= TransitionGraceSec)
+                    {
+                        return;
+                    }
+                }
+
                 // Mark as played and advance run if needed
                 var itemKey = $"{expectedItem.AssetId}-{expectedItem.EstimatedStartTime.Ticks}";
                 if (!_playedItems.Contains(itemKey))
@@ -111,15 +136,6 @@ namespace VideoScheduler.Services
                     }
                 }
 
-                // If we failed to get status earlier, we can't sync
-                if (!_vlc.IsConnected) return;
-
-                var expectedFilename = Path.GetFileName(expectedItem.FilePath);
-                var currentVlcFilename = status.Filename;
-                
-                bool isWrongFile = string.IsNullOrEmpty(currentVlcFilename) || 
-                                   !string.IsNullOrEmpty(expectedFilename) && !currentVlcFilename.Contains(expectedFilename, StringComparison.OrdinalIgnoreCase);
-
                 var expectedOffset = (DateTime.Now - expectedItem.EstimatedStartTime).TotalSeconds;
 
                 if (status.State == VlcState.Stopped || status.State == VlcState.Unknown || isWrongFile)
@@ -127,7 +143,9 @@ namespace VideoScheduler.Services
                     Console.WriteLine($"Automation: Playing {expectedItem.Title}");
                     await _vlc.Play(expectedItem.FilePath);
                     await Task.Delay(50);
-                    if (expectedOffset > 0)
+                    // Only seek if we're well into the video's timeline. Small offsets
+                    // are just loading delay — seeking past them skips content.
+                    if (expectedOffset > TransitionGraceSec)
                     {
                         await _vlc.Seek((int)expectedOffset);
                     }
