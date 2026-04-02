@@ -14,12 +14,7 @@
             <button class="btn btn-outline-secondary" @onclick="() => ShowBrowser = !ShowBrowser">Browse...</button>
         </div>
         
-        @if (ShowBrowser)
-        {
-            <div class="mb-3">
-                <FolderBrowser InitialPath="@ScanPath" OnPathSelected="OnFolderSelected" />
-            </div>
-        }
+        
         
         @if (IsScanConfirming)
         {
@@ -45,6 +40,13 @@
                 }
             </button>
             <button class="btn btn-danger" @onclick="ClearLibrary" disabled="@IsScanning">Clear Library</button>
+        }
+
+        @if (ShowBrowser)
+        {
+            <div class="mb-3">
+                <FolderBrowser InitialPath="@ScanPath" OnPathSelected="OnFolderSelected" />
+            </div>
         }
     </div>
 </div>

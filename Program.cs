@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var configuredPort = builder.Configuration.GetValue<int>("Server:Port", 5000);
+var configuredPort = builder.Configuration.GetValue<int>("Server:Port", 5050);
 if (configuredPort < 1 || configuredPort > 65535)
 {
     throw new InvalidOperationException($"Invalid Server:Port value '{configuredPort}'. Expected a value between 1 and 65535.");
