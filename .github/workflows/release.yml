@@ -19,7 +19,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Publish Windows
-        run: dotnet publish VideoScheduler.csproj -c Release -f net8.0-windows -r win-x64 --self-contained true -o publish/win-x64
+        run: dotnet publish VideoScheduler.csproj -c Release -f net8.0-windows -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish/win-x64
 
       - name: Zip artifact
         run: Compress-Archive -Path publish/win-x64/* -DestinationPath VideoScheduler-windows-x64.zip
@@ -42,7 +42,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Publish macOS (${{ matrix.rid }})
-        run: dotnet publish VideoScheduler.csproj -c Release -f net8.0 -r ${{ matrix.rid }} --self-contained true -o publish/${{ matrix.rid }}
+        run: dotnet publish VideoScheduler.csproj -c Release -f net8.0 -r ${{ matrix.rid }} --self-contained true -p:PublishSingleFile=true -o publish/${{ matrix.rid }}
 
       - name: Make start.sh executable
         run: chmod +x publish/${{ matrix.rid }}/start.sh
@@ -68,7 +68,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Publish Linux (${{ matrix.rid }})
-        run: dotnet publish VideoScheduler.csproj -c Release -f net8.0 -r ${{ matrix.rid }} --self-contained true -o publish/${{ matrix.rid }}
+        run: dotnet publish VideoScheduler.csproj -c Release -f net8.0 -r ${{ matrix.rid }} --self-contained true -p:PublishSingleFile=true -o publish/${{ matrix.rid }}
 
       - name: Make start.sh executable
         run: chmod +x publish/${{ matrix.rid }}/start.sh
