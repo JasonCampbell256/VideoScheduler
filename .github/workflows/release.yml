@@ -50,3 +50,31 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           files: VideoScheduler-${{ matrix.rid }}.zip
+
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rid: [linux-x64, linux-arm64]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Publish Linux (${{ matrix.rid }})
+        run: dotnet publish VideoScheduler.csproj -c Release -f net8.0 -r ${{ matrix.rid }} --self-contained true -o publish/${{ matrix.rid }}
+
+      - name: Make start.sh executable
+        run: chmod +x publish/${{ matrix.rid }}/start.sh
+
+      - name: Zip artifact
+        run: |
+          cd publish
+          zip -r ../VideoScheduler-${{ matrix.rid }}.zip ${{ matrix.rid }}/
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: VideoScheduler-${{ matrix.rid }}.zip
