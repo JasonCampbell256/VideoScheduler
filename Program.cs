@@ -5,7 +5,17 @@ using VideoScheduler.Services;
 using System.Windows.Forms;
 #endif
 
-var builder = WebApplication.CreateBuilder(args);
+// For single-file publish, AppContext.BaseDirectory is a temp extraction dir.
+// Anchor content root to the actual executable's directory so wwwroot is always found.
+var executableDir = Path.GetDirectoryName(Environment.ProcessPath)
+    ?? Directory.GetCurrentDirectory();
+
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    ContentRootPath = executableDir,
+    WebRootPath = Path.Combine(executableDir, "wwwroot")
+});
 
 var configuredPort = builder.Configuration.GetValue<int>("Server:Port", 5050);
 if (configuredPort < 1 || configuredPort > 65535)
@@ -23,7 +33,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddSingleton<YamlRepository>(sp =>
 {
     // Use a local "Data" folder in the current directory for portability
-    var path = Path.Combine(AppContext.BaseDirectory, "DataFiles");
+    var path = Path.Combine(executableDir, "DataFiles");
     return new YamlRepository(path);
 });
 
