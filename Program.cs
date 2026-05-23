@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using VideoScheduler.Components;
 using VideoScheduler.Data;
 using VideoScheduler.Services;
@@ -74,5 +75,16 @@ uiThread.Join();
 // Stop the server when UI exits
 await app.StopAsync();
 #else
+// Open browser after the server starts
+var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+lifetime.ApplicationStarted.Register(() =>
+{
+    try
+    {
+        Process.Start(new ProcessStartInfo(appUrl) { UseShellExecute = true });
+    }
+    catch { }
+});
+
 app.Run();
 #endif

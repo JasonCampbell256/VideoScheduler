@@ -28,6 +28,8 @@ namespace VideoScheduler
 
             _notifyIcon.ContextMenuStrip = contextMenu;
             _notifyIcon.DoubleClick += (s, e) => OpenBrowser();
+
+            OpenBrowser();
         }
 
         private void OpenBrowser()
