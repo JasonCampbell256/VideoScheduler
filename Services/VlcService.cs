@@ -138,7 +138,7 @@ namespace VideoScheduler.Services
                 uri = filePath;
             }
 
-            var encodedPath = Uri.EscapeDataString(uri);
+            var encodedPath = Uri.EscapeDataString(uri).Replace("'", "%27");
             await SendCommandAsync($"?command=in_play&input={encodedPath}");
         }
 

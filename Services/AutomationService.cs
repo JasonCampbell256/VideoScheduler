@@ -17,6 +17,11 @@ namespace VideoScheduler.Services
         // and min seconds into the next video before seeking (to absorb load time).
         private const int TransitionGraceSec = 5;
 
+        // Track last Play command to avoid re-firing during VLC load time.
+        private string? _lastPlayedFilePath;
+        private DateTime _lastPlayedAt = DateTime.MinValue;
+        private const int PlayCooldownSec = 3;
+
         public bool IsAutoPlaying { get; set; }
         public VlcStatus? LastStatus { get; private set; }
         public event Action? OnStateChanged;
@@ -75,6 +80,22 @@ namespace VideoScheduler.Services
             return now >= item.EstimatedStartTime && now < endTime;
         }
 
+        private static string NormalizeFilename(string filename)
+        {
+            // Decode any percent-encoding (e.g. %27 → ', %20 → space)
+            try { filename = Uri.UnescapeDataString(filename); } catch { }
+            return filename;
+        }
+
+        private bool IsFileMatch(string? vlcFilename, string expectedFilePath)
+        {
+            if (string.IsNullOrEmpty(vlcFilename)) return false;
+            var expected = Path.GetFileName(expectedFilePath);
+            if (string.IsNullOrEmpty(expected)) return false;
+            return NormalizeFilename(vlcFilename)
+                .Contains(NormalizeFilename(expected), StringComparison.OrdinalIgnoreCase);
+        }
+
         private async Task SyncLoop()
         {
             if (_isSyncing) return;
@@ -107,11 +128,20 @@ namespace VideoScheduler.Services
                 // If we failed to get status earlier, we can't sync
                 if (!_vlc.IsConnected) return;
 
-                var expectedFilename = Path.GetFileName(expectedItem.FilePath);
-                var currentVlcFilename = status.Filename;
-                
-                bool isWrongFile = string.IsNullOrEmpty(currentVlcFilename) || 
-                                   !string.IsNullOrEmpty(expectedFilename) && !currentVlcFilename.Contains(expectedFilename, StringComparison.OrdinalIgnoreCase);
+                // If we sent a Play command for this exact file and VLC is now
+                // playing, trust it — don't re-check the filename. VLC may report
+                // filenames with different encoding that won't match, and re-firing
+                // Play() would kill the current playback.
+                bool isWrongFile;
+                if (_lastPlayedFilePath == expectedItem.FilePath && 
+                    (status.State == VlcState.Playing || status.State == VlcState.Paused))
+                {
+                    isWrongFile = false;
+                }
+                else
+                {
+                    isWrongFile = !IsFileMatch(status.Filename, expectedItem.FilePath);
+                }
 
                 // Grace period: if VLC is playing the previous video and it's almost
                 // done, let it finish rather than hard-cutting (which would also cause
@@ -140,7 +170,18 @@ namespace VideoScheduler.Services
 
                 if (status.State == VlcState.Stopped || status.State == VlcState.Unknown || isWrongFile)
                 {
+                    // Don't re-fire Play() while VLC is still loading from our last command.
+                    // Without this, the sync loop clears and restarts VLC every 250ms,
+                    // preventing the file from ever finishing its load.
+                    if (_lastPlayedFilePath == expectedItem.FilePath &&
+                        (DateTime.Now - _lastPlayedAt).TotalSeconds < PlayCooldownSec)
+                    {
+                        return;
+                    }
+
                     Console.WriteLine($"Automation: Playing {expectedItem.Title}");
+                    _lastPlayedFilePath = expectedItem.FilePath;
+                    _lastPlayedAt = DateTime.Now;
                     await _vlc.Play(expectedItem.FilePath);
                     await Task.Delay(50);
                     // Only seek if we're well into the video's timeline. Small offsets

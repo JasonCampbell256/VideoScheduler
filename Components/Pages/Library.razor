@@ -16,9 +16,10 @@
         
         
         
+        <div class="mb-2">
         @if (IsScanConfirming)
         {
-            <div class="alert alert-warning">
+            <div class="alert alert-warning mb-0">
                 <strong>Warning:</strong> Scanning a new folder will synchronize your library. Any items not found in the new scan will be removed.
                 <div class="mt-2">
                     <button class="btn btn-danger" @onclick="ConfirmScan">Proceed with Scan</button>
@@ -41,6 +42,7 @@
             </button>
             <button class="btn btn-danger" @onclick="ClearLibrary" disabled="@IsScanning">Clear Library</button>
         }
+        </div>
 
         @if (ShowBrowser)
         {
