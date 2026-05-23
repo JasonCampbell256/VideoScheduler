@@ -23,7 +23,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddSingleton<YamlRepository>(sp =>
 {
     // Use a local "Data" folder in the current directory for portability
-    var path = Path.Combine(Directory.GetCurrentDirectory(), "DataFiles");
+    var path = Path.Combine(AppContext.BaseDirectory, "DataFiles");
     return new YamlRepository(path);
 });
 

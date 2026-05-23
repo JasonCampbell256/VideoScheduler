@@ -4,10 +4,21 @@ VideoScheduler is a cross-platform VLC-based video scheduler that allows you to 
 
 ## Installation
 
-1. Download the latest release ZIP file
+1. Download the latest release ZIP file for your platform:
+   - `VideoScheduler-windows-x64.zip` — Windows
+   - `VideoScheduler-osx-arm64.zip` — macOS (Apple Silicon)
+   - `VideoScheduler-osx-x64.zip` — macOS (Intel)
 2. Extract to any folder
-3. Run `VideoScheduler.exe`
-4. Access the web UI at `http://localhost:5050`. On Windows you can also click the system tray icon to open the UI.
+
+**Windows:** Run `VideoScheduler.exe`. A system tray icon will appear; double-click it or right-click → **Open VideoScheduler** to launch the UI.
+
+**macOS:** Open a terminal in the extracted folder and run:
+```bash
+./start.sh
+```
+> On first run macOS may block the binary. If so, go to **System Settings → Privacy & Security** and click **Allow Anyway**, then run `./start.sh` again.
+
+3. Access the web UI at `http://localhost:5050`
 
 ### VLC Setup (Required)
 
@@ -160,8 +171,8 @@ All data is stored as YAML files in the `DataFiles/` folder:
 
 ## System Requirements
 
-- Windows 10/11
-- .NET 10.0 Runtime
+- Windows 10/11, or macOS 12+
+- .NET 8.0 Runtime (bundled — no install needed with self-contained builds)
 - VLC media player with HTTP interface enabled
 
 ## Demo
