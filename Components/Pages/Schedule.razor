@@ -326,7 +326,7 @@
             // Apply changes to repository
             CurrentDaySchedule.TimeBlocks = WorkingSchedule.TimeBlocks;
             Repository.SaveSchedule();
-            Planner.RefreshForecast();
+            Planner.RefreshForecast(forceCurrentBlock: true);
         }
 
         IsEditing = false;

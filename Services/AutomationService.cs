@@ -17,10 +17,18 @@ namespace VideoScheduler.Services
         // and min seconds into the next video before seeking (to absorb load time).
         private const int TransitionGraceSec = 5;
 
+        // Drift beyond this threshold triggers a corrective seek.
+        private const int DriftCorrectionSec = 3;
+
         // Track last Play command to avoid re-firing during VLC load time.
         private string? _lastPlayedFilePath;
         private DateTime _lastPlayedAt = DateTime.MinValue;
         private const int PlayCooldownSec = 3;
+
+        // Pending seek: stored when Play is issued so it can be applied once
+        // VLC confirms the file is loaded and playing.
+        private int? _pendingSeekOffset;
+        private string? _pendingSeekFile;
 
         public bool IsAutoPlaying { get; set; }
         public VlcStatus? LastStatus { get; private set; }
@@ -168,6 +176,18 @@ namespace VideoScheduler.Services
 
                 var expectedOffset = (DateTime.Now - expectedItem.EstimatedStartTime).TotalSeconds;
 
+                // Apply a pending seek once VLC confirms the file is loaded.
+                if (_pendingSeekOffset.HasValue &&
+                    _pendingSeekFile == expectedItem.FilePath &&
+                    (status.State == VlcState.Playing || status.State == VlcState.Paused))
+                {
+                    Console.WriteLine($"Automation: Applying pending seek to {_pendingSeekOffset.Value}s");
+                    await _vlc.Seek(_pendingSeekOffset.Value);
+                    _pendingSeekOffset = null;
+                    _pendingSeekFile = null;
+                    return;
+                }
+
                 if (status.State == VlcState.Stopped || status.State == VlcState.Unknown || isWrongFile)
                 {
                     // Don't re-fire Play() while VLC is still loading from our last command.
@@ -183,12 +203,14 @@ namespace VideoScheduler.Services
                     _lastPlayedFilePath = expectedItem.FilePath;
                     _lastPlayedAt = DateTime.Now;
                     await _vlc.Play(expectedItem.FilePath);
-                    await Task.Delay(50);
-                    // Only seek if we're well into the video's timeline. Small offsets
-                    // are just loading delay — seeking past them skips content.
+
+                    // Store a pending seek to be applied once VLC confirms
+                    // the file is loaded. The old 50ms delay was too short and
+                    // resulted in the seek being silently dropped by VLC.
                     if (expectedOffset > TransitionGraceSec)
                     {
-                        await _vlc.Seek((int)expectedOffset);
+                        _pendingSeekOffset = (int)expectedOffset;
+                        _pendingSeekFile = expectedItem.FilePath;
                     }
                 }
                 else if (status.State == VlcState.Playing || status.State == VlcState.Paused)
@@ -196,9 +218,9 @@ namespace VideoScheduler.Services
                     var actualOffset = status.Time;
                     var drift = Math.Abs(expectedOffset - actualOffset);
                     
-                    if (drift > 10)
+                    if (drift > DriftCorrectionSec)
                     {
-                        Console.WriteLine($"Automation: Correcting drift ({drift}s)");
+                        Console.WriteLine($"Automation: Correcting drift ({drift:F1}s)");
                         await _vlc.Seek((int)expectedOffset);
                         if (status.State == VlcState.Paused)
                         {
