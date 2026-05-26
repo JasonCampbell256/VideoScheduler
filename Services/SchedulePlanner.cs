@@ -29,6 +29,12 @@ namespace VideoScheduler.Services
             public string? RunId { get; set; }
         }
 
+        private class SimRunState
+        {
+            public string CurrentEpisodeId { get; set; } = string.Empty;
+            public Queue<string> ShuffleQueue { get; set; } = new Queue<string>();
+        }
+
         public SchedulePlanner(YamlRepository repository)
         {
             _repository = repository;
@@ -124,7 +130,13 @@ namespace VideoScheduler.Services
             }
 
             // 2. Prepare Simulation State
-            var simulatedRuns = _repository.Library.Runs.ToDictionary(r => r.Id, r => r.CurrentEpisodeId);
+            var simulatedRuns = _repository.Library.Runs.ToDictionary(
+                r => r.Id,
+                r => new SimRunState
+                {
+                    CurrentEpisodeId = r.CurrentEpisodeId,
+                    ShuffleQueue = new Queue<string>(r.ShuffleQueue)
+                });
             
             // Fast-forward simulation through kept items
             foreach (var item in keptItems)
@@ -170,7 +182,7 @@ namespace VideoScheduler.Services
                 return time >= start.ToTimeSpan() || time < end.ToTimeSpan();
         }
 
-        private void AdvanceSimulatedRun(string runId, Dictionary<string, string> simulatedRuns)
+        private void AdvanceSimulatedRun(string runId, Dictionary<string, SimRunState> simulatedRuns)
         {
             var run = _repository.Library.Runs.FirstOrDefault(r => r.Id == runId);
             if (run == null) return;
@@ -178,15 +190,26 @@ namespace VideoScheduler.Services
             var show = _repository.Library.Shows.FirstOrDefault(s => s.Id == run.ShowId);
             if (show == null || !show.Episodes.Any()) return;
 
-            if (!simulatedRuns.TryGetValue(runId, out var currentEpId))
-                currentEpId = run.CurrentEpisodeId;
+            if (!simulatedRuns.TryGetValue(runId, out var state)) return;
 
-            var episode = show.Episodes.FirstOrDefault(e => e.Id == currentEpId);
-            if (episode == null) episode = show.Episodes.First();
+            var episodes = GetEpisodesInRange(run, show);
+            if (!episodes.Any()) return;
 
-            var currentIndex = show.Episodes.IndexOf(episode);
-            var nextIndex = (currentIndex + 1) % show.Episodes.Count;
-            simulatedRuns[runId] = show.Episodes[nextIndex].Id;
+            if (run.Randomize)
+            {
+                if (state.ShuffleQueue.Count == 0)
+                {
+                    foreach (var id in BuildShuffleQueue(episodes, state.CurrentEpisodeId))
+                        state.ShuffleQueue.Enqueue(id);
+                }
+                state.CurrentEpisodeId = state.ShuffleQueue.Dequeue();
+            }
+            else
+            {
+                var episode = episodes.FirstOrDefault(e => e.Id == state.CurrentEpisodeId) ?? episodes.First();
+                var nextIndex = (episodes.IndexOf(episode) + 1) % episodes.Count;
+                state.CurrentEpisodeId = episodes[nextIndex].Id;
+            }
         }
 
         public void AdvanceRun(string runId)
@@ -197,30 +220,41 @@ namespace VideoScheduler.Services
             var show = _repository.Library.Shows.FirstOrDefault(s => s.Id == run.ShowId);
             if (show == null || !show.Episodes.Any()) return;
 
-            var currentEpId = run.CurrentEpisodeId;
-            var episode = show.Episodes.FirstOrDefault(e => e.Id == currentEpId);
-            
-            // If current episode is invalid, reset to first
-            if (episode == null)
+            var episodes = GetEpisodesInRange(run, show);
+            if (!episodes.Any()) return;
+
+            if (run.Randomize)
             {
-                episode = show.Episodes.First();
+                if (run.ShuffleQueue.Count == 0)
+                    run.ShuffleQueue = BuildShuffleQueue(episodes, run.CurrentEpisodeId);
+
+                run.CurrentEpisodeId = run.ShuffleQueue[0];
+                run.ShuffleQueue.RemoveAt(0);
+            }
+            else
+            {
+                var episode = episodes.FirstOrDefault(e => e.Id == run.CurrentEpisodeId) ?? episodes.First();
+                var nextIndex = (episodes.IndexOf(episode) + 1) % episodes.Count;
+                run.CurrentEpisodeId = episodes[nextIndex].Id;
             }
 
-            var currentIndex = show.Episodes.IndexOf(episode);
-            var nextIndex = (currentIndex + 1) % show.Episodes.Count;
-            
-            run.CurrentEpisodeId = show.Episodes[nextIndex].Id;
             _repository.SaveLibrary();
         }
 
         public List<PlaylistItem> GenerateForecast(DateTime startDate, int daysCount)
         {
             // Legacy wrapper or for manual generation
-            var simulatedRuns = _repository.Library.Runs.ToDictionary(r => r.Id, r => r.CurrentEpisodeId);
+            var simulatedRuns = _repository.Library.Runs.ToDictionary(
+                r => r.Id,
+                r => new SimRunState
+                {
+                    CurrentEpisodeId = r.CurrentEpisodeId,
+                    ShuffleQueue = new Queue<string>(r.ShuffleQueue)
+                });
             return GenerateForecastInternal(startDate, daysCount, simulatedRuns);
         }
 
-        private List<PlaylistItem> GenerateForecastInternal(DateTime startDate, int daysCount, Dictionary<string, string> simulatedRuns)
+        private List<PlaylistItem> GenerateForecastInternal(DateTime startDate, int daysCount, Dictionary<string, SimRunState> simulatedRuns)
         {
             var playlist = new List<PlaylistItem>();
             
@@ -446,7 +480,7 @@ namespace VideoScheduler.Services
             return list[_random.Next(list.Count)];
         }
 
-        private Asset? GetNextEpisode(string runId, Dictionary<string, string> simulatedRuns)
+        private Asset? GetNextEpisode(string runId, Dictionary<string, SimRunState> simulatedRuns)
         {
             var run = _repository.Library.Runs.FirstOrDefault(r => r.Id == runId);
             if (run == null) return null;
@@ -454,27 +488,82 @@ namespace VideoScheduler.Services
             var show = _repository.Library.Shows.FirstOrDefault(s => s.Id == run.ShowId);
             if (show == null || !show.Episodes.Any()) return null;
 
-            // Get current simulated episode ID
-            if (!simulatedRuns.TryGetValue(runId, out var currentEpId))
+            if (!simulatedRuns.TryGetValue(runId, out var state))
             {
-                currentEpId = run.CurrentEpisodeId;
+                state = new SimRunState
+                {
+                    CurrentEpisodeId = run.CurrentEpisodeId,
+                    ShuffleQueue = new Queue<string>(run.ShuffleQueue)
+                };
+                simulatedRuns[runId] = state;
             }
 
-            // Find episode
-            var episode = show.Episodes.FirstOrDefault(e => e.Id == currentEpId);
-            
-            // If not found (or null), start from beginning
-            if (episode == null)
-            {
-                episode = show.Episodes.First();
-            }
+            var episodes = GetEpisodesInRange(run, show);
+            if (!episodes.Any()) return null;
 
-            // Determine next episode for simulation
-            var currentIndex = show.Episodes.IndexOf(episode);
-            var nextIndex = (currentIndex + 1) % show.Episodes.Count; // Loop back to start
-            simulatedRuns[runId] = show.Episodes[nextIndex].Id;
+            Episode? episode;
+
+            if (run.Randomize)
+            {
+                // Always pull from the queue. CurrentEpisodeId tracks the last-played episode
+                // (used as the exclusion seed when rebuilding the queue).
+                if (state.ShuffleQueue.Count == 0)
+                {
+                    foreach (var id in BuildShuffleQueue(episodes, state.CurrentEpisodeId))
+                        state.ShuffleQueue.Enqueue(id);
+                }
+                var nextId = state.ShuffleQueue.Dequeue();
+                episode = episodes.FirstOrDefault(e => e.Id == nextId) ?? episodes.First();
+                state.CurrentEpisodeId = episode.Id;
+            }
+            else
+            {
+                episode = episodes.FirstOrDefault(e => e.Id == state.CurrentEpisodeId) ?? episodes.First();
+                var nextIndex = (episodes.IndexOf(episode) + 1) % episodes.Count;
+                state.CurrentEpisodeId = episodes[nextIndex].Id;
+            }
 
             return episode;
+        }
+
+        private List<Episode> GetEpisodesInRange(ShowRun run, Show show)
+        {
+            var episodes = show.Episodes; // already sorted by Season then Number
+            int firstIndex = 0;
+            int lastIndex = episodes.Count - 1;
+
+            if (!string.IsNullOrEmpty(run.FirstEpisodeId))
+            {
+                var idx = episodes.FindIndex(e => e.Id == run.FirstEpisodeId);
+                if (idx >= 0) firstIndex = idx;
+            }
+
+            if (!string.IsNullOrEmpty(run.LastEpisodeId))
+            {
+                var idx = episodes.FindIndex(e => e.Id == run.LastEpisodeId);
+                if (idx >= 0) lastIndex = idx;
+            }
+
+            if (firstIndex > lastIndex)
+                return episodes; // Invalid bounds, use full list as fallback
+
+            return episodes.GetRange(firstIndex, lastIndex - firstIndex + 1);
+        }
+
+        private List<string> BuildShuffleQueue(List<Episode> episodes, string? excludeId = null)
+        {
+            var ids = episodes.Select(e => e.Id).ToList();
+            // Only exclude if there's more than one episode to avoid an empty queue
+            if (ids.Count > 1 && excludeId != null)
+                ids = ids.Where(id => id != excludeId).ToList();
+
+            // Fisher-Yates shuffle
+            for (int i = ids.Count - 1; i > 0; i--)
+            {
+                int j = _random.Next(i + 1);
+                (ids[i], ids[j]) = (ids[j], ids[i]);
+            }
+            return ids;
         }
     }
 }

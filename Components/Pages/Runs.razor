@@ -55,7 +55,7 @@
                 <div class="card-body">
                     <div class="mb-3">
                         <label class="form-label">Show</label>
-                        <select class="form-select" @bind="SelectedRun.ShowId" disabled="@(!IsEditing)">
+                        <select class="form-select" @bind="SelectedRun.ShowId" disabled="@(!IsEditing)" @bind:after="OnShowChanged">
                             <option value="">-- Select Show --</option>
                             @foreach (var show in Repository.Library.Shows.OrderBy(s => s.Title))
                             {
@@ -69,6 +69,7 @@
                         var show = Repository.Library.Shows.FirstOrDefault(s => s.Id == SelectedRun.ShowId);
                         if (show != null)
                         {
+                            var currentEp = show.Episodes.FirstOrDefault(e => e.Id == SelectedRun.CurrentEpisodeId);
                             <div class="mb-3">
                                 <label class="form-label">Current Episode</label>
                                 <select class="form-select" @bind="SelectedRun.CurrentEpisodeId" disabled="@(!IsEditing)">
@@ -78,19 +79,59 @@
                                     }
                                 </select>
                             </div>
-                            
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">First Episode <small class="text-muted">(optional)</small></label>
+                                    <select class="form-select" @bind="SelectedRun.FirstEpisodeId" disabled="@(!IsEditing)">
+                                        <option value="">-- From Start --</option>
+                                        @foreach (var ep in show.Episodes)
+                                        {
+                                            <option value="@ep.Id">S@(ep.Season) E@(ep.Number) - @ep.Title</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Last Episode <small class="text-muted">(optional)</small></label>
+                                    <select class="form-select" @bind="SelectedRun.LastEpisodeId" disabled="@(!IsEditing)">
+                                        <option value="">-- To End --</option>
+                                        @foreach (var ep in show.Episodes)
+                                        {
+                                            <option value="@ep.Id">S@(ep.Season) E@(ep.Number) - @ep.Title</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="randomizeCheck"
+                                           checked="@SelectedRun.Randomize"
+                                           disabled="@(!IsEditing)"
+                                           @onchange="e => SelectedRun.Randomize = (bool)(e.Value ?? false)" />
+                                    <label class="form-check-label" for="randomizeCheck">
+                                        Shuffle mode <small class="text-muted">(randomize episode order, no repeats until all played)</small>
+                                    </label>
+                                </div>
+                            </div>
+
+                            @if (ValidationError != null)
+                            {
+                                <div class="alert alert-danger py-2">@ValidationError</div>
+                            }
+
                             <div class="alert alert-info">
-                                Next to play: 
-                                @{
-                                    var currentEp = show.Episodes.FirstOrDefault(e => e.Id == SelectedRun.CurrentEpisodeId);
-                                    if (currentEp != null)
-                                    {
-                                        <span>@currentEp.Title (S@(currentEp.Season) E@(currentEp.Number))</span>
-                                    }
-                                    else
-                                    {
-                                        <span>None selected</span>
-                                    }
+                                @if (SelectedRun.Randomize)
+                                {
+                                    <span>Shuffle mode — random episode from range</span>
+                                }
+                                else if (currentEp != null)
+                                {
+                                    <span>Next to play: @currentEp.Title (S@(currentEp.Season) E@(currentEp.Number))</span>
+                                }
+                                else
+                                {
+                                    <span>Next to play: None selected</span>
                                 }
                             </div>
                         }
@@ -109,17 +150,30 @@
     private ShowRun? SelectedRun { get; set; }
     private bool IsEditing { get; set; } = false;
     private bool IsDeleteConfirming { get; set; } = false;
+    private string? ValidationError { get; set; }
 
     private void SelectRun(ShowRun run)
     {
         SelectedRun = run;
         IsEditing = false;
         IsDeleteConfirming = false;
+        ValidationError = null;
     }
 
     private void StartEdit()
     {
         IsEditing = true;
+        ValidationError = null;
+    }
+
+    private void OnShowChanged()
+    {
+        // Clear episode bounds when the show changes to avoid stale IDs
+        if (SelectedRun != null)
+        {
+            SelectedRun.FirstEpisodeId = null;
+            SelectedRun.LastEpisodeId = null;
+        }
     }
 
     private void CreateRun()
@@ -135,6 +189,7 @@
         SelectedRun = newRun;
         IsEditing = true;
         IsDeleteConfirming = false;
+        ValidationError = null;
     }
 
     private void DeleteRun()
@@ -161,11 +216,30 @@
 
     private void Save()
     {
+        if (SelectedRun == null) return;
+
+        // Validate episode bounds
+        if (!string.IsNullOrEmpty(SelectedRun.FirstEpisodeId) && !string.IsNullOrEmpty(SelectedRun.LastEpisodeId))
+        {
+            var show = Repository.Library.Shows.FirstOrDefault(s => s.Id == SelectedRun.ShowId);
+            if (show != null)
+            {
+                var firstIdx = show.Episodes.FindIndex(e => e.Id == SelectedRun.FirstEpisodeId);
+                var lastIdx = show.Episodes.FindIndex(e => e.Id == SelectedRun.LastEpisodeId);
+                if (firstIdx >= 0 && lastIdx >= 0 && firstIdx >= lastIdx)
+                {
+                    ValidationError = "First episode must come before the last episode.";
+                    return;
+                }
+            }
+        }
+
+        // Clear shuffle queue when settings change so it rebuilds cleanly
+        SelectedRun.ShuffleQueue.Clear();
+
+        ValidationError = null;
         IsEditing = false;
         Repository.SaveLibrary();
-        if (SelectedRun != null)
-        {
-            Planner.RefreshForecast(SelectedRun.Id);
-        }
+        Planner.RefreshForecast(SelectedRun.Id);
     }
 }

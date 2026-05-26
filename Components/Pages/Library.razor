@@ -17,6 +17,15 @@
         
         
         <div class="mb-2">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="skipExistingCheck" @bind="SkipExistingFiles" />
+            <label class="form-check-label" for="skipExistingCheck">
+                Skip files already in library
+            </label>
+        </div>
+        </div>
+
+        <div class="mb-2">
         @if (IsScanConfirming)
         {
             <div class="alert alert-warning mb-0">
@@ -257,6 +266,7 @@ else
     private List<string> ScanLogs { get; set; } = new List<string>();
     private bool ShowBrowser { get; set; } = false;
     private string ActiveTab { get; set; } = "shows";
+    private bool SkipExistingFiles { get; set; } = false;
     
     private bool IsScanning { get; set; } = false;
     private bool IsScanConfirming { get; set; } = false;
@@ -379,7 +389,17 @@ else
             StateHasChanged();
         });
 
-        var result = await Scanner.ScanLibraryAsync(ScanPath, progress);
+        var existingPaths = SkipExistingFiles
+            ? new HashSet<string>(
+                Repository.Library.Shows.SelectMany(s => s.Episodes.Select(e => e.FilePath))
+                    .Concat(Repository.Library.Movies.Select(m => m.FilePath))
+                    .Concat(Repository.Library.Bumpers.Select(b => b.FilePath))
+                    .Concat(Repository.Library.Commercials.Select(c => c.FilePath))
+                    .Where(p => p != null),
+                StringComparer.OrdinalIgnoreCase)
+            : null;
+
+        var result = await Scanner.ScanLibraryAsync(ScanPath, progress, existingPaths);
         var newData = result.Data;
         ScanLogs = result.Logs;
         

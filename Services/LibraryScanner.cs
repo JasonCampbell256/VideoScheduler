@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using FFMpegCore;
 using VideoScheduler.Data;
 using VideoScheduler.Data.Models;
 
@@ -17,7 +18,46 @@ namespace VideoScheduler.Services
             ".mts", ".dv", ".ogm", ".mxf"
         };
 
-        public async Task<(LibraryData Data, List<string> Logs)> ScanLibraryAsync(string rootPath, IProgress<(string Message, int Percent)>? progress = null)
+        private readonly bool _ffprobeAvailable;
+
+        public LibraryScanner()
+        {
+            var ffprobeName = OperatingSystem.IsWindows() ? "ffprobe.exe" : "ffprobe";
+            var localPath = Path.Combine(AppContext.BaseDirectory, ffprobeName);
+
+            if (File.Exists(localPath))
+            {
+                // Bundled binary next to the executable
+                GlobalFFOptions.Configure(opts => opts.BinaryFolder = AppContext.BaseDirectory);
+                _ffprobeAvailable = true;
+            }
+            else
+            {
+                // Try system PATH
+                _ffprobeAvailable = IsFfprobeOnPath(ffprobeName);
+            }
+        }
+
+        private static bool IsFfprobeOnPath(string ffprobeName)
+        {
+            try
+            {
+                var proc = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = ffprobeName,
+                    Arguments = "-version",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                });
+                proc?.WaitForExit(2000);
+                return proc?.ExitCode == 0;
+            }
+            catch { return false; }
+        }
+
+        public async Task<(LibraryData Data, List<string> Logs)> ScanLibraryAsync(string rootPath, IProgress<(string Message, int Percent)>? progress = null, HashSet<string>? existingFilePaths = null)
         {
             return await Task.Run(() =>
             {
@@ -29,6 +69,10 @@ namespace VideoScheduler.Services
                     logs.Add($"Error: Directory '{rootPath}' does not exist.");
                     return (data, logs);
                 }
+
+                bool skipExisting = existingFilePaths != null && existingFilePaths.Count > 0;
+                if (skipExisting)
+                    logs.Add("Skip existing files: ON — files already in the library will be ignored.");
 
                 logs.Add($"Scanning root: {rootPath}");
                 progress?.Report(("Counting files...", 0));
@@ -73,7 +117,7 @@ namespace VideoScheduler.Services
                 if (Directory.Exists(showsPath))
                 {
                     logs.Add($"Found 'Shows' folder. Scanning...");
-                    data.Shows = ScanShows(showsPath, logs, ReportProgress);
+                    data.Shows = ScanShows(showsPath, logs, ReportProgress, existingFilePaths);
                 }
                 else
                 {
@@ -85,7 +129,7 @@ namespace VideoScheduler.Services
                 if (Directory.Exists(moviesPath))
                 {
                     logs.Add($"Found 'Movies' folder. Scanning...");
-                    data.Movies = ScanMovies(moviesPath, logs, ReportProgress);
+                    data.Movies = ScanMovies(moviesPath, logs, ReportProgress, existingFilePaths);
                 }
                 else
                 {
@@ -97,7 +141,7 @@ namespace VideoScheduler.Services
                 if (Directory.Exists(bumpersPath))
                 {
                     logs.Add($"Found 'Bumpers' folder.");
-                    data.Bumpers = ScanAssets(bumpersPath, ContentType.Bumper, logs, ReportProgress);
+                    data.Bumpers = ScanAssets(bumpersPath, ContentType.Bumper, logs, ReportProgress, existingFilePaths);
                 }
 
                 // 4. Scan Commercials
@@ -105,7 +149,7 @@ namespace VideoScheduler.Services
                 if (Directory.Exists(adsPath))
                 {
                     logs.Add($"Found 'Commercials' folder.");
-                    data.Commercials = ScanAssets(adsPath, ContentType.Commercial, logs, ReportProgress);
+                    data.Commercials = ScanAssets(adsPath, ContentType.Commercial, logs, ReportProgress, existingFilePaths);
                 }
 
                 progress?.Report(("Scan Complete", 100));
@@ -115,6 +159,17 @@ namespace VideoScheduler.Services
 
         private int GetDuration(string filePath)
         {
+            if (_ffprobeAvailable)
+            {
+                try
+                {
+                    var info = FFProbe.Analyse(filePath);
+                    return (int)info.Duration.TotalSeconds;
+                }
+                catch { }
+            }
+
+            // Fallback: TagLib# (slower for large files — moov atom may be at end of file)
             try
             {
                 using var tfile = TagLib.File.Create(filePath);
@@ -122,13 +177,12 @@ namespace VideoScheduler.Services
             }
             catch (Exception ex)
             {
-                // Fallback or log? For now just return 0 or default
                 Console.WriteLine($"Error reading duration for {filePath}: {ex.Message}");
                 return 0;
             }
         }
 
-        private List<Show> ScanShows(string showsRoot, List<string> logs, Action<string> onFileProcessed)
+        private List<Show> ScanShows(string showsRoot, List<string> logs, Action<string> onFileProcessed, HashSet<string>? existingFilePaths = null)
         {
             var shows = new List<Show>();
             var showDirs = Directory.GetDirectories(showsRoot);
@@ -160,6 +214,11 @@ namespace VideoScheduler.Services
 
                 foreach (var file in files)
                 {
+                    if (existingFilePaths != null && existingFilePaths.Contains(file))
+                    {
+                        onFileProcessed?.Invoke($"Skipping (already in library): {Path.GetFileNameWithoutExtension(file)}");
+                        continue;
+                    }
                     var fileName = Path.GetFileNameWithoutExtension(file);
                     onFileProcessed?.Invoke($"Scanning {showName} - {fileName}");
 
@@ -287,7 +346,7 @@ namespace VideoScheduler.Services
             return shows;
         }
 
-        private List<Movie> ScanMovies(string root, List<string> logs, Action<string> onFileProcessed)
+        private List<Movie> ScanMovies(string root, List<string> logs, Action<string> onFileProcessed, HashSet<string>? existingFilePaths = null)
         {
             var movies = new List<Movie>();
             // Recursive scan
@@ -296,6 +355,11 @@ namespace VideoScheduler.Services
 
             foreach (var file in files)
             {
+                if (existingFilePaths != null && existingFilePaths.Contains(file))
+                {
+                    onFileProcessed?.Invoke($"Skipping (already in library): {Path.GetFileNameWithoutExtension(file)}");
+                    continue;
+                }
                 var name = Path.GetFileNameWithoutExtension(file);
                 onFileProcessed?.Invoke($"Scanning {name}");
                 var id = GenerateId(name);
@@ -315,7 +379,7 @@ namespace VideoScheduler.Services
             return movies;
         }
 
-        private List<Asset> ScanAssets(string root, ContentType type, List<string> logs, Action<string> onFileProcessed)
+        private List<Asset> ScanAssets(string root, ContentType type, List<string> logs, Action<string> onFileProcessed, HashSet<string>? existingFilePaths = null)
         {
             var assets = new List<Asset>();
             // Recursive scan
@@ -324,6 +388,11 @@ namespace VideoScheduler.Services
 
             foreach (var file in files)
             {
+                if (existingFilePaths != null && existingFilePaths.Contains(file))
+                {
+                    onFileProcessed?.Invoke($"Skipping (already in library): {Path.GetFileNameWithoutExtension(file)}");
+                    continue;
+                }
                 var name = Path.GetFileNameWithoutExtension(file);
                 onFileProcessed?.Invoke($"Scanning {name}");
                 var id = GenerateId(name);
