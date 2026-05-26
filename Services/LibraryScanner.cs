@@ -22,13 +22,17 @@ namespace VideoScheduler.Services
 
         public LibraryScanner()
         {
+            // For single-file publish builds, AppContext.BaseDirectory is a temp extraction dir.
+            // ffprobe lives next to the actual executable, so use ProcessPath instead.
+            var exeDir = Path.GetDirectoryName(Environment.ProcessPath)
+                         ?? AppContext.BaseDirectory;
             var ffprobeName = OperatingSystem.IsWindows() ? "ffprobe.exe" : "ffprobe";
-            var localPath = Path.Combine(AppContext.BaseDirectory, ffprobeName);
+            var localPath = Path.Combine(exeDir, ffprobeName);
 
             if (File.Exists(localPath))
             {
                 // Bundled binary next to the executable
-                GlobalFFOptions.Configure(opts => opts.BinaryFolder = AppContext.BaseDirectory);
+                GlobalFFOptions.Configure(opts => opts.BinaryFolder = exeDir);
                 _ffprobeAvailable = true;
             }
             else
