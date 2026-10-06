@@ -21,6 +21,7 @@ export const server = http.createServer(async (req, res) => {
       res.end(
         JSON.stringify({
           ...station.snapshot(),
+          playbackConnected: false,
           directorMode: process.env.OPENAI_API_KEY
             ? "openai"
             : "not configured",
