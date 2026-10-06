@@ -8,14 +8,16 @@ import {
 } from "node:fs";
 import { dirname } from "node:path";
 import { randomUUID } from "node:crypto";
-import { seed } from "./seed.mjs";
+import { emptyState, removeSyntheticData } from "./state.mjs";
 export class Station {
   constructor({ file = null, initial = null } = {}) {
     this.file = file;
     this.state =
       file && existsSync(file)
         ? JSON.parse(readFileSync(file, "utf8"))
-        : initial || seed();
+        : initial || emptyState();
+    const cleaned = removeSyntheticData(this.state);
+    if (cleaned.changed) this.commit(cleaned.state);
     this.previews = new Map();
   }
   snapshot() {
@@ -37,8 +39,9 @@ export class Station {
     if (!Number.isSafeInteger(a.durationSec) || a.durationSec <= 0)
       throw Error(`Invalid duration: ${id}`);
     if (
-      !a.demo &&
-      (!a.filePath || !existsSync(a.filePath) || !statSync(a.filePath).isFile())
+      !a.filePath ||
+      !existsSync(a.filePath) ||
+      !statSync(a.filePath).isFile()
     )
       throw Error(`Missing media: ${id}`);
     return a;

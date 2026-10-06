@@ -41,26 +41,28 @@ test("HTTP vertical slice and mutation boundary", async () => {
       matureAfter: start + 7200000,
       avoidRepeats: true,
     });
-    assert.equal(p.status, 200);
-    assert.ok(p.body.validation.valid);
+    assert.equal(p.status, 400);
+    assert.match(p.body.error, /Load real media/);
+    const station = await (
+      await fetch("http://127.0.0.1:15051/api/station")
+    ).json();
+    assert.equal(station.directorMode, "not configured");
+    assert.equal(station.playbackConnected, false);
+    assert.deepEqual(station.library, { shows: [], assets: [], groups: [] });
+    assert.deepEqual(station.runs, []);
+    assert.deepEqual(station.history, []);
     assert.equal(
       (
         await post(
           "apply",
-          { id: p.body.id },
+          { id: "forged" },
           { Origin: "https://untrusted.example" },
         )
       ).status,
       400,
     );
-    assert.equal((await post("apply", { id: p.body.id })).status, 200);
-    assert.equal((await post("apply", { id: p.body.id })).status, 400);
-    assert.equal(
-      (await post("playback", { action: "play" })).body.playback.status,
-      "playing",
-    );
-    const done = await post("playback", { action: "complete" });
-    assert.equal(done.body.history.length, 2);
+    assert.equal((await post("apply", { id: "forged" })).status, 400);
+    assert.equal((await post("playback", { action: "play" })).status, 400);
     assert.equal((await post("playback", { action: "complete" })).status, 400);
   } finally {
     child.kill();

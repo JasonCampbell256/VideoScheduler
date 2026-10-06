@@ -1,4 +1,4 @@
-// Optional browser smoke: node scripts/browser-smoke.cjs (requires Playwright).
+// Optional empty-state smoke: requires Playwright + Chromium and a fresh server.
 const { chromium } = require("playwright");
 (async () => {
   const browser = await chromium.launch({ headless: true });
@@ -8,36 +8,25 @@ const { chromium } = require("playwright");
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("http://127.0.0.1:5051");
-  await page.getByRole("button", { name: "Generate preview" }).click();
-  await page.getByRole("button", { name: "Apply this block" }).waitFor();
+  await page.getByText("Your library is empty.", { exact: true }).waitFor();
+  if (await page.getByRole("button", { name: "Generate preview" }).isEnabled())
+    throw Error("Empty station allowed generation");
+  if (await page.getByRole("button", { name: "Play", exact: true }).isEnabled())
+    throw Error("Empty station allowed playback");
   await page.screenshot({
-    path: "docs/control-room-preview.png",
+    path: "docs/control-room-empty.png",
     fullPage: true,
   });
-  await page.getByRole("button", { name: "Apply this block" }).click();
-  await page.waitForFunction(() =>
-    document.getElementById("notice").textContent.startsWith("Block applied"),
-  );
-  await page.getByRole("button", { name: "Lock", exact: true }).first().click();
-  await page.waitForFunction(
-    () => document.querySelector("[data-lock]")?.textContent === "Unlock",
-  );
-  await page.getByRole("button", { name: "Play", exact: true }).click();
-  await page.waitForFunction(() =>
-    document.getElementById("now-detail").textContent.includes("PLAYING"),
-  );
-  await page.getByRole("button", { name: "Complete item" }).click();
   await page.getByRole("button", { name: "Media library" }).click();
-  await page.locator("#search").fill("Ghost");
-  if ((await page.locator(".media-card:visible").count()) !== 12)
-    throw Error("Library search failed");
+  if (await page.locator(".media-card:visible").count())
+    throw Error("Empty library has media cards");
   await page.getByRole("button", { name: "Show runs" }).click();
-  if ((await page.locator("#run-grid .media-card").count()) !== 4)
-    throw Error("Runs missing");
+  if (await page.locator("#run-grid .media-card").count())
+    throw Error("Empty station has runs");
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole("button", { name: "Control room" }).click();
   await page.screenshot({
-    path: "docs/control-room-mobile.png",
+    path: "docs/control-room-empty-mobile.png",
     fullPage: true,
   });
   if (
@@ -45,9 +34,7 @@ const { chromium } = require("playwright");
   )
     throw Error("Mobile overflow");
   if (errors.length) throw Error(errors.join("; "));
-  console.log(
-    "Browser smoke passed: preview, apply, lock, playback, library, runs, mobile; no JS errors.",
-  );
+  console.log("Empty-state browser smoke passed.");
   await browser.close();
 })().catch((e) => {
   console.error(e);

@@ -21,7 +21,9 @@ export const server = http.createServer(async (req, res) => {
       res.end(
         JSON.stringify({
           ...station.snapshot(),
-          directorMode: process.env.OPENAI_API_KEY ? "openai" : "demo",
+          directorMode: process.env.OPENAI_API_KEY
+            ? "openai"
+            : "not configured",
         }),
       );
       return;
@@ -44,6 +46,10 @@ export const server = http.createServer(async (req, res) => {
       if (req.url === "/api/preview") {
         if (typeof input.prompt !== "string" || input.prompt.length > 4000)
           throw Error("Invalid prompt");
+        if (!station.state.library.assets.length || !station.state.runs.length)
+          throw Error(
+            "Load real media and create ShowRuns before generating programming.",
+          );
         const revision = station.state.revision;
         const proposal = await direct(station, input);
         if (revision !== station.state.revision)
@@ -52,7 +58,7 @@ export const server = http.createServer(async (req, res) => {
       } else if (req.url === "/api/apply") output = station.apply(input.id);
       else if (req.url === "/api/lock") output = station.lock(input.id);
       else if (req.url === "/api/playback")
-        output = station.playback(input.action);
+        throw Error("Real playback is not connected in this version.");
       else throw Error("Unknown service");
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify(output));

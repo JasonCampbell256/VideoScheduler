@@ -2,13 +2,7 @@
 export async function direct(station, request) {
   const read = station.tools();
   if (!process.env.OPENAI_API_KEY)
-    return {
-      runIds: read.runs().map((r) => r.id),
-      style: "toonami",
-      rationale:
-        "Demo Director: alternate available action runs, continue episode order, and introduce mature shows after the watershed.",
-      mode: "demo",
-    };
+    throw Error("Configure OPENAI_API_KEY to enable the AI Director.");
   const functions = [
     ...["library", "runs", "schedule"].map((name) => ({
       type: "function",

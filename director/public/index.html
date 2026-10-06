@@ -16,7 +16,8 @@
         ><button data-nav="runs">↗ Show runs</button>
       </nav>
       <div class="sidebar-bottom">
-        <i></i> Station online<br /><small>Local control · Channel 01</small>
+        <i></i> <span id="connection-status">Connecting to local service…</span
+        ><br /><small>Local control · Channel 01</small>
       </div>
     </aside>
     <main>
@@ -26,31 +27,41 @@
           <h1>Your station. Your signal.</h1>
           <p>A little intention. A great night of television.</p>
         </div>
-        <span id="mode" class="pill">DEMO DIRECTOR</span>
+        <span id="mode" class="pill">AI NOT CONFIGURED</span>
       </header>
       <div id="notice" role="status" aria-live="polite"></div>
       <section id="control">
+        <div id="setup-note" class="panel" style="margin-bottom: 20px">
+          <h2>Your library is empty.</h2>
+          <p>
+            No example shows, episodes or playback history are loaded. Connect
+            your real media library and configure the AI Director to start
+            programming.
+          </p>
+          <p class="note">
+            This version accepts a local station JSON snapshot at startup. A
+            library scanner and import screen are still pending.
+          </p>
+        </div>
         <div class="onair-grid">
           <article class="monitor">
             <div class="monitor-top">
-              <span class="pill red">● TRANSPORT SIMULATION</span
+              <span class="pill red">● OUTPUT NOT CONNECTED</span
               ><span>CH 01</span>
             </div>
             <div class="orbit-art">
               <div class="planet"></div>
               <div class="crosshair">+</div>
-              <span>TRANSMISSION / 001</span>
+              <span>NO VIDEO OUTPUT</span>
             </div>
             <div class="monitor-bottom">
               <small>NOW PLAYING</small>
-              <h2 id="now-title">Ready when you are.</h2>
-              <p id="now-detail">
-                Program your first block to bring the station online.
-              </p>
+              <h2 id="now-title">Nothing playing.</h2>
+              <p id="now-detail">No video output is connected.</p>
               <div class="transport">
-                <button id="play">▶ Play</button
-                ><button id="pause">Ⅱ Pause</button
-                ><button id="complete">Complete item →</button>
+                <button id="play" disabled>▶ Play</button
+                ><button id="pause" disabled>Ⅱ Pause</button
+                ><button id="complete" disabled>Complete item →</button>
               </div>
             </div>
           </article>
@@ -59,8 +70,7 @@
             <h2>Up next</h2>
             <div id="upnext"></div>
             <div class="note">
-              Playback is simulated in this proof of concept. Completing an
-              episode advances its ShowRun exactly once.
+              Real playback is not connected. Playback controls stay disabled until a media output is available.
             </div>
           </article>
         </div>
@@ -104,7 +114,9 @@ Program a four-hour Toonami-style block tonight, continue my existing runs, avoi
             ><label class="check"
               ><input type="checkbox" id="repeats" checked /> Avoid episodes
               aired in the last 7 days</label
-            ><button id="generate" class="primary">✦ Generate preview</button>
+            ><button id="generate" class="primary" disabled>
+              ✦ Generate preview
+            </button>
             <p class="note">
               Time and repeat controls are authoritative. Current and locked
               items stay protected.
@@ -129,10 +141,7 @@ Program a four-hour Toonami-style block tonight, continue my existing runs, avoi
           ><button data-filter="commercial">Commercials</button
           ><button data-filter="filler">Filler</button>
         </div>
-        <p class="note">
-          Included library is synthetic demo metadata. No copyrighted videos are
-          bundled.
-        </p>
+        <p class="note">Your library contains only imported media records.</p>
         <div id="library-grid" class="library-grid"></div>
       </section>
       <section id="runs" hidden>

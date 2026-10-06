@@ -4,6 +4,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Station } from "../domain.mjs";
+import { seed } from "./fixtures/library.mjs";
 import { direct } from "../ai.mjs";
 const request = () => ({
   prompt: "Toonami tonight",
@@ -24,7 +25,7 @@ const make = (s) => {
   return s.preview(r, proposal(s));
 };
 test("exact four-hour block, ordered episodes, mature later, no preview/apply progression", () => {
-  const s = new Station();
+  const s = new Station({ initial: seed() });
   const before = structuredClone(s.state.runs);
   const p = make(s);
   assert.equal(p.validation.valid, true, p.validation.errors.join(","));
@@ -39,14 +40,14 @@ test("exact four-hour block, ordered episodes, mature later, no preview/apply pr
   assert.deepEqual(s.state.runs, before);
 });
 test("stale preview cannot apply after a lock mutation", () => {
-  const s = new Station();
+  const s = new Station({ initial: seed() });
   s.apply(make(s).id);
   const p = make(s);
   s.lock(s.state.schedule[0].id);
   assert.throws(() => s.apply(p.id), /changed/);
 });
 test("regeneration preserves locked identity, timing and payload", () => {
-  const s = new Station();
+  const s = new Station({ initial: seed() });
   const first = make(s);
   s.apply(first.id);
   const item = s.state.schedule.find((i) => i.runId);
@@ -60,15 +61,16 @@ test("regeneration preserves locked identity, timing and payload", () => {
   s.apply(p.id);
 });
 test("missing file, unknown run, unknown asset and forged duration rejected", () => {
-  const s = new Station();
-  s.state.library.assets.find((a) => a.id === "orbit-3").demo = false;
+  const s = new Station({ initial: seed() });
+  s.state.library.assets.find((a) => a.id === "orbit-3").filePath =
+    "/nonexistent/signal-test-media";
   assert.throws(() => make(s), /Missing media/);
   assert.throws(
     () => s.preview(request(), { runIds: ["fake"] }),
     /existing runs/,
   );
   assert.throws(() => s.asset("fake"), /Unknown media/);
-  const other = new Station();
+  const other = new Station({ initial: seed() });
   const p = make(other);
   p.items[0].durationSec++;
   assert.equal(other.validate(p.items, p.request).valid, false);
@@ -77,7 +79,7 @@ test("completion advances exactly once, persists atomically across restart", () 
   const dir = mkdtempSync(join(tmpdir(), "signal-"));
   try {
     const file = join(dir, "station.json");
-    const s = new Station({ file });
+    const s = new Station({ file, initial: seed() });
     s.apply(make(s).id);
     s.playback("play");
     s.playback("complete");
@@ -87,13 +89,16 @@ test("completion advances exactly once, persists atomically across restart", () 
     s.playback("complete");
     assert.equal(s.state.runs.find((r) => r.id === run.id).nextIndex, old + 1);
     assert.throws(() => s.playback("complete"), /No active/);
-    assert.deepEqual(new Station({ file }).snapshot(), s.snapshot());
+    assert.deepEqual(
+      new Station({ file, initial: seed() }).snapshot(),
+      s.snapshot(),
+    );
   } finally {
     rmSync(dir, { recursive: true });
   }
 });
 test("recent next episode defers run without skipping progression", () => {
-  const s = new Station();
+  const s = new Station({ initial: seed() });
   s.state.history.push({ assetId: "orbit-3", at: Date.now() });
   const p = make(s);
   assert.ok(
@@ -102,7 +107,7 @@ test("recent next episode defers run without skipping progression", () => {
   assert.ok(p.validation.valid);
 });
 test("unfillable gaps and protected boundary cuts fail", () => {
-  const s = new Station();
+  const s = new Station({ initial: seed() });
   const r = request();
   r.end = r.start + 31 * 1000;
   assert.throws(() => s.preview(r, proposal(s)), /exactly fill/);
@@ -119,7 +124,7 @@ test("unfillable gaps and protected boundary cuts fail", () => {
   );
 });
 test("current item cannot be unlocked or mutated on regeneration", () => {
-  const s = new Station();
+  const s = new Station({ initial: seed() });
   const p = make(s);
   s.apply(p.id);
   s.playback("play");
@@ -132,7 +137,7 @@ test("current item cannot be unlocked or mutated on regeneration", () => {
   );
 });
 test("adjacent block reserves episodes; out of order replacement cannot corrupt later block", () => {
-  const s = new Station();
+  const s = new Station({ initial: seed() });
   const p = make(s);
   s.apply(p.id);
   const later = s.preview(
@@ -153,21 +158,21 @@ test("adjacent block reserves episodes; out of order replacement cannot corrupt 
   assert.throws(() => s.apply(replacement.id), /progression/);
 });
 test("apply rechecks existence rather than trusting preview validation", () => {
-  const s = new Station();
+  const s = new Station({ initial: seed() });
   const p = make(s);
-  s.state.library.assets.find((a) => a.id === p.items[1].assetId).demo = false;
+  s.state.library.assets.find((a) => a.id === p.items[1].assetId).filePath =
+    "/nonexistent/signal-test-media";
   assert.throws(() => s.apply(p.id), /Missing media/);
 });
-test("demo Director uses existing run tools", async () => {
-  if (process.env.OPENAI_API_KEY) return;
-  const s = new Station();
-  const p = await direct(s, request());
-  assert.equal(p.mode, "demo");
-  assert.deepEqual(
-    p.runIds,
-    s
-      .tools()
-      .runs()
-      .map((r) => r.id),
-  );
+test("Director requires a real API key instead of simulating AI", async () => {
+  const saved = process.env.OPENAI_API_KEY;
+  delete process.env.OPENAI_API_KEY;
+  try {
+    await assert.rejects(
+      () => direct(new Station({ initial: seed() }), request()),
+      /Configure OPENAI_API_KEY/,
+    );
+  } finally {
+    if (saved !== undefined) process.env.OPENAI_API_KEY = saved;
+  }
 });

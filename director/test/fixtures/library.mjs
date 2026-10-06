@@ -21,7 +21,7 @@ export function seed() {
       number: i + 1,
       type: "episode",
       durationSec: 1380,
-      demo: true,
+      filePath: new URL(import.meta.url).pathname,
       tags: s.tags,
       mature: s.mature,
     })),
@@ -33,7 +33,7 @@ export function seed() {
       type: "bumper",
       durationSec: 30,
       tags: ["toonami"],
-      demo: true,
+      filePath: new URL(import.meta.url).pathname,
     },
     {
       id: "commercial",
@@ -41,7 +41,7 @@ export function seed() {
       type: "commercial",
       durationSec: 30,
       tags: ["toonami"],
-      demo: true,
+      filePath: new URL(import.meta.url).pathname,
     },
     {
       id: "filler",
@@ -49,7 +49,7 @@ export function seed() {
       type: "filler",
       durationSec: 60,
       tags: ["toonami"],
-      demo: true,
+      filePath: new URL(import.meta.url).pathname,
     },
   );
   return {

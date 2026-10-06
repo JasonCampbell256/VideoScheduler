@@ -12,7 +12,7 @@ A separate Node application in `director/` makes the new domain independent of t
 
 `ai.mjs` exposes three read tools and a proposal tool. The proposal contains run ordering, style and rationale, not media paths, episode IDs, durations or schedule writes. The service resolves next episodes from catalog/run state and inserts matching bumpers, then fills remaining time with whole available filler/commercial assets. It fails on an unfillable gap instead of trimming media or inventing duration. Episode repeats are avoided against a seven-day history window; promos/filler may repeat. Mature content is checked against an explicit timestamp watershed, so crossing midnight is handled naturally.
 
-The allocator is deliberately simple: rotate through eligible runs and greedily fill gaps. It does not optimize cinematic pacing or globally solve constrained programming. Natural language affects creative ordering only in live AI mode. Application controls express supported hard constraints; prose alone is not a deterministic constraint definition.
+The allocator is deliberately simple: rotate through eligible runs and greedily fill gaps. It does not optimize cinematic pacing or globally solve constrained programming. Natural language affects creative ordering through the live AI adapter. Missing API configuration is an explicit error, with no demo fallback. Application controls express supported hard constraints; prose alone is not a deterministic constraint definition.
 
 ## 3. Preview is an isolated transaction proposal
 
@@ -24,14 +24,20 @@ Locks, current items and past programming are protected during regeneration. A r
 
 The station commits a full JSON snapshot via temporary-file rename before replacing in-memory state. This keeps schedule, runs, history and playback changes together. It supports one local writer, not distributed concurrency or durable audit logs. Crash recovery/fsync, schema migrations and database transactions remain future work.
 
-The transport is explicitly simulated, with play/pause/complete commands. It does not dispatch at wall-clock start times, stream video or control VLC. Scheduled start times describe programming intent. The completion command is authoritative and guarded against duplicate consumption of the active item. A real adapter must supply completion acknowledgments, identity and reconciliation after reconnect/restart.
+Playback transition logic exists in the domain and is exercised in tests, but the production UI and HTTP playback commands are disabled until a real adapter is connected. Scheduled start times describe programming intent, not an active video output. Completion logic is guarded against duplicate consumption of an item; a real adapter must supply completion acknowledgments, identity and reconciliation after reconnect/restart.
 
 ## Known gaps / next steps
 
 1. Add a legacy YAML importer with run range/shuffle semantics and fixtures; reuse scanner/ffprobe measurement behind an adapter.
-2. Replace simulated transport with VLC or browser playback, using idempotent completion events, offset tracking and clock reconciliation.
+2. Connect VLC or browser playback, using idempotent completion events, offset tracking and clock reconciliation.
 3. Add provider contract tests, prompt-to-structured-constraints review and editable creative proposals; live AI is currently unverified.
 4. Replace greedy gap filling with exact-fit search and richer bumper placement, commercial policies and show diversity scoring.
 5. Add recurring schedule windows/templates, multiple stations, richer timeline interactions and per-block revision/transaction scope.
 6. Add schema validation/migrations, retention, transactional storage and authentication before remote hosting.
 7. Run the optional browser smoke on installed Chromium, capture screenshots and expand accessibility verification.
+
+## Empty startup and real-data boundary
+
+The station no longer seeds synthetic records. `state.mjs` defines an empty default and removes persisted legacy assets marked `demo: true`, along with their show/run/group/schedule/history references. Mixed libraries preserve real assets and adjust relative run positions when synthetic episodes are removed. The cleanup is persisted atomically. Synthetic fixtures are isolated under `test/fixtures` and not reachable through server startup. File existence checks now apply to every resolved asset without a demo bypass.
+
+The UI shows empty library, ShowRuns, schedule and Now Playing states, disables generation until real media/runs and API configuration are present, and labels missing AI configuration explicitly. The playback UI and HTTP commands are disabled until a real transport adapter exists, so simulated playback cannot appear as real station status; real playback and media import UI remain next steps. Real station JSON initialization through `STATION_LIBRARY` is supported now.

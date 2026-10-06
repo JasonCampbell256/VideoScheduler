@@ -41,14 +41,25 @@ function notify(message) {
 }
 const asset = (id) => state.library.assets.find((a) => a.id === id);
 function render() {
-  const current = state.schedule.find((i) => i.id === state.playback.currentId);
-  $("mode").textContent = `${state.directorMode.toUpperCase()} DIRECTOR`;
+  const current = state.playbackConnected
+    ? state.schedule.find((i) => i.id === state.playback.currentId)
+    : null;
+  $("mode").textContent =
+    state.directorMode === "openai" ? "OPENAI DIRECTOR" : "AI NOT CONFIGURED";
+  const hasLibrary = state.library.assets.length > 0;
+  $("generate").disabled =
+    !hasLibrary || !state.runs.length || state.directorMode !== "openai";
+  $("play").disabled = !state.playbackConnected || !state.schedule.length;
+  $("pause").disabled = !state.playbackConnected || !current;
+  $("complete").disabled = !state.playbackConnected || !current;
+  $("setup-note").hidden = hasLibrary;
+  $("connection-status").textContent = "Local service connected";
   $("now-title").textContent = current
     ? asset(current.assetId).title
-    : "Ready when you are.";
+    : "Nothing playing.";
   $("now-detail").textContent = current
-    ? `${state.playback.status.toUpperCase()} · ${Math.round(current.durationSec / 60)} min · synthetic transport`
-    : "Apply a preview, then start the simulated transport.";
+    ? `${state.playback.status.toUpperCase()} · ${Math.round(current.durationSec / 60)} min`
+    : "Real playback is not connected in this version.";
   const upcoming = state.schedule.filter(
     (i) => i.id !== current?.id && !state.playback.completed.includes(i.id),
   );
@@ -59,7 +70,7 @@ function render() {
         (i, n) =>
           `<div class="next-item"><span class="number">0${n + 1}</span><div><b>${escape(asset(i.assetId).title)}</b><small>${time(i.start)} · ${asset(i.assetId).type.toUpperCase()} · ${i.durationSec}s</small></div></div>`,
       )
-      .join("") || "<p>Your next transmission starts with an idea.</p>";
+      .join("") || "<p>No programming scheduled.</p>";
   const items = preview?.items || state.schedule;
   $("schedule-status").textContent = preview
     ? "PREVIEW / NOT APPLIED"
@@ -73,31 +84,34 @@ function render() {
         (i) =>
           `<button class="${asset(i.assetId).type} ${i.locked ? "locked" : ""}" style="flex:${i.durationSec}" title="${escape(asset(i.assetId).title)} · ${time(i.start)}" aria-label="${escape(asset(i.assetId).title)}"><span>${i.durationSec > 300 ? escape(asset(i.assetId).title.split(" · ")[0]) : ""}</span></button>`,
       )
-      .join("") ||
-    '<p style="padding:12px">No signal yet. Generate a block →</p>';
+      .join("") || '<p style="padding:12px">No programming scheduled.</p>';
   $("schedule-list").innerHTML =
-    `<div class="scroll-list">${items.map((i) => `<div class="schedule-row"><small>${time(i.start)}</small><b>${escape(asset(i.assetId).title)}</b><small>${i.durationSec / 60} min</small>${preview ? `<small>${i.locked ? "⌑ LOCKED" : "DRAFT"}</small>` : `<button data-lock="${i.id}" ${i.id === current?.id ? "disabled" : ""}>${i.id === current?.id ? "ON AIR" : i.locked ? "Unlock" : "Lock"}</button>`}</div>`).join("")}</div>${total ? `<p class="note">${(total / 3600).toFixed(2)} hours · ${items.length} items · ${preview ? "Preview only" : "Committed schedule"}</p>` : ""}`;
+    `<div class="scroll-list">${items.map((i) => `<div class="schedule-row"><small>${time(i.start)}</small><b>${escape(asset(i.assetId).title)}</b><small>${i.durationSec / 60} min</small>${preview ? `<small>${i.locked ? "⌑ LOCKED" : "DRAFT"}</small>` : `<button data-lock="${i.id}" ${i.id === current?.id ? "disabled" : ""}>${i.id === current?.id ? "ACTIVE" : i.locked ? "Unlock" : "Lock"}</button>`}</div>`).join("")}</div>${total ? `<p class="note">${(total / 3600).toFixed(2)} hours · ${items.length} items · ${preview ? "Preview only" : "Committed schedule"}</p>` : ""}`;
   renderLibrary();
-  $("run-grid").innerHTML = state.runs
-    .map((r) => {
-      const s = state.library.shows.find((s) => s.id === r.showId);
-      return `<article class="media-card"><div class="media-art" style="--accent:${s.color}">↗</div><h3>${escape(r.name)}</h3><p>Next: ${escape(asset(s.episodes[r.nextIndex])?.title || "Run completed")}</p><p>${r.nextIndex} of ${s.episodes.length} episodes progressed</p></article>`;
-    })
-    .join("");
+  $("run-grid").innerHTML =
+    state.runs
+      .map((r) => {
+        const s = state.library.shows.find((s) => s.id === r.showId);
+        return `<article class="media-card"><div class="media-art" style="--accent:${s.color}">↗</div><h3>${escape(r.name)}</h3><p>Next: ${escape(asset(s.episodes[r.nextIndex])?.title || "Run completed")}</p><p>${r.nextIndex} of ${s.episodes.length} episodes progressed</p></article>`;
+      })
+      .join("") ||
+    "<p>No ShowRuns yet. Load your real library and runs to continue episodes.</p>";
 }
 function renderLibrary() {
   const q = $("search").value.toLowerCase();
-  $("library-grid").innerHTML = state.library.assets
-    .filter(
-      (a) =>
-        (filter === "all" || a.type === filter) &&
-        a.title.toLowerCase().includes(q),
-    )
-    .map(
-      (a) =>
-        `<article class="media-card"><div class="media-art" style="--accent:${state.library.shows.find((s) => s.id === a.showId)?.color || "#477b80"}">${a.type === "episode" ? "◈" : "⏵"}</div><span class="eyebrow">${a.type.toUpperCase()} ${a.mature ? " / MATURE" : ""}</span><h3>${escape(a.title)}</h3><p>${a.durationSec}s · ${a.demo ? "Demo asset" : "Local media"} · ${escape(a.tags.join(", "))}</p></article>`,
-    )
-    .join("");
+  $("library-grid").innerHTML =
+    state.library.assets
+      .filter(
+        (a) =>
+          (filter === "all" || a.type === filter) &&
+          a.title.toLowerCase().includes(q),
+      )
+      .map(
+        (a) =>
+          `<article class="media-card"><div class="media-art" style="--accent:${state.library.shows.find((s) => s.id === a.showId)?.color || "#477b80"}">${a.type === "episode" ? "◈" : "⏵"}</div><span class="eyebrow">${a.type.toUpperCase()} ${a.mature ? " / MATURE" : ""}</span><h3>${escape(a.title)}</h3><p>${a.durationSec}s · Local media · ${escape(a.tags.join(", "))}</p></article>`,
+      )
+      .join("") ||
+    "<p>No media found. Load your real library to see your shows, bumpers and commercials here.</p>";
 }
 async function refresh() {
   state = await api("station");
@@ -146,7 +160,10 @@ $("generate").onclick = async () => {
   } catch (e) {
     notify(e.message);
   } finally {
-    b.disabled = false;
+    b.disabled =
+      !state?.library.assets.length ||
+      !state?.runs.length ||
+      state?.directorMode !== "openai";
   }
 };
 for (const [id, action] of [
@@ -197,4 +214,7 @@ document.querySelectorAll("[data-filter]").forEach(
     }),
 );
 $("search").oninput = renderLibrary;
-refresh().catch((e) => notify(e.message));
+refresh().catch((e) => {
+  $("connection-status").textContent = "Local service unavailable";
+  notify(e.message);
+});
