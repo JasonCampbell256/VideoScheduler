@@ -1,4 +1,9 @@
-﻿# VideoScheduler
+# VideoScheduler
+
+## AI personal broadcast prototype
+
+A new independent vertical slice lives in [`director/`](director/README.md): dark station control room, tool-based AI Director, deterministic schedule validation, preview/apply, locks, ShowRuns and simulated playback. Run with Node 22+: `cd director && npm start`, then open `http://localhost:5051`. See its README for current limitations and architecture decisions.
+
 
 VideoScheduler is a cross-platform VLC-based video scheduler that allows you to create automated TV-like programming schedules. The application controls VLC media player via HTTP to play videos at specific times, complete with commercial breaks, bumpers, and automatic episode progression.
 

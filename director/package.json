@@ -1,0 +1,1 @@
+{"name":"personal-broadcast-director","private":true,"type":"module","engines":{"node":">=22"},"scripts":{"start":"node server.mjs","test":"node --test","build":"node --check server.mjs && node --check domain.mjs && node --check ai.mjs && node --check public/app.js"}}

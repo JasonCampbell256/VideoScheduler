@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Signal · Personal broadcast station</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <aside>
+      <a class="brand" href="/">◈ <b>SIGNAL</b></a>
+      <div class="station">PERSONAL BROADCAST STATION</div>
+      <nav>
+        <button data-nav="control" class="active">◉ Control room</button
+        ><button data-nav="library">▦ Media library</button
+        ><button data-nav="runs">↗ Show runs</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <i></i> Station online<br /><small>Local control · Channel 01</small>
+      </div>
+    </aside>
+    <main>
+      <header>
+        <div>
+          <span class="eyebrow">CHANNEL 01 / CONTROL ROOM</span>
+          <h1>Your station. Your signal.</h1>
+          <p>A little intention. A great night of television.</p>
+        </div>
+        <span id="mode" class="pill">DEMO DIRECTOR</span>
+      </header>
+      <div id="notice" role="status" aria-live="polite"></div>
+      <section id="control">
+        <div class="onair-grid">
+          <article class="monitor">
+            <div class="monitor-top">
+              <span class="pill red">● TRANSPORT SIMULATION</span
+              ><span>CH 01</span>
+            </div>
+            <div class="orbit-art">
+              <div class="planet"></div>
+              <div class="crosshair">+</div>
+              <span>TRANSMISSION / 001</span>
+            </div>
+            <div class="monitor-bottom">
+              <small>NOW PLAYING</small>
+              <h2 id="now-title">Ready when you are.</h2>
+              <p id="now-detail">
+                Program your first block to bring the station online.
+              </p>
+              <div class="transport">
+                <button id="play">▶ Play</button
+                ><button id="pause">Ⅱ Pause</button
+                ><button id="complete">Complete item →</button>
+              </div>
+            </div>
+          </article>
+          <article class="panel upnext">
+            <span class="eyebrow">ON THE HORIZON</span>
+            <h2>Up next</h2>
+            <div id="upnext"></div>
+            <div class="note">
+              Playback is simulated in this proof of concept. Completing an
+              episode advances its ShowRun exactly once.
+            </div>
+          </article>
+        </div>
+        <div class="workspace">
+          <article class="panel timeline-panel">
+            <div class="section-title">
+              <div>
+                <span class="eyebrow">TONIGHT'S TRANSMISSION</span>
+                <h2>Programming timeline</h2>
+              </div>
+              <span id="schedule-status" class="pill">NO BLOCK APPLIED</span>
+            </div>
+            <div class="legend">
+              <span>● Episodes</span><span>● Bumpers</span
+              ><span>● Filler / promos</span><span>⌑ Locked</span>
+            </div>
+            <div id="timeline" class="timeline"></div>
+            <div id="schedule-list"></div>
+          </article>
+          <article class="panel director">
+            <span class="eyebrow violet">✦ AI PROGRAMMING DIRECTOR</span>
+            <h2>Set the tone.</h2>
+            <p>You bring the idea. Your Director builds the rotation.</p>
+            <label for="prompt">Programming brief</label
+            ><textarea id="prompt">
+Program a four-hour Toonami-style block tonight, continue my existing runs, avoid recent repeats, use appropriate bumpers, and put more mature programming later.</textarea>
+            <div class="fields">
+              <label>Starts<input type="datetime-local" id="start" /></label
+              ><label
+                >Hours<select id="hours">
+                  <option>2</option>
+                  <option selected>4</option>
+                  <option>6</option>
+                </select></label
+              >
+            </div>
+            <label
+              >Mature programming after<input
+                type="datetime-local"
+                id="mature" /></label
+            ><label class="check"
+              ><input type="checkbox" id="repeats" checked /> Avoid episodes
+              aired in the last 7 days</label
+            ><button id="generate" class="primary">✦ Generate preview</button>
+            <p class="note">
+              Time and repeat controls are authoritative. Current and locked
+              items stay protected.
+            </p>
+            <div id="preview"></div>
+          </article>
+        </div>
+      </section>
+      <section id="library" hidden>
+        <div class="section-title">
+          <h2>Media library</h2>
+          <input
+            id="search"
+            placeholder="Search your library"
+            aria-label="Search library"
+          />
+        </div>
+        <div class="filters">
+          <button data-filter="all" class="active">All media</button
+          ><button data-filter="episode">Episodes</button
+          ><button data-filter="bumper">Bumpers</button
+          ><button data-filter="commercial">Commercials</button
+          ><button data-filter="filler">Filler</button>
+        </div>
+        <p class="note">
+          Included library is synthetic demo metadata. No copyrighted videos are
+          bundled.
+        </p>
+        <div id="library-grid" class="library-grid"></div>
+      </section>
+      <section id="runs" hidden>
+        <h2>Show runs</h2>
+        <p>
+          Progression advances on explicit playback completion, never on preview
+          or apply.
+        </p>
+        <div id="run-grid" class="library-grid"></div>
+      </section>
+      <footer>
+        SIGNAL / PERSONAL TELEVISION, PROGRAMMED WITH INTENTION
+        <span>PREVIEW → VALIDATE → APPLY</span>
+      </footer>
+    </main>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
